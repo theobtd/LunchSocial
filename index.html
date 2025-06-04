@@ -114,6 +114,8 @@
         const dateKey = lunchDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
         database.ref('meetings/' + dateKey).on('value', snapshot => {
             const meetings = snapshot.val();
+            // Clear existing meetings
+            document.getElementById('lunchDay').innerHTML = `<strong>Lunch Dates on ${lunchDate.toLocaleDateString()}</strong>`;
             if (meetings) {
                 Object.keys(meetings).forEach(meetingKey => {
                     const meeting = meetings[meetingKey];
@@ -224,6 +226,7 @@
                 .then(() => {
                     alert('New meeting created successfully!');
                     addMeetingToDisplay(meetingKey, meetingData); // Add to display
+                    updateCount(meetingKey); // Initialize count for the new meeting
                 })
                 .catch(error => {
                     alert('Error creating meeting: ' + error.message);
