@@ -64,6 +64,11 @@
             cursor: pointer;
             color: #dc3545;
         }
+        .create-meeting {
+            margin-top: 20px;
+            cursor: pointer;
+            color: #007bff;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
@@ -90,6 +95,7 @@
 
     <div class="remove-booking" onclick="showRemoveBookingForm()">Remove/See Bookings</div>
     <div class="booking-list" id="bookingList"></div>
+    <div class="create-meeting" onclick="createNewMeeting()">Create a New Meeting</div>
 </div>
 
 <script>
@@ -186,6 +192,42 @@
             .catch(error => {
                 alert('Error removing booking: ' + error.message);
             });
+    }
+
+    function createNewMeeting() {
+        const time = prompt("Enter the time for the meeting (e.g., 2:00 PM):");
+        const place = prompt("Enter the name of the cafe/restaurant/bar:");
+        const maxPeople = prompt("Enter the maximum number of people allowed:");
+        const email = prompt("Please enter your email:");
+        const name = prompt("Please enter your name:");
+
+        if (time && place && maxPeople && email && name) {
+            const lunchDetails = `${time} - Lunch at ${place}`;
+            const userData = {
+                name: name,
+                email: email,
+                maxPeople: maxPeople
+            };
+
+            // Store the new meeting in the database
+            database.ref('users/' + lunchDetails.replace(/ /g, '_')).push(userData)
+                .then(() => {
+                    alert('New meeting created successfully!');
+                    // Update counts to reflect the new meeting
+                    lunchDates[lunchDetails] = lunchDetails.replace(/ /g, '_');
+                    updateCounts();
+                    // Add the new lunch date to the display
+                    const newLunchDateDiv = document.createElement('div');
+                    newLunchDateDiv.className = 'lunch-date';
+                    newLunchDateDiv.id = lunchDetails.replace(/ /g, '_');
+                    newLunchDateDiv.onclick = () => showSignupForm(lunchDetails);
+                    newLunchDateDiv.innerHTML = `${lunchDetails}<div class="count" id="count${lunchDetails.replace(/ /g, '_')}">0 signed up</div>`;
+                    document.getElementById('lunchDay').appendChild(newLunchDateDiv);
+                })
+                .catch(error => {
+                    alert('Error creating meeting: ' + error.message);
+                });
+        }
     }
 
     // Initialize counts and listeners
