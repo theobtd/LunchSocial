@@ -47,6 +47,23 @@
             display: none;
             text-align: center;
         }
+        .remove-booking {
+            margin-top: 20px;
+            cursor: pointer;
+            color: #dc3545;
+        }
+        .booking-list {
+            margin-top: 10px;
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .unbook {
+            cursor: pointer;
+            color: #dc3545;
+        }
     </style>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
@@ -70,6 +87,9 @@
     <div class="thank-you" id="thankYouMessage">
         <p>Thank you for signing up!</p>
     </div>
+
+    <div class="remove-booking" onclick="showRemoveBookingForm()">Remove Booking</div>
+    <div class="booking-list" id="bookingList"></div>
 </div>
 
 <script>
@@ -124,6 +144,46 @@
                     alert('Error submitting data: ' + error.message);
                 });
         }
+    }
+
+    function showRemoveBookingForm() {
+        const email = prompt("Please enter your email to view your bookings:");
+        if (email) {
+            const bookingList = document.getElementById('bookingList');
+            bookingList.innerHTML = ''; // Clear previous bookings
+            bookingList.style.display = 'none';
+            const promises = Object.keys(lunchDates).map(lunch => {
+                return database.ref('users/' + lunch.replace(/ /g, '_')).orderByChild('email').equalTo(email).once('value').then(snapshot => {
+                    snapshot.forEach(childSnapshot => {
+                        const bookingKey = childSnapshot.key;
+                        const bookingDetails = childSnapshot.val();
+                        const div = document.createElement('div');
+                        div.innerHTML = `${lunch} - ${bookingDetails.name} <span class="unbook" onclick="unbook('${lunch.replace(/ /g, '_')}', '${bookingKey}')">[Unbook]</span>`;
+                        bookingList.appendChild(div);
+                    });
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                if (bookingList.childElementCount > 0) {
+                    bookingList.style.display = 'block';
+                } else {
+                    bookingList.innerHTML = 'No bookings found for this email.';
+                    bookingList.style.display = 'block';
+                }
+            });
+        }
+    }
+
+    function unbook(lunchId, bookingKey) {
+        database.ref('users/' + lunchId).child(bookingKey).remove()
+            .then(() => {
+                alert('Booking removed successfully!');
+                showRemoveBookingForm(); // Refresh the list
+            })
+            .catch(error => {
+                alert('Error removing booking: ' + error.message);
+            });
     }
 
     // Initialize counts and listeners
