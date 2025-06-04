@@ -79,14 +79,7 @@
     <h1>Apero.Social</h1>
     <div class="day" id="lunchDay">
         <strong>Lunch Dates on <span id="dateLabel"></span></strong>
-        <div class="lunch-date" id="lunch1" onclick="showSignupForm('12:00 PM - Lunch at Café Blue')">
-            12:00 PM - Lunch at Café Blue
-            <div class="count" id="countLunch1">0 signed up</div>
-        </div>
-        <div class="lunch-date" id="lunch2" onclick="showSignupForm('1:00 PM - Lunch at Deli Fresh')">
-            1:00 PM - Lunch at Deli Fresh
-            <div class="count" id="countLunch2">0 signed up</div>
-        </div>
+        <!-- Existing meetings will be added here -->
     </div>
 
     <div class="thank-you" id="thankYouMessage">
@@ -117,18 +110,35 @@
     lunchDate.setDate(today.getDate() + 3); // 3 days from today
     document.getElementById('dateLabel').innerText = lunchDate.toLocaleDateString();
 
-    const lunchDates = {
-        '12:00 PM - Lunch at Café Blue': 'lunch1',
-        '1:00 PM - Lunch at Deli Fresh': 'lunch2'
-    };
+    // Load existing meetings from Firebase
+    function loadMeetings() {
+        const dateKey = lunchDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+        database.ref('meetings/' + dateKey).on('value', snapshot => {
+            const meetings = snapshot.val();
+            if (meetings) {
+                Object.keys(meetings).forEach(meetingKey => {
+                    const meeting = meetings[meetingKey];
+                    addMeetingToDisplay(meetingKey, meeting);
+                });
+            }
+        });
+    }
 
-    function updateCounts() {
-        Object.keys(lunchDates).forEach(lunch => {
-            const lunchId = lunchDates[lunch];
-            database.ref('users/' + lunch.replace(/ /g, '_')).on('value', snapshot => {
-                const count = snapshot.numChildren();
-                document.getElementById('count' + lunchId.charAt(0).toUpperCase() + lunchId.slice(1)).innerText = `${count} signed up`;
-            });
+    function addMeetingToDisplay(meetingKey, meeting) {
+        const meetingDetails = `${meeting.time} - Lunch at ${meeting.place}`;
+        const lunchDateDiv = document.createElement('div');
+        lunchDateDiv.className = 'lunch-date';
+        lunchDateDiv.id = meetingKey;
+        lunchDateDiv.onclick = () => showSignupForm(meetingDetails);
+        lunchDateDiv.innerHTML = `${meetingDetails}<div class="count" id="count${meetingKey}">0 signed up</div>`;
+        document.getElementById('lunchDay').appendChild(lunchDateDiv);
+        updateCount(meetingKey);
+    }
+
+    function updateCount(meetingKey) {
+        database.ref('users/' + meetingKey).on('value', snapshot => {
+            const count = snapshot.numChildren();
+            document.getElementById('count' + meetingKey).innerText = `${count} signed up`;
         });
     }
 
@@ -202,27 +212,19 @@
         const name = prompt("Please enter your name:");
 
         if (time && place && maxPeople && email && name) {
-            const lunchDetails = `${time} - Lunch at ${place}`;
-            const userData = {
-                name: name,
-                email: email,
-                maxPeople: maxPeople
+            const meetingKey = `${time.replace(/:/g, '_').replace(/ /g, '_')} - Lunch at ${place.replace(/ /g, '_')}`;
+            const meetingData = {
+                time: time,
+                place: place,
+                maxPeople: maxPeople,
+                creator: { name: name, email: email }
             };
 
-            // Store the new meeting in the database
-            database.ref('users/' + lunchDetails.replace(/ /g, '_')).push(userData)
+            const dateKey = lunchDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+            database.ref('meetings/' + dateKey + '/' + meetingKey).set(meetingData)
                 .then(() => {
                     alert('New meeting created successfully!');
-                    // Update counts to reflect the new meeting
-                    lunchDates[lunchDetails] = lunchDetails.replace(/ /g, '_');
-                    updateCounts();
-                    // Add the new lunch date to the display
-                    const newLunchDateDiv = document.createElement('div');
-                    newLunchDateDiv.className = 'lunch-date';
-                    newLunchDateDiv.id = lunchDetails.replace(/ /g, '_');
-                    newLunchDateDiv.onclick = () => showSignupForm(lunchDetails);
-                    newLunchDateDiv.innerHTML = `${lunchDetails}<div class="count" id="count${lunchDetails.replace(/ /g, '_')}">0 signed up</div>`;
-                    document.getElementById('lunchDay').appendChild(newLunchDateDiv);
+                    addMeetingToDisplay(meetingKey, meetingData); // Add to display
                 })
                 .catch(error => {
                     alert('Error creating meeting: ' + error.message);
@@ -230,8 +232,8 @@
         }
     }
 
-    // Initialize counts and listeners
-    updateCounts();
+    // Load meetings on page load
+    loadMeetings();
 </script>
 
 </body>
