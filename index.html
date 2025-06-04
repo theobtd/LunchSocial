@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apero Social Sign Up</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        h5 {
+            text-align: center;
+        }
+        label {
+            margin-top: 15px;
+            display: block;
+        }
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .thank-you {
+            display: none;
+            text-align: center;
+        }
+        .faq-section {
+            margin-top: 20px;
+        }
+        .faq-question {
+            cursor: pointer;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            margin-top: 5px;
+            transition: background-color 0.3s;
+        }
+        .faq-question:hover {
+            background-color: #d3d3d3;
+        }
+        .faq-answer {
+            display: none;
+            padding: 10px;
+            border-left: 2px solid #28a745;
+            background-color: #f8f9fa;
+            margin-top: 5px;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h1>Apero.Social</h1>
+    <h5>6:30-7:30pm June 16th 2025 - Redwood City, CA</h5>
+    <form id="signupForm" enctype="multipart/form-data">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="" disabled selected>Select your gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="thank-you" id="thankYouMessage">
+        <p>Thank you for signing up!</p>
+        <p>We will review your submission and confirm your meeting details very soon. If you don't see any email coming your way within a few hours, please make sure to check your spams.</p>
+        <p>Meanwhile, it would be of great help if you could share Apero.Social with anyone you think may be interested. Here is the sign up link: <a href="https://apero.social" target="_blank">apero.social</a></p>
+        <p>Wishing you a great day,<br>The Apero.Social Team :)</p>
+    </div>
+
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <div class="faq-question" onclick="toggleFAQ('faq1')">How does Apero.Social work?</div>
+        <div class="faq-answer" id="faq1">
+            When you sign up, you'll be paired with two other individuals at a designated location, date, and time. It's not an event; rather, we simply make a reservation for you. The two others are strangers to each other, creating a relaxed atmosphere for genuine interaction. Just show up, chat, and enjoy your hour together!
+        </div>
+
+        <div class="faq-question" onclick="toggleFAQ('faq2')">What is NOT Apero.Social?</div>
+        <div class="faq-answer" id="faq2">
+            Apero.Social is NOT a place for professional networking, finding a partner, or heavy drinking. Moreover, keep in mind that the point of Apero.Social is to meet new, different people - so you are bound to encounter new, different points of views. Feel free to disagree with those and argue why, but Apero.Social is definitely not a place to attack or harass others over these differences.
+        </div>
+
+        <div class="faq-question" onclick="toggleFAQ('faq3')">Do I have to drink?</div>
+        <div class="faq-answer" id="faq3">
+            Not at all! Obviously feel free to have a glass of whatever you want, but please do not see Apero.Social as a heavy drinking or party outlet. It is perfectly fine to have a glass of tea, sparkling water, or whatever else makes you happy.
+        </div>
+
+        <div class="faq-question" onclick="toggleFAQ('faq4')">How does Apero.Social make sure I'm safe?</div>
+        <div class="faq-answer" id="faq4">
+            First, all the Aperos we organize are in well-managed cafés, bars, and restaurants so if you ever feel unsafe or threatened by another attendee please seek assistance from your surroundings. If you were the subject (or witness) of a rude, aggressive, or threatening attendee please report it to us as soon as feasible by email to: apero.social.data@gmail.com. This attendee will immediately be suspended, and if the offense is confirmed by the third attendee then the ban will be enforced permanently.
+        </div>
+    </div>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+        authDomain: "aperosocial-d53c7.firebaseapp.com",
+        databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+        projectId: "aperosocial-d53c7",
+        storageBucket: "aperosocial-d53c7.appspot.com",
+        messagingSenderId: "954205055992",
+        appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const gender = document.getElementById('gender').value;
+
+        const userData = {
+            name: name,
+            email: email,
+            gender: gender
+        };
+
+        database.ref('users').push(userData)
+            .then(() => {
+                document.getElementById('signupForm').style.display = 'none';
+                document.getElementById('thankYouMessage').style.display = 'block';
+            })
+            .catch(error => {
+                alert('Error submitting data: ' + error.message);
+            });
+    });
+
+    function toggleFAQ(faqId) {
+        const answer = document.getElementById(faqId);
+        answer.style.display = answer.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+</body>
+</html>
