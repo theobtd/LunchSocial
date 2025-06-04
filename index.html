@@ -224,8 +224,8 @@
             const dateKey = lunchDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
             database.ref('meetings/' + dateKey + '/' + meetingKey).set(meetingData)
                 .then(() => {
-                    alert('New meeting created successfully!');
                     // Only add to display after successful creation
+                    alert('New meeting created successfully!');
                     addMeetingToDisplay(meetingKey, meetingData); // Add to display
                     updateCount(meetingKey); // Initialize count for the new meeting
                 })
