@@ -225,6 +225,7 @@
             database.ref('meetings/' + dateKey + '/' + meetingKey).set(meetingData)
                 .then(() => {
                     alert('New meeting created successfully!');
+                    // Only add to display after successful creation
                     addMeetingToDisplay(meetingKey, meetingData); // Add to display
                     updateCount(meetingKey); // Initialize count for the new meeting
                 })
