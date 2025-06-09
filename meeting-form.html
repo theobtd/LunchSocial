@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Form</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Create Meeting</h1>
+    <input type="email" id="email" placeholder="Enter your email" required>
+    <input type="password" id="password" placeholder="Enter password" required>
+    <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+    <button id="submitMeetingBtn">Submit</button>
+    <div class="message" id="message"></div>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.appspot.com",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        document.getElementById('submitMeetingBtn').onclick = async function() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                document.getElementById('message').textContent = "Passwords do not match.";
+                return;
+            }
+
+            const meetingId = await generateUniqueId();
+            const meetingData = {
+                meetingId: meetingId,
+                password: password,
+                email: email
+            };
+
+            database.ref('meetings/' + meetingId).set(meetingData)
+                .then(() => {
+                    document.getElementById('message').textContent = "Meeting created successfully! Meeting ID: " + meetingId;
+                })
+                .catch((error) => {
+                    document.getElementById('message').textContent = "Error creating meeting: " + error.message;
+                });
+        };
+
+        async function generateUniqueId() {
+            let id;
+            let exists = true;
+
+            while (exists) {
+                id = Math.random().toString(36).substr(2, 4);
+                const snapshot = await database.ref('meetings/' + id).once('value');
+                exists = snapshot.exists();
+            }
+
+            return id;
+        }
+    </script>
+</body>
+</html>
