@@ -47,15 +47,15 @@
         .time-slot.selected {
             background-color: lightgreen; /* Indicate booked slots */
         }
-        .profile-indicator {
+        .booking-count {
             position: absolute;
             top: 5px;
             right: 5px; /* Adjust positioning */
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 1px solid #fff; /* White border for better visibility */
-            margin-left: -12px; /* Adjust margin to prevent overlap */
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            padding: 2px 5px;
+            font-size: 12px;
+            color: black;
         }
     </style>
 </head>
@@ -132,6 +132,7 @@
         }
 
         function showCalendar(meetingId, bookedSlots) {
+            // Clear existing calendar if it exists
             const existingCalendar = document.getElementById('calendar');
             existingCalendar.innerHTML = '';
 
@@ -151,22 +152,19 @@
                 button.textContent = slot;
 
                 // Check if the slot has bookings
-                if (bookedSlots[slot]) {
-                    bookedSlots[slot].forEach(profile => {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'profile-indicator';
-                        indicator.style.backgroundColor = profile.color; // Set color based on profile
-                        button.appendChild(indicator);
-                    });
-                }
+                const bookingCount = bookedSlots[slot] ? bookedSlots[slot].length : 0;
+                const countDisplay = document.createElement('div');
+                countDisplay.className = 'booking-count';
+                countDisplay.textContent = bookingCount > 0 ? bookingCount : '';
+
+                button.appendChild(countDisplay);
 
                 // Toggle booking/unbooking on click
                 button.onclick = function() {
                     if (currentProfile) {
-                        const profileIndex = bookedSlots[slot]?.findIndex(p => p.name === currentProfile.name);
-                        if (profileIndex !== -1) {
+                        if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
                             // Unbook the slot for the current profile
-                            bookedSlots[slot].splice(profileIndex, 1);
+                            bookedSlots[slot] = bookedSlots[slot].filter(p => p.name !== currentProfile.name);
                             if (bookedSlots[slot].length === 0) {
                                 delete bookedSlots[slot]; // Remove the slot if empty
                             }
@@ -175,7 +173,7 @@
                             if (!bookedSlots[slot]) {
                                 bookedSlots[slot] = [];
                             }
-                            bookedSlots[slot].push({ name: currentProfile.name, color: currentProfile.color });
+                            bookedSlots[slot].push({ name: currentProfile.name });
                         }
                         updateDatabase(meetingId, bookedSlots);
                         showCalendar(meetingId, bookedSlots); // Refresh the calendar
@@ -236,7 +234,7 @@
                             const selectBtn = document.createElement('button');
                             selectBtn.textContent = 'Select';
                             selectBtn.onclick = function() {
-                                currentProfile = { name: profileData.name, color: profileData.color }; // Set the current profile
+                                currentProfile = { name: profileData.name }; // Set the current profile
                                 document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
                             };
 
@@ -251,8 +249,7 @@
                 const profileName = prompt("Enter profile name:");
                 if (profileName) {
                     const newProfileRef = database.ref('meetings/' + meetingId + '/profiles').push();
-                    const profileColor = getRandomColor(); // Generate a random color
-                    newProfileRef.set({ name: profileName, color: profileColor })
+                    newProfileRef.set({ name: profileName })
                         .then(() => {
                             loadProfiles(meetingId); // Reload the profiles
                         })
@@ -271,15 +268,6 @@
                 .catch((error) => {
                     alert("Error deleting profile: " + error.message);
                 });
-        }
-
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
         }
     </script>
 </body>
