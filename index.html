@@ -132,7 +132,7 @@
         }
 
         function showCalendar(meetingId, bookedSlots) {
-            // Clear existing calendar
+            // Clear existing calendar if it exists
             const existingCalendar = document.getElementById('calendar');
             existingCalendar.innerHTML = '';
 
@@ -219,10 +219,10 @@
                 .then(snapshot => {
                     if (snapshot.exists()) {
                         snapshot.forEach(profileSnapshot => {
-                            const profileName = profileSnapshot.val();
+                            const profileData = profileSnapshot.val();
                             const profileKey = profileSnapshot.key; // Get the key for deletion
                             const li = document.createElement('li');
-                            li.textContent = profileName;
+                            li.textContent = profileData.name;
 
                             // Create a delete button
                             const deleteBtn = document.createElement('button');
@@ -236,8 +236,8 @@
                             const selectBtn = document.createElement('button');
                             selectBtn.textContent = 'Select';
                             selectBtn.onclick = function() {
-                                currentProfile = { name: profileName, color: getRandomColor() }; // Set the current profile
-                                document.getElementById('profileMessage').textContent = `Selected profile: ${profileName}`;
+                                currentProfile = { name: profileData.name, color: profileData.color }; // Set the current profile
+                                document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
                             };
 
                             li.appendChild(deleteBtn);
@@ -251,7 +251,8 @@
                 const profileName = prompt("Enter profile name:");
                 if (profileName) {
                     const newProfileRef = database.ref('meetings/' + meetingId + '/profiles').push();
-                    newProfileRef.set(profileName)
+                    const profileColor = getRandomColor(); // Generate a random color
+                    newProfileRef.set({ name: profileName, color: profileColor })
                         .then(() => {
                             loadProfiles(meetingId); // Reload the profiles
                         })
