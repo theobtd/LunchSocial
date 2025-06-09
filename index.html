@@ -187,7 +187,7 @@
                             .find(button => button.textContent === slot);
                         if (slotDiv) {
                             slotDiv.classList.remove('pending-unbook');
-                            slotDiv.classList.remove('booked');
+                            slotDiv.classList.add('booked'); // Mark as booked
                         }
                     });
 
