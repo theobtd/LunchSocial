@@ -191,6 +191,17 @@
                         }
                     });
 
+                    // Allow immediate unbooking of newly saved slots
+                    finalSlots.forEach(slot => {
+                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
+                            .find(button => button.textContent === slot);
+                        if (slotDiv) {
+                            slotDiv.onclick = function() {
+                                this.classList.toggle('pending-unbook');
+                            };
+                        }
+                    });
+
                     document.getElementById('calendarMessage').textContent = "Selected slots saved successfully!";
                 })
                 .catch((error) => {
