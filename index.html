@@ -116,7 +116,7 @@
                             document.getElementById('profileSidebar').style.display = 'block'; // Show profiles
                             currentMeetingId = meetingId; // Set current meeting ID
                             loadProfiles(meetingId); // Load profiles for this meeting
-                            showCalendar(meetingId, meetingData.selectedSlots || []);
+                            showCalendar(meetingId, meetingData.selectedSlots || {});
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
@@ -165,6 +165,9 @@
                         if (bookedSlots[slot] && bookedSlots[slot].includes(currentProfile.name)) {
                             // Unbook the slot for the current profile
                             bookedSlots[slot] = bookedSlots[slot].filter(p => p !== currentProfile.name);
+                            if (bookedSlots[slot].length === 0) {
+                                delete bookedSlots[slot]; // Remove the slot if empty
+                            }
                         } else {
                             // Book the slot for the current profile
                             if (!bookedSlots[slot]) {
