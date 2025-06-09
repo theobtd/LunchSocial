@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Meeting</title>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -20,6 +20,21 @@
             margin-top: 20px;
             font-weight: bold;
             color: green;
+        }
+        .time-slot {
+            display: inline-block;
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .time-slot.selected {
+            background-color: lightgray;
+        }
+        .time-slot.saved {
+            background-color: lightgreen;
         }
     </style>
 </head>
@@ -94,7 +109,8 @@
             const calendarDiv = document.getElementById('calendar');
 
             timeSlots.forEach(slot => {
-                const button = document.createElement('button');
+                const button = document.createElement('div');
+                button.className = 'time-slot';
                 button.textContent = slot;
                 button.onclick = function() {
                     this.classList.toggle('selected');
@@ -121,11 +137,20 @@
         }
 
         function saveSelectedSlots(meetingId) {
-            const selectedSlots = Array.from(document.querySelectorAll('#calendar button.selected'))
+            const selectedSlots = Array.from(document.querySelectorAll('.time-slot.selected'))
                 .map(button => button.textContent);
 
             database.ref('meetings/' + meetingId).update({ selectedSlots: selectedSlots })
                 .then(() => {
+                    // Change selected slots to saved state
+                    selectedSlots.forEach(slot => {
+                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
+                            .find(button => button.textContent === slot);
+                        if (slotDiv) {
+                            slotDiv.classList.remove('selected');
+                            slotDiv.classList.add('saved');
+                        }
+                    });
                     document.getElementById('calendarMessage').textContent = "Selected slots saved successfully!";
                 })
                 .catch((error) => {
