@@ -11,17 +11,10 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
         button {
             padding: 10px 15px;
             font-size: 16px;
-            cursor: pointer;
+            margin: 5px;
         }
         .message {
             margin-top: 20px;
@@ -34,7 +27,7 @@
 
     <h1>Create Meeting</h1>
     <button id="createMeetingBtn">Create Meeting</button>
-
+    <button id="modifyMeetingBtn">Modify Existing Meeting</button>
     <div class="message" id="message"></div>
 
     <script>
@@ -54,9 +47,38 @@
         const database = firebase.database();
 
         document.getElementById('createMeetingBtn').onclick = function() {
-            // Redirect to new meeting form
             window.location.href = 'meeting-form.html';
         };
+
+        document.getElementById('modifyMeetingBtn').onclick = function() {
+            const meetingId = prompt("Enter Meeting ID:");
+            const password = prompt("Enter Meeting Password:");
+
+            if (meetingId && password) {
+                verifyMeeting(meetingId, password);
+            } else {
+                document.getElementById('message').textContent = "Please enter both Meeting ID and Password.";
+            }
+        };
+
+        function verifyMeeting(meetingId, password) {
+            database.ref('meetings/' + meetingId).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const meetingData = snapshot.val();
+                        if (meetingData.password === password) {
+                            document.getElementById('message').textContent = "Success!";
+                        } else {
+                            document.getElementById('message').textContent = "Error: Incorrect password.";
+                        }
+                    } else {
+                        document.getElementById('message').textContent = "Error: Meeting ID not found.";
+                    }
+                })
+                .catch((error) => {
+                    document.getElementById('message').textContent = "Error: " + error.message;
+                });
+        }
     </script>
 </body>
 </html>
