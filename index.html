@@ -95,6 +95,7 @@
         const database = firebase.database();
         let currentMeetingId;
         let currentProfile;
+        let bookedSlots = {}; // Store booked slots globally
 
         document.getElementById('createMeetingBtn').onclick = function() {
             window.location.href = 'meeting-form.html';
@@ -121,7 +122,8 @@
                             document.getElementById('profileSidebar').style.display = 'block'; // Show profiles
                             currentMeetingId = meetingId; // Set current meeting ID
                             loadProfiles(meetingId); // Load profiles for this meeting
-                            showCalendar(meetingId, meetingData.selectedSlots || {});
+                            bookedSlots = meetingData.selectedSlots || {}; // Store booked slots
+                            showCalendar(meetingId, bookedSlots); // Show calendar with booked slots
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
@@ -249,7 +251,7 @@
                                 currentProfile = { name: profileData.name }; // Set the current profile
                                 document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
                                 // Update the calendar to highlight booked slots for this profile
-                                showCalendar(meetingId, bookedSlots);
+                                showCalendar(meetingId, bookedSlots); // Refresh the calendar
                             };
 
                             li.appendChild(deleteBtn);
