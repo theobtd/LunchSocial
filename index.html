@@ -132,7 +132,6 @@
         }
 
         function showCalendar(meetingId, bookedSlots) {
-            // Clear existing calendar if it exists
             const existingCalendar = document.getElementById('calendar');
             existingCalendar.innerHTML = '';
 
@@ -164,9 +163,10 @@
                 // Toggle booking/unbooking on click
                 button.onclick = function() {
                     if (currentProfile) {
-                        if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
+                        const profileIndex = bookedSlots[slot]?.findIndex(p => p.name === currentProfile.name);
+                        if (profileIndex !== -1) {
                             // Unbook the slot for the current profile
-                            bookedSlots[slot] = bookedSlots[slot].filter(p => p.name !== currentProfile.name);
+                            bookedSlots[slot].splice(profileIndex, 1);
                             if (bookedSlots[slot].length === 0) {
                                 delete bookedSlots[slot]; // Remove the slot if empty
                             }
