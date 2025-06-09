@@ -47,6 +47,9 @@
         .time-slot.selected {
             background-color: lightgreen; /* Indicate booked slots */
         }
+        .time-slot.highlighted {
+            background-color: lightcoral; /* Highlight booked slots for the selected profile */
+        }
         .booking-count {
             position: absolute;
             top: 5px;
@@ -159,6 +162,13 @@
 
                 button.appendChild(countDisplay);
 
+                // Highlight booked slots for the selected profile
+                if (currentProfile) {
+                    if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
+                        button.classList.add('highlighted');
+                    }
+                }
+
                 // Toggle booking/unbooking on click
                 button.onclick = function() {
                     if (currentProfile) {
@@ -236,6 +246,7 @@
                             selectBtn.onclick = function() {
                                 currentProfile = { name: profileData.name }; // Set the current profile
                                 document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
+                                showCalendar(meetingId, bookedSlots); // Refresh the calendar to highlight booked slots
                             };
 
                             li.appendChild(deleteBtn);
