@@ -104,6 +104,12 @@
         }
 
         function showCalendar(meetingId, bookedSlots) {
+            // Clear existing calendar if it exists
+            const existingCalendar = document.getElementById('calendar');
+            if (existingCalendar) {
+                existingCalendar.remove();
+            }
+
             const calendarHtml = `
                 <h2>Select Time Slots for June 12, 2025</h2>
                 <div id="calendar"></div>
