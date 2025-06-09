@@ -139,7 +139,7 @@
             });
 
             document.getElementById('saveSlotsBtn').onclick = function() {
-                saveSelectedSlots(meetingId);
+                saveSelectedSlots(meetingId, bookedSlots);
             };
         }
 
@@ -156,7 +156,7 @@
             return slots;
         }
 
-        function saveSelectedSlots(meetingId) {
+        function saveSelectedSlots(meetingId, existingBookedSlots) {
             const selectedSlots = Array.from(document.querySelectorAll('.time-slot.selected'))
                 .map(button => button.textContent);
 
@@ -164,8 +164,10 @@
             const unbookedSlots = Array.from(document.querySelectorAll('.time-slot.pending-unbook'))
                 .map(button => button.textContent);
 
-            // Combine selected and unbooked slots
-            const finalSlots = selectedSlots.filter(slot => !unbookedSlots.includes(slot));
+            // Combine existing booked slots with newly selected slots
+            const finalSlots = existingBookedSlots
+                .filter(slot => !unbookedSlots.includes(slot)) // Remove unbooked slots
+                .concat(selectedSlots); // Add newly selected slots
 
             database.ref('meetings/' + meetingId).update({ selectedSlots: finalSlots })
                 .then(() => {
