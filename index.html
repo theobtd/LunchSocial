@@ -104,11 +104,6 @@
         }
 
         function showCalendar(meetingId, bookedSlots) {
-            // Clear any existing calendar
-            const existingCalendar = document.getElementById('calendar');
-            if (existingCalendar) {
-                existingCalendar.remove();
-            }
             const calendarHtml = `
                 <h2>Select Time Slots for June 12, 2025</h2>
                 <div id="calendar"></div>
@@ -176,27 +171,41 @@
 
             database.ref('meetings/' + meetingId).update({ selectedSlots: finalSlots })
                 .then(() => {
-                    // Refresh the calendar to reflect updated slots
-                    refreshCalendar(meetingId);
+                    // Change selected and pending slots to saved state
+                    selectedSlots.forEach(slot => {
+                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
+                            .find(button => button.textContent === slot);
+                        if (slotDiv) {
+                            slotDiv.classList.remove('selected');
+                            slotDiv.classList.add('saved');
+                        }
+                    });
+
+                    // Change pending unbooked slots to booked state
+                    unbookedSlots.forEach(slot => {
+                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
+                            .find(button => button.textContent === slot);
+                        if (slotDiv) {
+                            slotDiv.classList.remove('pending-unbook');
+                            slotDiv.classList.add('booked'); // Mark as booked
+                        }
+                    });
+
+                    // Allow immediate unbooking of newly saved slots
+                    finalSlots.forEach(slot => {
+                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
+                            .find(button => button.textContent === slot);
+                        if (slotDiv) {
+                            slotDiv.onclick = function() {
+                                this.classList.toggle('pending-unbook');
+                            };
+                        }
+                    });
+
+                    document.getElementById('calendarMessage').textContent = "Selected slots saved successfully!";
                 })
                 .catch((error) => {
                     document.getElementById('calendarMessage').textContent = "Error saving slots: " + error.message;
-                });
-        }
-
-        function refreshCalendar(meetingId) {
-            // Clear existing calendar
-            const existingCalendar = document.getElementById('calendar');
-            if (existingCalendar) {
-                existingCalendar.remove();
-            }
-            database.ref('meetings/' + meetingId).once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        const meetingData = snapshot.val();
-                        const bookedSlots = meetingData.selectedSlots || [];
-                        showCalendar(meetingId, bookedSlots);
-                    }
                 });
         }
     </script>
