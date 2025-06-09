@@ -49,20 +49,12 @@
         }
         .profile-indicator {
             position: absolute;
-            top: 0;
-            right: 0;
+            top: 5px;
+            right: 5px;
             width: 10px;
             height: 10px;
             border-radius: 50%;
             border: 1px solid #fff; /* White border for better visibility */
-        }
-        .profile-label {
-            position: absolute;
-            top: 0;
-            right: 15px; /* Adjust position for the label */
-            font-size: 12px;
-            color: white; /* Ensure text is visible */
-            font-weight: bold;
         }
     </style>
 </head>
@@ -165,11 +157,6 @@
                         indicator.className = 'profile-indicator';
                         indicator.style.backgroundColor = profile.color; // Set color based on profile
                         button.appendChild(indicator);
-
-                        const label = document.createElement('div');
-                        label.className = 'profile-label';
-                        label.textContent = profile.name.charAt(0); // Use first letter of profile name
-                        button.appendChild(label);
                     });
                 }
 
