@@ -17,6 +17,7 @@
             margin-right: 20px;
             border: 1px solid #ccc;
             padding: 10px;
+            display: none; /* Initially hidden */
         }
         #calendar {
             flex: 1;
@@ -100,8 +101,9 @@
                         const meetingData = snapshot.val();
                         if (meetingData.password === password) {
                             document.getElementById('message').textContent = "Success!";
-                            showCalendar(meetingId, meetingData.selectedSlots || []);
+                            document.getElementById('profileSidebar').style.display = 'block'; // Show profiles
                             loadProfiles(meetingId); // Load profiles for this meeting
+                            showCalendar(meetingId, meetingData.selectedSlots || []);
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
