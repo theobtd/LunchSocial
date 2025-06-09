@@ -195,8 +195,6 @@
                             slotDiv.classList.remove('pending-unbook');
                             slotDiv.classList.remove('booked'); // Remove booked class
                             slotDiv.classList.remove('saved'); // Ensure it can revert to default
-                            // Reset to available state
-                            slotDiv.classList.remove('booked'); // Ensure it can revert to default
                         }
                     });
 
@@ -208,6 +206,18 @@
                             slotDiv.onclick = function() {
                                 this.classList.toggle('pending-unbook');
                             };
+                        }
+                    });
+
+                    // Reset the state of slots to ensure they can be selected again
+                    const allSlots = document.querySelectorAll('.time-slot');
+                    allSlots.forEach(slotDiv => {
+                        const slotText = slotDiv.textContent;
+                        if (finalSlots.includes(slotText)) {
+                            slotDiv.classList.remove('pending-unbook');
+                            slotDiv.classList.add('booked'); // Mark as booked for immediate reuse
+                        } else {
+                            slotDiv.classList.remove('booked'); // Ensure it goes back to available
                         }
                     });
 
