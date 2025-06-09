@@ -166,6 +166,8 @@
                 if (currentProfile) {
                     if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
                         button.classList.add('highlighted');
+                    } else {
+                        button.classList.remove('highlighted'); // Remove highlight if not booked by current profile
                     }
                 }
 
@@ -246,7 +248,8 @@
                             selectBtn.onclick = function() {
                                 currentProfile = { name: profileData.name }; // Set the current profile
                                 document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
-                                showCalendar(meetingId, bookedSlots); // Refresh the calendar to highlight booked slots
+                                // Update the calendar to highlight booked slots for this profile
+                                showCalendar(meetingId, bookedSlots);
                             };
 
                             li.appendChild(deleteBtn);
