@@ -36,6 +36,10 @@
         .time-slot.saved {
             background-color: lightgreen;
         }
+        .time-slot.booked {
+            background-color: lightgreen; /* Indicate booked slots */
+            cursor: not-allowed; /* Indicate that these slots cannot be selected */
+        }
     </style>
 </head>
 <body>
@@ -83,7 +87,7 @@
                         const meetingData = snapshot.val();
                         if (meetingData.password === password) {
                             document.getElementById('message').textContent = "Success!";
-                            showCalendar(meetingId);
+                            showCalendar(meetingId, meetingData.selectedSlots || []);
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
@@ -96,7 +100,7 @@
                 });
         }
 
-        function showCalendar(meetingId) {
+        function showCalendar(meetingId, bookedSlots) {
             const calendarHtml = `
                 <h2>Select Time Slots for June 12, 2025</h2>
                 <div id="calendar"></div>
@@ -112,9 +116,19 @@
                 const button = document.createElement('div');
                 button.className = 'time-slot';
                 button.textContent = slot;
-                button.onclick = function() {
-                    this.classList.toggle('selected');
-                };
+
+                // Check if the slot is booked
+                if (bookedSlots.includes(slot)) {
+                    button.classList.add('booked');
+                    button.onclick = function() {
+                        // Do nothing for booked slots
+                    };
+                } else {
+                    button.onclick = function() {
+                        this.classList.toggle('selected');
+                    };
+                }
+
                 calendarDiv.appendChild(button);
             });
 
