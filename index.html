@@ -171,31 +171,24 @@
 
             database.ref('meetings/' + meetingId).update({ selectedSlots: finalSlots })
                 .then(() => {
-                    // Change selected and pending slots to saved state
-                    selectedSlots.forEach(slot => {
-                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
-                            .find(button => button.textContent === slot);
-                        if (slotDiv) {
-                            slotDiv.classList.remove('selected');
-                            slotDiv.classList.add('saved');
-                        }
-                    });
-
-                    // Change pending unbooked slots to unbooked state
-                    unbookedSlots.forEach(slot => {
-                        const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
-                            .find(button => button.textContent === slot);
-                        if (slotDiv) {
-                            slotDiv.classList.remove('pending-unbook');
-                            slotDiv.classList.remove('booked'); // Remove booked class
-                            slotDiv.classList.remove('saved'); // Ensure it can revert to default
-                        }
-                    });
-
-                    document.getElementById('calendarMessage').textContent = "Selected slots saved successfully!";
+                    // Refresh the calendar to reflect updated slots
+                    refreshCalendar(meetingId);
                 })
                 .catch((error) => {
                     document.getElementById('calendarMessage').textContent = "Error saving slots: " + error.message;
+                });
+        }
+
+        function refreshCalendar(meetingId) {
+            // Clear existing calendar
+            document.getElementById('calendar').innerHTML = '';
+            database.ref('meetings/' + meetingId).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        const meetingData = snapshot.val();
+                        const bookedSlots = meetingData.selectedSlots || [];
+                        showCalendar(meetingId, bookedSlots);
+                    }
                 });
         }
     </script>
