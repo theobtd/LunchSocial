@@ -68,6 +68,7 @@
                         const meetingData = snapshot.val();
                         if (meetingData.password === password) {
                             document.getElementById('message').textContent = "Success!";
+                            showCalendar(meetingId);
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
@@ -77,6 +78,58 @@
                 })
                 .catch((error) => {
                     document.getElementById('message').textContent = "Error: " + error.message;
+                });
+        }
+
+        function showCalendar(meetingId) {
+            const calendarHtml = `
+                <h2>Select Time Slots for June 12, 2025</h2>
+                <div id="calendar"></div>
+                <button id="saveSlotsBtn">Save Selected Slots</button>
+                <div class="message" id="calendarMessage"></div>
+            `;
+            document.body.innerHTML += calendarHtml;
+
+            const timeSlots = generateTimeSlots();
+            const calendarDiv = document.getElementById('calendar');
+
+            timeSlots.forEach(slot => {
+                const button = document.createElement('button');
+                button.textContent = slot;
+                button.onclick = function() {
+                    this.classList.toggle('selected');
+                };
+                calendarDiv.appendChild(button);
+            });
+
+            document.getElementById('saveSlotsBtn').onclick = function() {
+                saveSelectedSlots(meetingId);
+            };
+        }
+
+        function generateTimeSlots() {
+            const slots = [];
+            const start = new Date('2025-06-12T00:00:00');
+            const end = new Date('2025-06-12T23:45:00');
+
+            for (let time = start; time <= end; time.setMinutes(time.getMinutes() + 15)) {
+                const hours = time.getHours().toString().padStart(2, '0');
+                const minutes = time.getMinutes().toString().padStart(2, '0');
+                slots.push(`${hours}:${minutes}`);
+            }
+            return slots;
+        }
+
+        function saveSelectedSlots(meetingId) {
+            const selectedSlots = Array.from(document.querySelectorAll('#calendar button.selected'))
+                .map(button => button.textContent);
+
+            database.ref('meetings/' + meetingId).update({ selectedSlots: selectedSlots })
+                .then(() => {
+                    document.getElementById('calendarMessage').textContent = "Selected slots saved successfully!";
+                })
+                .catch((error) => {
+                    document.getElementById('calendarMessage').textContent = "Error saving slots: " + error.message;
                 });
         }
     </script>
