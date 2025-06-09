@@ -11,9 +11,17 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
         button {
             padding: 10px 15px;
             font-size: 16px;
+            cursor: pointer;
         }
         .message {
             margin-top: 20px;
@@ -26,6 +34,7 @@
 
     <h1>Create Meeting</h1>
     <button id="createMeetingBtn">Create Meeting</button>
+
     <div class="message" id="message"></div>
 
     <script>
@@ -45,28 +54,8 @@
         const database = firebase.database();
 
         document.getElementById('createMeetingBtn').onclick = function() {
-            const password = prompt("Please enter a password for the meeting:");
-            const email = prompt("Please enter your email address:");
-
-            if (password && email) {
-                const meetingId = database.ref().child('meetings').push().key;
-
-                const meetingData = {
-                    meetingId: meetingId,
-                    password: password,
-                    email: email
-                };
-
-                database.ref('meetings/' + meetingId).set(meetingData)
-                    .then(() => {
-                        document.getElementById('message').textContent = "Meeting created successfully!";
-                    })
-                    .catch((error) => {
-                        document.getElementById('message').textContent = "Error creating meeting: " + error.message;
-                    });
-            } else {
-                document.getElementById('message').textContent = "Please provide both a password and an email address.";
-            }
+            // Redirect to new meeting form
+            window.location.href = 'meeting-form.html';
         };
     </script>
 </body>
