@@ -10,6 +10,18 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            display: flex;
+        }
+        #profileSidebar {
+            width: 200px;
+            margin-right: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #calendar {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
         }
         button {
             padding: 10px 15px;
@@ -37,10 +49,18 @@
 </head>
 <body>
 
-    <h1>Create Meeting</h1>
-    <button id="createMeetingBtn">Create Meeting</button>
-    <button id="modifyMeetingBtn">Modify Existing Meeting</button>
-    <div class="message" id="message"></div>
+    <div id="profileSidebar">
+        <h3>Profiles</h3>
+        <button id="addProfileBtn">Add Profile</button>
+        <ul id="profileList"></ul>
+    </div>
+
+    <div id="calendar">
+        <h1>Create Meeting</h1>
+        <button id="createMeetingBtn">Create Meeting</button>
+        <button id="modifyMeetingBtn">Modify Existing Meeting</button>
+        <div class="message" id="message"></div>
+    </div>
 
     <script>
         // Your Firebase configuration
@@ -81,6 +101,7 @@
                         if (meetingData.password === password) {
                             document.getElementById('message').textContent = "Success!";
                             showCalendar(meetingId, meetingData.selectedSlots || []);
+                            loadProfiles(meetingId); // Load profiles for this meeting
                         } else {
                             document.getElementById('message').textContent = "Error: Incorrect password.";
                         }
@@ -96,19 +117,17 @@
         function showCalendar(meetingId, bookedSlots) {
             // Clear existing calendar if it exists
             const existingCalendar = document.getElementById('calendar');
-            if (existingCalendar) {
-                existingCalendar.remove();
-            }
+            existingCalendar.innerHTML = '';
 
             const calendarHtml = `
                 <h2>Select Time Slots for June 12, 2025</h2>
-                <div id="calendar"></div>
+                <div id="calendarSlots"></div>
                 <div class="message" id="calendarMessage"></div>
             `;
-            document.body.innerHTML += calendarHtml;
+            existingCalendar.innerHTML = calendarHtml;
 
             const timeSlots = generateTimeSlots();
-            const calendarDiv = document.getElementById('calendar');
+            const calendarDiv = document.getElementById('calendarSlots');
 
             timeSlots.forEach(slot => {
                 const button = document.createElement('div');
@@ -160,6 +179,37 @@
                 .catch((error) => {
                     document.getElementById('calendarMessage').textContent = "Error updating slots: " + error.message;
                 });
+        }
+
+        function loadProfiles(meetingId) {
+            const profileList = document.getElementById('profileList');
+            profileList.innerHTML = ''; // Clear existing profiles
+
+            database.ref('meetings/' + meetingId + '/profiles').once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        snapshot.forEach(profileSnapshot => {
+                            const profileName = profileSnapshot.val();
+                            const li = document.createElement('li');
+                            li.textContent = profileName;
+                            profileList.appendChild(li);
+                        });
+                    }
+                });
+
+            document.getElementById('addProfileBtn').onclick = function() {
+                const profileName = prompt("Enter profile name:");
+                if (profileName) {
+                    const newProfileRef = database.ref('meetings/' + meetingId + '/profiles').push();
+                    newProfileRef.set(profileName)
+                        .then(() => {
+                            loadProfiles(meetingId); // Reload the profiles
+                        })
+                        .catch((error) => {
+                            alert("Error adding profile: " + error.message);
+                        });
+                }
+            };
         }
     </script>
 </body>
