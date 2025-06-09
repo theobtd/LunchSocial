@@ -187,13 +187,14 @@
                         }
                     });
 
-                    // Change pending unbooked slots to booked state
+                    // Change pending unbooked slots to available state
                     unbookedSlots.forEach(slot => {
                         const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
                             .find(button => button.textContent === slot);
                         if (slotDiv) {
                             slotDiv.classList.remove('pending-unbook');
-                            slotDiv.classList.add('booked'); // Mark as booked
+                            slotDiv.classList.remove('booked'); // Remove booked class
+                            slotDiv.classList.remove('saved'); // Ensure it can revert to default
                         }
                     });
 
