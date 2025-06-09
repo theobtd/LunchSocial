@@ -175,9 +175,10 @@
                 .filter(slot => !unbookedSlots.includes(slot)) // Remove unbooked slots
                 .concat(selectedSlots); // Add newly selected slots
 
+            // Update the database with the final slots
             database.ref('meetings/' + meetingId).update({ selectedSlots: finalSlots })
                 .then(() => {
-                    // Change selected and pending slots to saved state
+                    // Change selected slots to saved state
                     selectedSlots.forEach(slot => {
                         const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
                             .find(button => button.textContent === slot);
@@ -187,18 +188,17 @@
                         }
                     });
 
-                    // Change pending unbooked slots to available state
+                    // Process unbooked slots
                     unbookedSlots.forEach(slot => {
                         const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
                             .find(button => button.textContent === slot);
                         if (slotDiv) {
                             slotDiv.classList.remove('pending-unbook');
                             slotDiv.classList.remove('booked'); // Remove booked class
-                            slotDiv.classList.remove('saved'); // Ensure it can revert to default
                         }
                     });
 
-                    // Allow immediate unbooking of newly saved slots
+                    // Allow immediate rebooking
                     finalSlots.forEach(slot => {
                         const slotDiv = Array.from(document.querySelectorAll('.time-slot'))
                             .find(button => button.textContent === slot);
@@ -206,18 +206,6 @@
                             slotDiv.onclick = function() {
                                 this.classList.toggle('pending-unbook');
                             };
-                        }
-                    });
-
-                    // Reset the state of slots to ensure they can be selected again
-                    const allSlots = document.querySelectorAll('.time-slot');
-                    allSlots.forEach(slotDiv => {
-                        const slotText = slotDiv.textContent;
-                        if (finalSlots.includes(slotText)) {
-                            slotDiv.classList.remove('pending-unbook');
-                            slotDiv.classList.add('booked'); // Mark as booked for immediate reuse
-                        } else {
-                            slotDiv.classList.remove('booked'); // Ensure it goes back to available
                         }
                     });
 
