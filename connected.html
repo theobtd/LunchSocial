@@ -224,8 +224,6 @@
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
-                // Remove the request from pending requests
-                database.ref('users/' + currentUserId + '/friendRequests/' + requesterId).remove();
                 displayPendingRequests(); // Refresh the pending requests display
                 displayAcceptedFriends(); // Refresh the accepted friends display
             }).catch(error => {
