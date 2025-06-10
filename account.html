@@ -42,15 +42,15 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const currentUserId = "user_id"; // Replace with the actual logged-in user's ID
+        const currentUserId = "user_id"; // Replace with logic to get the actual logged-in user's ID
 
-        // Display the current user ID
+        // Display the current user ID dynamically
         document.getElementById('currentUserIdDisplay').textContent = currentUserId;
 
         function logout() {
             // Implement logout logic here
             alert("Logged out successfully!");
-            // Here you can redirect to the login page or clear session data
+            // Redirect to the login page or clear session data
             window.location.href = 'index.html'; // Adjust as necessary
         }
     </script>
