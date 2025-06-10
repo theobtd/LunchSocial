@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Account</title>
-    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -21,41 +19,13 @@
             font-size: 16px;
             margin-top: 10px;
         }
-        input {
-            margin: 10px 0;
-            padding: 10px;
-            width: 200px;
-        }
-        .user-list, .notification-box {
-            margin-top: 20px;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        .user-item, .notification-item {
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            cursor: pointer;
-        }
-        .user-item:hover, .notification-item:hover {
-            background-color: #f0f0f0;
-        }
     </style>
 </head>
 <body>
     <div>
-        <h2>You are in your account</h2>
-        <button onclick="location.href='index.html'">Log Out</button>
-
-        <h3>Current User ID: <span id="currentUserIdDisplay"></span></h3>
-
-        <h3>Search Users</h3>
-        <input type="text" id="searchInput" placeholder="User ID" oninput="searchUsers()">
-        <div class="user-list" id="userList"></div>
-
-        <h3>Incoming Connection Requests</h3>
-        <div class="notification-box" id="notificationBox"></div>
+        <h2>You are connected as:</h2>
+        <h3 id="currentUserIdDisplay"></h3>
+        <button onclick="logout()">Log Out</button>
     </div>
 
     <script>
@@ -72,84 +42,17 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
         const currentUserId = "user_id"; // Replace with the actual logged-in user's ID
 
         // Display the current user ID
         document.getElementById('currentUserIdDisplay').textContent = currentUserId;
 
-        function searchUsers() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const userList = document.getElementById('userList');
-            userList.innerHTML = ''; // Clear previous results
-
-            if (query) {
-                database.ref('users').once('value').then(snapshot => {
-                    const uniqueUsers = new Set(); // Use a Set to avoid duplicates
-
-                    snapshot.forEach(childSnapshot => {
-                        const userData = childSnapshot.val();
-                        const userId = userData.userId.toLowerCase();
-
-                        if (userId.includes(query) && !uniqueUsers.has(userId)) {
-                            uniqueUsers.add(userId); // Add user ID to the Set
-
-                            const userItem = document.createElement('div');
-                            userItem.className = 'user-item';
-                            userItem.textContent = userId;
-
-                            const connectButton = document.createElement('button');
-                            connectButton.textContent = '+';
-                            connectButton.onclick = function() {
-                                sendConnectionRequest(childSnapshot.key);
-                            };
-
-                            userItem.appendChild(connectButton);
-                            userList.appendChild(userItem);
-                        }
-                    });
-                }).catch(error => {
-                    console.error("Error fetching users: ", error);
-                });
-            }
+        function logout() {
+            // Implement logout logic here
+            alert("Logged out successfully!");
+            // Here you can redirect to the login page or clear session data
+            window.location.href = 'index.html'; // Adjust as necessary
         }
-
-        function sendConnectionRequest(targetUserId) {
-            // Store the connection request under the target user's profile
-            database.ref(`users/${targetUserId}/incomingRequests/${currentUserId}`).set({
-                senderId: currentUserId
-            })
-            .then(() => {
-                alert("Connection request sent to " + targetUserId);
-                loadNotifications(); // Load notifications after sending a request
-            })
-            .catch(error => {
-                console.error("Error sending connection request: ", error);
-            });
-        }
-
-        function loadNotifications() {
-            const notificationBox = document.getElementById('notificationBox');
-            notificationBox.innerHTML = ''; // Clear previous notifications
-
-            database.ref(`users/${currentUserId}/incomingRequests`).once('value').then(snapshot => {
-                snapshot.forEach(childSnapshot => {
-                    const requestUserId = childSnapshot.key;
-                    const notificationItem = document.createElement('div');
-                    notificationItem.className = 'notification-item';
-                    notificationItem.textContent = `${requestUserId} wants to connect.`;
-
-                    notificationBox.appendChild(notificationItem);
-                });
-            }).catch(error => {
-                console.error("Error loading notifications: ", error);
-            });
-        }
-
-        // Load notifications when the page loads
-        window.onload = function() {
-            loadNotifications();
-        };
     </script>
 </body>
 </html>
