@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Account</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,25 +45,24 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const auth = firebase.auth();
 
-        // Function to get the current user ID
-        function getCurrentUserId() {
-            // Here you should implement the logic to get the actual user ID
-            // For example, retrieve it after login
-            return "example_user_id"; // Replace with actual user ID retrieval logic
-        }
-
-        const currentUserId = getCurrentUserId();
-
-        // Display the current user ID dynamically
-        document.getElementById('currentUserIdDisplay').textContent = currentUserId;
+        // Get the current user and display their ID
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                const userId = user.email.split('@')[0]; // Assuming user ID is the part before '@'
+                document.getElementById('currentUserIdDisplay').textContent = userId;
+            } else {
+                // No user is signed in, redirect to login
+                window.location.href = 'index.html';
+            }
+        });
 
         function logout() {
-            // Implement logout logic here
-            alert("Logged out successfully!");
-            // Redirect to the login page or clear session data
-            window.location.href = 'index.html'; // Adjust as necessary
+            auth.signOut().then(() => {
+                alert("Logged out successfully!");
+                window.location.href = 'index.html'; // Redirect to login page
+            });
         }
     </script>
 </body>
