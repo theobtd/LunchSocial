@@ -154,26 +154,29 @@
                 if (pendingRequests) {
                     const requestsArray = Object.keys(pendingRequests);
                     requestsArray.forEach(requesterId => {
-                        // Fetch userId of the requester
-                        database.ref('users/' + requesterId).once('value').then(userSnapshot => {
-                            const requesterData = userSnapshot.val();
-                            if (requesterData) {
-                                const requestItem = document.createElement('div');
-                                requestItem.classList.add('request-item');
-                                requestItem.textContent = requesterData.userId; // Display the userId of the requester
-                                
-                                // Create a tick button
-                                const acceptButton = document.createElement('button');
-                                acceptButton.textContent = '✓';
-                                acceptButton.onclick = function() {
-                                    acceptFriendRequest(requesterId); // Pass the requester UID
-                                };
+                        // Check if the request is still pending
+                        if (pendingRequests[requesterId].status === 'pending') {
+                            // Fetch userId of the requester
+                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                                const requesterData = userSnapshot.val();
+                                if (requesterData) {
+                                    const requestItem = document.createElement('div');
+                                    requestItem.classList.add('request-item');
+                                    requestItem.textContent = requesterData.userId; // Display the userId of the requester
+                                    
+                                    // Create a tick button
+                                    const acceptButton = document.createElement('button');
+                                    acceptButton.textContent = '✓';
+                                    acceptButton.onclick = function() {
+                                        acceptFriendRequest(requesterId); // Pass the requester UID
+                                    };
 
-                                // Append tick button to request item
-                                requestItem.appendChild(acceptButton);
-                                requestList.appendChild(requestItem); // Add to the list
-                            }
-                        });
+                                    // Append tick button to request item
+                                    requestItem.appendChild(acceptButton);
+                                    requestList.appendChild(requestItem); // Add to the list
+                                }
+                            });
+                        }
                     });
                 }
             }).catch(error => {
@@ -221,6 +224,8 @@
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
+                // Remove the request from pending requests
+                database.ref('users/' + currentUserId + '/friendRequests/' + requesterId).remove();
                 displayPendingRequests(); // Refresh the pending requests display
                 displayAcceptedFriends(); // Refresh the accepted friends display
             }).catch(error => {
