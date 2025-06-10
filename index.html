@@ -36,7 +36,7 @@
     <div>
         <button id="signUpBtn" onclick="location.href='signup.html'">Sign Up</button>
         <h2>Log In</h2>
-        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="text" id="loginUserId" placeholder="User ID" required>
         <input type="password" id="loginPassword" placeholder="Password" required>
         <button id="loginBtn">Log In</button>
         <div class="message" id="loginMessage"></div>
@@ -59,11 +59,11 @@
         const database = firebase.database();
 
         document.getElementById('loginBtn').onclick = function() {
-            const email = document.getElementById('loginEmail').value;
+            const userId = document.getElementById('loginUserId').value;
             const password = document.getElementById('loginPassword').value;
 
             // Check for matching user credentials
-            database.ref('users').orderByChild('email').equalTo(email).once('value').then(snapshot => {
+            database.ref('users').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
                 let userFound = false;
                 snapshot.forEach(childSnapshot => {
                     const userData = childSnapshot.val();
@@ -75,7 +75,7 @@
                 });
 
                 if (!userFound) {
-                    document.getElementById('loginMessage').textContent = "Invalid email or password.";
+                    document.getElementById('loginMessage').textContent = "Invalid user ID or password.";
                 }
             }).catch((error) => {
                 document.getElementById('loginMessage').textContent = "Error: " + error.message;
