@@ -133,7 +133,13 @@
         };
 
         // Fetch users when the page loads
-        displayUsers();
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                displayUsers();
+            } else {
+                window.location.href = 'index.html'; // Redirect if not logged in
+            }
+        });
     </script>
 </body>
 </html>
