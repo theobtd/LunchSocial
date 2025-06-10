@@ -33,6 +33,14 @@
             border: 1px solid #ccc;
             margin: 5px 0;
             border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .request-list {
+            margin-left: 20px;
+            padding-left: 10px;
+            border-left: 2px solid #ccc;
         }
     </style>
 </head>
@@ -73,11 +81,36 @@
                     userItem.classList.add('user-item');
                     userItem.textContent = userId;
 
+                    // Create the + button
+                    const addButton = document.createElement('button');
+                    addButton.textContent = '+';
+                    addButton.onclick = function() {
+                        sendFriendRequest(userId);
+                    };
+
+                    // Append button to user item
+                    userItem.appendChild(addButton);
+                    
                     // Append to the user list
                     userList.appendChild(userItem);
                 });
             }).catch(error => {
                 console.error("Error fetching users:", error);
+            });
+        }
+
+        // Function to send a friend request
+        function sendFriendRequest(targetUserId) {
+            const currentUserId = auth.currentUser.uid; // Get current user's ID
+
+            // Update the database to add the friend request
+            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).set({
+                requestingUserId: currentUserId,
+                status: 'pending'
+            }).then(() => {
+                console.log("Friend request sent to " + targetUserId);
+            }).catch(error => {
+                console.error("Error sending friend request:", error);
             });
         }
 
