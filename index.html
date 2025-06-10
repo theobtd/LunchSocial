@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page</title>
+    <title>Login</title>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,15 +27,10 @@
             padding: 10px;
             width: 200px;
         }
-        .message {
-            margin-top: 20px;
-            color: red;
-        }
     </style>
 </head>
 <body>
     <div>
-        <button id="signUpBtn" onclick="location.href='signup.html'">Sign Up</button>
         <h2>Log In</h2>
         <input type="text" id="loginUserId" placeholder="User ID" required>
         <input type="password" id="loginPassword" placeholder="Password" required>
@@ -56,30 +52,23 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const database = firebase.database();
 
         document.getElementById('loginBtn').onclick = function() {
             const userId = document.getElementById('loginUserId').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Check for matching user credentials
-            database.ref('users').orderByChild('userId').equalTo(userId).once('value').then(snapshot => {
-                let userFound = false;
-                snapshot.forEach(childSnapshot => {
-                    const userData = childSnapshot.val();
-                    if (userData.password === password) {
-                        userFound = true;
-                        // Redirect to account page
-                        window.location.href = 'account.html';
-                    }
+            // Authenticate user
+            auth.signInWithEmailAndPassword(userId + "@example.com", password) // Assuming user ID is stored as email
+                .then((userCredential) => {
+                    // User signed in
+                    const user = userCredential.user;
+                    window.location.href = 'account.html'; // Redirect to account page
+                })
+                .catch((error) => {
+                    document.getElementById('loginMessage').textContent = error.message;
                 });
-
-                if (!userFound) {
-                    document.getElementById('loginMessage').textContent = "Invalid user ID or password.";
-                }
-            }).catch((error) => {
-                document.getElementById('loginMessage').textContent = "Error: " + error.message;
-            });
         };
     </script>
 </body>
