@@ -42,7 +42,16 @@
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
-        const currentUserId = "user_id"; // Replace with logic to get the actual logged-in user's ID
+        const database = firebase.database();
+
+        // Function to get the current user ID
+        function getCurrentUserId() {
+            // Here you should implement the logic to get the actual user ID
+            // For example, retrieve it after login
+            return "example_user_id"; // Replace with actual user ID retrieval logic
+        }
+
+        const currentUserId = getCurrentUserId();
 
         // Display the current user ID dynamically
         document.getElementById('currentUserIdDisplay').textContent = currentUserId;
