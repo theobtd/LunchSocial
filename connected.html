@@ -63,7 +63,7 @@
 
         // Function to fetch and display users
         function displayUsers() {
-            const currentUserId = auth.currentUser.uid; // Get current user's ID
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             
             database.ref('users').once('value').then(snapshot => {
                 const userList = document.getElementById('userList');
