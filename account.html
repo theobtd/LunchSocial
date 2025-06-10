@@ -33,6 +33,33 @@
 
         if (currentUserId) {
             document.getElementById('currentUserIdDisplay').textContent = currentUserId;
+
+            // Optionally, fetch the user data from the database to confirm the user ID
+            const firebaseConfig = {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+                databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+                projectId: "YOUR_PROJECT_ID",
+                storageBucket: "YOUR_PROJECT_ID.appspot.com",
+                messagingSenderId: "YOUR_SENDER_ID",
+                appId: "YOUR_APP_ID"
+            };
+
+            const app = firebase.initializeApp(firebaseConfig);
+            const database = firebase.database();
+
+            // Fetch user data based on the user ID
+            database.ref('users/' + currentUserId).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    document.getElementById('currentUserIdDisplay').textContent = userData.userId;
+                } else {
+                    alert("User data not found.");
+                    window.location.href = 'index.html';
+                }
+            }).catch(error => {
+                alert("Error fetching user data: " + error.message);
+            });
         } else {
             alert("No user is logged in.");
             window.location.href = 'index.html';
