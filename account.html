@@ -116,14 +116,16 @@
 
         function sendConnectionRequest(targetUserId) {
             // Store the connection request under the target user's profile
-            database.ref(`users/${targetUserId}/incomingRequests/${currentUserId}`).set(true)
-                .then(() => {
-                    alert("Connection request sent to " + targetUserId);
-                    loadNotifications(); // Load notifications after sending a request
-                })
-                .catch(error => {
-                    console.error("Error sending connection request: ", error);
-                });
+            database.ref(`users/${targetUserId}/incomingRequests/${currentUserId}`).set({
+                senderId: currentUserId
+            })
+            .then(() => {
+                alert("Connection request sent to " + targetUserId);
+                loadNotifications(); // Load notifications after sending a request
+            })
+            .catch(error => {
+                console.error("Error sending connection request: ", error);
+            });
         }
 
         function loadNotifications() {
