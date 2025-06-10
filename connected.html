@@ -94,7 +94,7 @@
                     const addButton = document.createElement('button');
                     addButton.textContent = '+';
                     addButton.onclick = function() {
-                        sendFriendRequest(userId);
+                        sendFriendRequest(childSnapshot.key); // Pass user UID instead of userId
                     };
 
                     // Append button to user item
@@ -110,21 +110,16 @@
 
         // Function to send a friend request
         function sendFriendRequest(targetUserId) {
-            const currentUserId = auth.currentUser.uid; // Get current user's ID
-            const currentUserData = database.ref('users/' + currentUserId).once('value');
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             
-            currentUserData.then(snapshot => {
-                const requestingUserId = snapshot.val().userId; // Get the current user's unique ID
-
-                // Update the database to add the friend request under the target user's requests
-                database.ref('users/' + targetUserId + '/friendRequests').child(requestingUserId).set({
-                    requestingUserId: requestingUserId,
-                    status: 'pending'
-                }).then(() => {
-                    console.log("Friend request sent to " + targetUserId);
-                }).catch(error => {
-                    console.error("Error sending friend request:", error);
-                });
+            // Update the database to add the friend request under the target user's record
+            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).set({
+                requestingUserId: currentUserId,
+                status: 'pending'
+            }).then(() => {
+                console.log("Friend request sent to " + targetUserId);
+            }).catch(error => {
+                console.error("Error sending friend request:", error);
             });
         }
 
