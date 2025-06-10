@@ -26,19 +26,19 @@
             padding: 10px;
             width: 200px;
         }
-        .user-list {
+        .user-list, .notification-box {
             margin-top: 20px;
             max-width: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
         }
-        .user-item {
+        .user-item, .notification-item {
             padding: 10px;
             border-bottom: 1px solid #ccc;
             cursor: pointer;
         }
-        .user-item:hover {
+        .user-item:hover, .notification-item:hover {
             background-color: #f0f0f0;
         }
     </style>
@@ -47,10 +47,13 @@
     <div>
         <h2>You are in your account</h2>
         <button onclick="location.href='index.html'">Log Out</button>
-        
+
         <h3>Search Users</h3>
         <input type="text" id="searchInput" placeholder="User ID" oninput="searchUsers()">
         <div class="user-list" id="userList"></div>
+
+        <h3>Incoming Connection Requests</h3>
+        <div class="notification-box" id="notificationBox"></div>
     </div>
 
     <script>
@@ -68,6 +71,7 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        const currentUserId = "user_id"; // Replace with the actual logged-in user's ID
 
         function searchUsers() {
             const query = document.getElementById('searchInput').value.toLowerCase();
@@ -106,8 +110,47 @@
         }
 
         function sendConnectionRequest(targetUserId, targetUserData) {
-            alert("Connection request sent to " + targetUserData.userId);
+            const connectionRequest = {
+                from: currentUserId,
+                to: targetUserId,
+                status: "pending",
+                name: targetUserData.userId // Use userID or any identifier
+            };
+
+            database.ref('connectionRequests').push(connectionRequest)
+                .then(() => {
+                    alert("Connection request sent to " + targetUserData.userId);
+                    loadNotifications(); // Load notifications after sending a request
+                })
+                .catch(error => {
+                    console.error("Error sending connection request: ", error);
+                });
         }
+
+        function loadNotifications() {
+            const notificationBox = document.getElementById('notificationBox');
+            notificationBox.innerHTML = ''; // Clear previous notifications
+
+            database.ref('connectionRequests')
+                .orderByChild('to').equalTo(currentUserId)
+                .once('value').then(snapshot => {
+                    snapshot.forEach(childSnapshot => {
+                        const requestData = childSnapshot.val();
+                        const notificationItem = document.createElement('div');
+                        notificationItem.className = 'notification-item';
+                        notificationItem.textContent = `${requestData.name} wants to connect.`;
+
+                        notificationBox.appendChild(notificationItem);
+                    });
+                }).catch(error => {
+                    console.error("Error loading notifications: ", error);
+                });
+        }
+
+        // Load notifications when the page loads
+        window.onload = function() {
+            loadNotifications();
+        };
     </script>
 </body>
 </html>
