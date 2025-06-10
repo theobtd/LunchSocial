@@ -36,7 +36,7 @@
     <div>
         <button id="signUpBtn" onclick="location.href='signup.html'">Sign Up</button>
         <h2>Log In</h2>
-        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="text" id="loginUserId" placeholder="User ID" required>
         <input type="password" id="loginPassword" placeholder="Password" required>
         <button id="loginBtn">Log In</button>
         <div class="message" id="loginMessage"></div>
@@ -57,12 +57,12 @@
         const auth = firebase.auth();
 
         document.getElementById('loginBtn').onclick = function() {
-            const email = document.getElementById('loginEmail').value;
+            const userId = document.getElementById('loginUserId').value;
             const password = document.getElementById('loginPassword').value;
 
-            auth.signInWithEmailAndPassword(email, password)
+            auth.signInWithEmailAndPassword(userId + '@example.com', password)
                 .then(() => {
-                    localStorage.setItem('currentUserId', email);
+                    localStorage.setItem('currentUserId', userId);
                     window.location.href = 'account.html';
                 })
                 .catch((error) => {
