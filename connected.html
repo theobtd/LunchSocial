@@ -80,6 +80,7 @@
                 snapshot.forEach(childSnapshot => {
                     const userData = childSnapshot.val();
                     const userId = userData.userId;
+                    const targetUserId = childSnapshot.key; // Get the UID
 
                     // Skip adding the current user again
                     if (userId === currentUserData?.userId) return;
@@ -92,9 +93,20 @@
                     // Create the + button
                     const addButton = document.createElement('button');
                     addButton.textContent = '+';
-                    addButton.onclick = function() {
-                        sendFriendRequest(childSnapshot.key, addButton); // Pass user UID and button
-                    };
+                    
+                    // Check if there's a pending request from current user to the target user
+                    database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                        if (requestSnapshot.exists()) {
+                            // If request exists, change button to "Pending"
+                            addButton.textContent = 'Pending';
+                            addButton.disabled = true; // Disable button
+                        } else {
+                            // If no request exists, set up the onclick for the button
+                            addButton.onclick = function() {
+                                sendFriendRequest(targetUserId, addButton); // Pass user UID and button
+                            };
+                        }
+                    });
 
                     // Append button to user item
                     userItem.appendChild(addButton);
