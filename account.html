@@ -48,6 +48,8 @@
         <h2>You are in your account</h2>
         <button onclick="location.href='index.html'">Log Out</button>
 
+        <h3>Current User ID: <span id="currentUserIdDisplay"></span></h3>
+
         <h3>Search Users</h3>
         <input type="text" id="searchInput" placeholder="User ID" oninput="searchUsers()">
         <div class="user-list" id="userList"></div>
@@ -73,6 +75,9 @@
         const database = firebase.database();
         const currentUserId = "user_id"; // Replace with the actual logged-in user's ID
 
+        // Display the current user ID
+        document.getElementById('currentUserIdDisplay').textContent = currentUserId;
+
         function searchUsers() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             const userList = document.getElementById('userList');
@@ -96,7 +101,7 @@
                             const connectButton = document.createElement('button');
                             connectButton.textContent = '+';
                             connectButton.onclick = function() {
-                                sendConnectionRequest(childSnapshot.key, userData);
+                                sendConnectionRequest(childSnapshot.key);
                             };
 
                             userItem.appendChild(connectButton);
@@ -109,17 +114,11 @@
             }
         }
 
-        function sendConnectionRequest(targetUserId, targetUserData) {
-            const connectionRequest = {
-                from: currentUserId,
-                name: targetUserData.userId, // Use userID or any identifier
-                status: "pending",
-            };
-
+        function sendConnectionRequest(targetUserId) {
             // Store the connection request under the target user's profile
-            database.ref(`users/${targetUserId}/incomingRequests`).push(connectionRequest)
+            database.ref(`users/${targetUserId}/incomingRequests/${currentUserId}`).set(true)
                 .then(() => {
-                    alert("Connection request sent to " + targetUserData.userId);
+                    alert("Connection request sent to " + targetUserId);
                     loadNotifications(); // Load notifications after sending a request
                 })
                 .catch(error => {
@@ -133,10 +132,10 @@
 
             database.ref(`users/${currentUserId}/incomingRequests`).once('value').then(snapshot => {
                 snapshot.forEach(childSnapshot => {
-                    const requestData = childSnapshot.val();
+                    const requestUserId = childSnapshot.key;
                     const notificationItem = document.createElement('div');
                     notificationItem.className = 'notification-item';
-                    notificationItem.textContent = `${requestData.name} wants to connect.`;
+                    notificationItem.textContent = `${requestUserId} wants to connect.`;
 
                     notificationBox.appendChild(notificationItem);
                 });
