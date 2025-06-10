@@ -36,16 +36,14 @@
             appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
         // Log out function
         document.getElementById('logoutBtn').onclick = function() {
             auth.signOut().then(() => {
-                // Clear the screen and redirect to index.html
-                document.body.innerHTML = ''; // Clear the screen
-                window.location.href = 'index.html'; // Redirect to the index page
+                // Redirect to the index page after logging out
+                window.location.href = 'index.html';
             }).catch((error) => {
                 console.error("Error logging out:", error);
             });
