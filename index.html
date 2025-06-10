@@ -48,6 +48,9 @@
         <input type="text" id="city" placeholder="City of Residence" required>
         <input type="email" id="email" placeholder="Email" required>
         <input type="number" id="age" placeholder="Age" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button id="togglePasswordBtn">Show Password</button>
         <button id="submitBtn">Submit</button>
         <div class="message" id="formMessage"></div>
     </div>
@@ -73,35 +76,62 @@
             document.getElementById('formContainer').style.display = 'flex';
         };
 
+        document.getElementById('togglePasswordBtn').onclick = function() {
+            const passwordField = document.getElementById('password');
+            const confirmPasswordField = document.getElementById('confirmPassword');
+            const type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+            confirmPasswordField.type = type;
+            this.textContent = type === "password" ? "Show Password" : "Hide Password";
+        };
+
         document.getElementById('submitBtn').onclick = function() {
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
             const city = document.getElementById('city').value;
             const email = document.getElementById('email').value;
             const age = document.getElementById('age').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
 
-            if (firstName && lastName && city && email && age) {
-                const userData = {
-                    firstName,
-                    lastName,
-                    city,
-                    email,
-                    age
-                };
+            if (firstName && lastName && city && email && age && password && confirmPassword) {
+                if (password === confirmPassword) {
+                    const userData = {
+                        firstName,
+                        lastName,
+                        city,
+                        email,
+                        age,
+                        password // Storing password (consider hashing in a real application)
+                    };
 
-                // Store data in Firebase
-                database.ref('users').push(userData)
-                    .then(() => {
-                        document.getElementById('formMessage').textContent = "Sign up successful!";
-                        document.getElementById('formContainer').reset();
-                    })
-                    .catch((error) => {
-                        document.getElementById('formMessage').textContent = "Error: " + error.message;
-                    });
+                    // Store data in Firebase
+                    database.ref('users').push(userData)
+                        .then(() => {
+                            document.getElementById('formMessage').textContent = "Sign up successful!";
+                            resetForm();
+                        })
+                        .catch((error) => {
+                            document.getElementById('formMessage').textContent = "Error: " + error.message;
+                        });
+                } else {
+                    document.getElementById('formMessage').textContent = "Passwords do not match.";
+                }
             } else {
                 document.getElementById('formMessage').textContent = "Please fill in all fields.";
             }
         };
+
+        function resetForm() {
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('age').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('formMessage').textContent = '';
+        }
     </script>
 </body>
 </html>
