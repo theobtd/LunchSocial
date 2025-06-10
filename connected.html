@@ -96,26 +96,43 @@
                     userItem.classList.add('user-item');
                     userItem.textContent = userId;
 
-                    // Create the + button
-                    const addButton = document.createElement('button');
-                    addButton.textContent = '+';
-                    
-                    // Check if there's a pending request from current user to the target user
+                    // Create the button
+                    const actionButton = document.createElement('button');
+
+                    // Check for request status
                     database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
                         if (requestSnapshot.exists()) {
-                            // If request exists, change button to "Pending"
-                            addButton.textContent = 'Pending';
-                            addButton.disabled = true; // Disable button
+                            // If the current user has sent a request
+                            actionButton.textContent = 'Pending';
+                            actionButton.disabled = true; // Disable button
                         } else {
-                            // If no request exists, set up the onclick for the button
-                            addButton.onclick = function() {
-                                sendFriendRequest(targetUserId, addButton); // Pass user UID and button
-                            };
+                            // Check if the user has sent a friend request to the current user
+                            database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(incomingRequestSnapshot => {
+                                if (incomingRequestSnapshot.exists()) {
+                                    // If another user has sent a request
+                                    actionButton.textContent = 'Pending';
+                                    actionButton.disabled = true; // Disable button
+                                } else {
+                                    // Check if they are friends
+                                    database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(friendSnapshot => {
+                                        if (friendSnapshot.exists() && friendSnapshot.val().status === 'accepted') {
+                                            actionButton.textContent = 'Friends';
+                                            actionButton.disabled = true; // Disable button
+                                        } else {
+                                            // Set up the onclick for the button
+                                            actionButton.textContent = '+';
+                                            actionButton.onclick = function() {
+                                                sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
+                                            };
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
 
                     // Append button to user item
-                    userItem.appendChild(addButton);
+                    userItem.appendChild(actionButton);
                     
                     // Append to the user list
                     userList.appendChild(userItem);
