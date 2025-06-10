@@ -33,6 +33,9 @@
             border: 1px solid #ccc;
             margin: 5px 0;
             border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
     </style>
 </head>
@@ -155,6 +158,16 @@
                                 const requestItem = document.createElement('div');
                                 requestItem.classList.add('request-item');
                                 requestItem.textContent = requesterData.userId; // Display the userId of the requester
+                                
+                                // Create a tick button
+                                const acceptButton = document.createElement('button');
+                                acceptButton.textContent = '✓';
+                                acceptButton.onclick = function() {
+                                    acceptFriendRequest(requesterId); // Pass the requester UID
+                                };
+
+                                // Append tick button to request item
+                                requestItem.appendChild(acceptButton);
                                 requestList.appendChild(requestItem); // Add to the list
                             }
                         });
@@ -162,6 +175,21 @@
                 }
             }).catch(error => {
                 console.error("Error fetching friend requests:", error);
+            });
+        }
+
+        // Function to accept a friend request
+        function acceptFriendRequest(requesterId) {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+            
+            // Update the database to change the status of the friend request
+            database.ref('users/' + currentUserId + '/friendRequests/' + requesterId).update({
+                status: 'accepted'
+            }).then(() => {
+                console.log("Friend request from " + requesterId + " accepted.");
+                displayPendingRequests(); // Refresh the pending requests display
+            }).catch(error => {
+                console.error("Error accepting friend request:", error);
             });
         }
 
