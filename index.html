@@ -3,79 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Meeting</title>
+    <title>Sign Up</title>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
             display: flex;
-        }
-        #profileSidebar {
-            width: 200px;
-            margin-right: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            display: none; /* Initially hidden */
-        }
-        #calendar {
-            flex: 1;
-            border: 1px solid #ccc;
-            padding: 10px;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
         button {
             padding: 10px 15px;
             font-size: 16px;
-            margin: 5px;
+        }
+        .form-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        input {
+            margin: 5px 0;
+            padding: 10px;
+            width: 200px;
         }
         .message {
             margin-top: 20px;
-            font-weight: bold;
             color: green;
-        }
-        .time-slot {
-            display: inline-block;
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            cursor: pointer;
-            position: relative;
-            transition: background-color 0.3s;
-        }
-        .time-slot.selected {
-            background-color: lightgreen; /* Indicate booked slots */
-        }
-        .time-slot.highlighted {
-            background-color: lightcoral; /* Highlight booked slots for the selected profile */
-        }
-        .booking-count {
-            position: absolute;
-            top: 5px;
-            right: 5px; /* Adjust positioning */
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 5px;
-            padding: 2px 5px;
-            font-size: 12px;
-            color: black;
         }
     </style>
 </head>
 <body>
 
-    <div id="profileSidebar">
-        <h3>Profiles</h3>
-        <button id="addProfileBtn">Add Profile</button>
-        <ul id="profileList"></ul>
-        <div class="message" id="profileMessage"></div>
+    <div id="main">
+        <button id="signUpBtn">Sign Up</button>
     </div>
 
-    <div id="calendar">
-        <h1>Create Meeting</h1>
-        <button id="createMeetingBtn">Create Meeting</button>
-        <button id="modifyMeetingBtn">Modify Existing Meeting</button>
-        <div class="message" id="message"></div>
+    <div class="form-container" id="formContainer">
+        <h2>Sign Up</h2>
+        <input type="text" id="firstName" placeholder="First Name" required>
+        <input type="text" id="lastName" placeholder="Last Name" required>
+        <input type="text" id="city" placeholder="City of Residence" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="number" id="age" placeholder="Age" required>
+        <button id="submitBtn">Submit</button>
+        <div class="message" id="formMessage"></div>
     </div>
 
     <script>
@@ -93,198 +67,41 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        let currentMeetingId;
-        let currentProfile;
-        let bookedSlots = {}; // Store booked slots globally
 
-        document.getElementById('createMeetingBtn').onclick = function() {
-            window.location.href = 'meeting-form.html';
+        document.getElementById('signUpBtn').onclick = function() {
+            document.getElementById('main').style.display = 'none';
+            document.getElementById('formContainer').style.display = 'flex';
         };
 
-        document.getElementById('modifyMeetingBtn').onclick = function() {
-            const meetingId = prompt("Enter Meeting ID:");
-            const password = prompt("Enter Meeting Password:");
+        document.getElementById('submitBtn').onclick = function() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const city = document.getElementById('city').value;
+            const email = document.getElementById('email').value;
+            const age = document.getElementById('age').value;
 
-            if (meetingId && password) {
-                verifyMeeting(meetingId, password);
-            } else {
-                document.getElementById('message').textContent = "Please enter both Meeting ID and Password.";
-            }
-        };
-
-        function verifyMeeting(meetingId, password) {
-            database.ref('meetings/' + meetingId).once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        const meetingData = snapshot.val();
-                        if (meetingData.password === password) {
-                            document.getElementById('message').textContent = "Success!";
-                            document.getElementById('profileSidebar').style.display = 'block'; // Show profiles
-                            currentMeetingId = meetingId; // Set current meeting ID
-                            loadProfiles(meetingId); // Load profiles for this meeting
-                            bookedSlots = meetingData.selectedSlots || {}; // Store booked slots
-                            showCalendar(meetingId, bookedSlots); // Show calendar with booked slots
-                        } else {
-                            document.getElementById('message').textContent = "Error: Incorrect password.";
-                        }
-                    } else {
-                        document.getElementById('message').textContent = "Error: Meeting ID not found.";
-                    }
-                })
-                .catch((error) => {
-                    document.getElementById('message').textContent = "Error: " + error.message;
-                });
-        }
-
-        function showCalendar(meetingId, bookedSlots) {
-            // Clear existing calendar if it exists
-            const existingCalendar = document.getElementById('calendar');
-            existingCalendar.innerHTML = '';
-
-            const calendarHtml = `
-                <h2>Select Time Slots for June 12, 2025</h2>
-                <div id="calendarSlots"></div>
-                <div class="message" id="calendarMessage"></div>
-            `;
-            existingCalendar.innerHTML = calendarHtml;
-
-            const timeSlots = generateTimeSlots();
-            const calendarDiv = document.getElementById('calendarSlots');
-
-            timeSlots.forEach(slot => {
-                const button = document.createElement('div');
-                button.className = 'time-slot';
-                button.textContent = slot;
-
-                // Check if the slot has bookings
-                const bookingCount = bookedSlots[slot] ? bookedSlots[slot].length : 0;
-                const countDisplay = document.createElement('div');
-                countDisplay.className = 'booking-count';
-                countDisplay.textContent = bookingCount > 0 ? bookingCount : '';
-
-                button.appendChild(countDisplay);
-
-                // Highlight booked slots for the selected profile
-                if (currentProfile) {
-                    if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
-                        button.classList.add('highlighted');
-                    } else {
-                        button.classList.remove('highlighted'); // Remove highlight if not booked by current profile
-                    }
-                }
-
-                // Toggle booking/unbooking on click
-                button.onclick = function() {
-                    if (currentProfile) {
-                        if (bookedSlots[slot] && bookedSlots[slot].some(p => p.name === currentProfile.name)) {
-                            // Unbook the slot for the current profile
-                            bookedSlots[slot] = bookedSlots[slot].filter(p => p.name !== currentProfile.name);
-                            if (bookedSlots[slot].length === 0) {
-                                delete bookedSlots[slot]; // Remove the slot if empty
-                            }
-                        } else {
-                            // Book the slot for the current profile
-                            if (!bookedSlots[slot]) {
-                                bookedSlots[slot] = [];
-                            }
-                            bookedSlots[slot].push({ name: currentProfile.name });
-                        }
-                        updateDatabase(meetingId, bookedSlots);
-                        showCalendar(meetingId, bookedSlots); // Refresh the calendar
-                    } else {
-                        alert("Please select a profile first.");
-                    }
+            if (firstName && lastName && city && email && age) {
+                const userData = {
+                    firstName,
+                    lastName,
+                    city,
+                    email,
+                    age
                 };
 
-                calendarDiv.appendChild(button);
-            });
-        }
-
-        function generateTimeSlots() {
-            const slots = [];
-            const start = new Date('2025-06-12T00:00:00');
-            const end = new Date('2025-06-12T23:45:00');
-
-            for (let time = start; time <= end; time.setMinutes(time.getMinutes() + 15)) {
-                const hours = time.getHours().toString().padStart(2, '0');
-                const minutes = time.getMinutes().toString().padStart(2, '0');
-                slots.push(`${hours}:${minutes}`);
+                // Store data in Firebase
+                database.ref('users').push(userData)
+                    .then(() => {
+                        document.getElementById('formMessage').textContent = "Sign up successful!";
+                        document.getElementById('formContainer').reset();
+                    })
+                    .catch((error) => {
+                        document.getElementById('formMessage').textContent = "Error: " + error.message;
+                    });
+            } else {
+                document.getElementById('formMessage').textContent = "Please fill in all fields.";
             }
-            return slots;
-        }
-
-        function updateDatabase(meetingId, bookedSlots) {
-            database.ref('meetings/' + meetingId).update({ selectedSlots: bookedSlots })
-                .then(() => {
-                    document.getElementById('calendarMessage').textContent = "Slots updated successfully!";
-                })
-                .catch((error) => {
-                    document.getElementById('calendarMessage').textContent = "Error updating slots: " + error.message;
-                });
-        }
-
-        function loadProfiles(meetingId) {
-            const profileList = document.getElementById('profileList');
-            profileList.innerHTML = ''; // Clear existing profiles
-
-            database.ref('meetings/' + meetingId + '/profiles').once('value')
-                .then(snapshot => {
-                    if (snapshot.exists()) {
-                        snapshot.forEach(profileSnapshot => {
-                            const profileData = profileSnapshot.val();
-                            const profileKey = profileSnapshot.key; // Get the key for deletion
-                            const li = document.createElement('li');
-                            li.textContent = profileData.name;
-
-                            // Create a delete button
-                            const deleteBtn = document.createElement('button');
-                            deleteBtn.textContent = '🗑️'; // Emoji for delete
-                            deleteBtn.className = 'delete-btn';
-                            deleteBtn.onclick = function() {
-                                deleteProfile(meetingId, profileKey);
-                            };
-
-                            // Create a select button
-                            const selectBtn = document.createElement('button');
-                            selectBtn.textContent = 'Select';
-                            selectBtn.onclick = function() {
-                                currentProfile = { name: profileData.name }; // Set the current profile
-                                document.getElementById('profileMessage').textContent = `Selected profile: ${profileData.name}`;
-                                // Update the calendar to highlight booked slots for this profile
-                                showCalendar(meetingId, bookedSlots); // Refresh the calendar
-                            };
-
-                            li.appendChild(deleteBtn);
-                            li.appendChild(selectBtn);
-                            profileList.appendChild(li);
-                        });
-                    }
-                });
-
-            document.getElementById('addProfileBtn').onclick = function() {
-                const profileName = prompt("Enter profile name:");
-                if (profileName) {
-                    const newProfileRef = database.ref('meetings/' + meetingId + '/profiles').push();
-                    newProfileRef.set({ name: profileName })
-                        .then(() => {
-                            loadProfiles(meetingId); // Reload the profiles
-                        })
-                        .catch((error) => {
-                            alert("Error adding profile: " + error.message);
-                        });
-                }
-            };
-        }
-
-        function deleteProfile(meetingId, profileKey) {
-            database.ref('meetings/' + meetingId + '/profiles/' + profileKey).remove()
-                .then(() => {
-                    loadProfiles(meetingId); // Reload the profiles after deletion
-                })
-                .catch((error) => {
-                    alert("Error deleting profile: " + error.message);
-                });
-        }
+        };
     </script>
 </body>
 </html>
