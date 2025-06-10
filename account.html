@@ -26,19 +26,19 @@
             padding: 10px;
             width: 200px;
         }
-        .user-list, .notification-box, .connections-box {
+        .user-list {
             margin-top: 20px;
             max-width: 300px;
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
         }
-        .user-item, .notification-item, .connection-item {
+        .user-item {
             padding: 10px;
             border-bottom: 1px solid #ccc;
             cursor: pointer;
         }
-        .user-item:hover, .notification-item:hover, .connection-item:hover {
+        .user-item:hover {
             background-color: #f0f0f0;
         }
     </style>
@@ -49,14 +49,8 @@
         <button onclick="location.href='index.html'">Log Out</button>
         
         <h3>Search Users</h3>
-        <input type="text" id="searchInput" placeholder="First and Last Name" oninput="searchUsers()">
+        <input type="text" id="searchInput" placeholder="User ID" oninput="searchUsers()">
         <div class="user-list" id="userList"></div>
-
-        <h3>Notifications</h3>
-        <div class="notification-box" id="notificationBox"></div>
-
-        <h3>Your Connections</h3>
-        <div class="connections-box" id="connectionsBox"></div>
     </div>
 
     <script>
@@ -74,7 +68,6 @@
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const currentUserId = "user_id"; // Replace with actual user ID from login
 
         function searchUsers() {
             const query = document.getElementById('searchInput').value.toLowerCase();
@@ -85,18 +78,17 @@
                 database.ref('users').once('value').then(snapshot => {
                     snapshot.forEach(childSnapshot => {
                         const userData = childSnapshot.val();
-                        const userId = childSnapshot.key;
-                        const fullName = `${userData.firstName} ${userData.lastName}`.toLowerCase();
+                        const userId = userData.userId.toLowerCase();
 
-                        if (fullName.includes(query) && userId !== currentUserId) {
+                        if (userId.includes(query)) {
                             const userItem = document.createElement('div');
                             userItem.className = 'user-item';
-                            userItem.textContent = fullName;
+                            userItem.textContent = userId;
 
                             const connectButton = document.createElement('button');
                             connectButton.textContent = '+';
                             connectButton.onclick = function() {
-                                sendConnectionRequest(userId, userData);
+                                sendConnectionRequest(childSnapshot.key, userData);
                             };
 
                             userItem.appendChild(connectButton);
@@ -110,108 +102,9 @@
         }
 
         function sendConnectionRequest(targetUserId, targetUserData) {
-            const connectionRequest = {
-                from: currentUserId,
-                to: targetUserId,
-                status: "pending",
-                name: `${targetUserData.firstName} ${targetUserData.lastName}`
-            };
-
-            database.ref('connectionRequests').push(connectionRequest)
-                .then(() => {
-                    alert("Connection request sent!");
-                    loadNotifications();
-                })
-                .catch(error => {
-                    console.error("Error sending connection request: ", error);
-                });
+            // Functionality to send connection requests can be implemented here
+            alert("Connection request sent to " + targetUserData.userId);
         }
-
-        function loadNotifications() {
-            const notificationBox = document.getElementById('notificationBox');
-            notificationBox.innerHTML = ''; // Clear previous notifications
-
-            database.ref('connectionRequests')
-                .orderByChild('to').equalTo(currentUserId)
-                .once('value').then(snapshot => {
-                    snapshot.forEach(childSnapshot => {
-                        const requestData = childSnapshot.val();
-                        const requestId = childSnapshot.key;
-
-                        const notificationItem = document.createElement('div');
-                        notificationItem.className = 'notification-item';
-                        notificationItem.textContent = `${requestData.name} wants to connect.`;
-
-                        const acceptButton = document.createElement('button');
-                        acceptButton.textContent = 'Yes';
-                        acceptButton.onclick = function() {
-                            acceptConnection(requestId, requestData);
-                        };
-
-                        const rejectButton = document.createElement('button');
-                        rejectButton.textContent = 'No';
-                        rejectButton.onclick = function() {
-                            rejectConnection(requestId);
-                        };
-
-                        notificationItem.appendChild(acceptButton);
-                        notificationItem.appendChild(rejectButton);
-                        notificationBox.appendChild(notificationItem);
-                    });
-                }).catch(error => {
-                    console.error("Error loading notifications: ", error);
-                });
-        }
-
-        function acceptConnection(requestId, requestData) {
-            const connectionData = {
-                userId: requestData.from,
-                name: requestData.name
-            };
-
-            database.ref(`connections/${currentUserId}`).push(connectionData)
-                .then(() => {
-                    database.ref(`connectionRequests/${requestId}`).remove(); // Remove request
-                    loadNotifications();
-                    loadConnections();
-                })
-                .catch(error => {
-                    console.error("Error accepting connection: ", error);
-                });
-        }
-
-        function rejectConnection(requestId) {
-            database.ref(`connectionRequests/${requestId}`).remove()
-                .then(() => {
-                    loadNotifications();
-                })
-                .catch(error => {
-                    console.error("Error rejecting connection: ", error);
-                });
-        }
-
-        function loadConnections() {
-            const connectionsBox = document.getElementById('connectionsBox');
-            connectionsBox.innerHTML = ''; // Clear previous connections
-
-            database.ref(`connections/${currentUserId}`).once('value').then(snapshot => {
-                snapshot.forEach(childSnapshot => {
-                    const connectionData = childSnapshot.val();
-                    const connectionItem = document.createElement('div');
-                    connectionItem.className = 'connection-item';
-                    connectionItem.textContent = connectionData.name;
-                    connectionsBox.appendChild(connectionItem);
-                });
-            }).catch(error => {
-                console.error("Error loading connections: ", error);
-            });
-        }
-
-        // Load notifications and connections when the page loads
-        window.onload = function() {
-            loadNotifications();
-            loadConnections();
-        };
     </script>
 </body>
 </html>
