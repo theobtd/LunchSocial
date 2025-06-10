@@ -37,6 +37,11 @@
             justify-content: space-between;
             align-items: center;
         }
+        .request-list {
+            margin-left: 20px;
+            padding-left: 10px;
+            border-left: 2px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -63,25 +68,13 @@
 
         // Function to fetch and display users
         function displayUsers() {
-            const currentUserId = auth.currentUser.uid; // Get current user's ID
-            
             database.ref('users').once('value').then(snapshot => {
                 const userList = document.getElementById('userList');
                 userList.innerHTML = ''; // Clear previous list
 
-                // Display current user at the top
-                const currentUserData = snapshot.child(currentUserId).val();
-                const currentUserItem = document.createElement('div');
-                currentUserItem.classList.add('user-item');
-                currentUserItem.textContent = currentUserData.userId; // Display current user's ID
-                userList.appendChild(currentUserItem); // Add to the list
-
                 snapshot.forEach(childSnapshot => {
                     const userData = childSnapshot.val();
                     const userId = userData.userId;
-
-                    // Skip adding the current user again
-                    if (userId === currentUserData.userId) return;
 
                     // Create a user item
                     const userItem = document.createElement('div');
@@ -131,13 +124,7 @@
         };
 
         // Fetch users when the page loads
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                displayUsers();
-            } else {
-                window.location.href = 'index.html'; // Redirect if not logged in
-            }
-        });
+        displayUsers();
     </script>
 </body>
 </html>
