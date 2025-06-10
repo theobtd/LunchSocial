@@ -22,13 +22,13 @@
             font-size: 16px;
             margin-top: 20px;
         }
-        .user-list, .request-list {
+        .user-list, .request-list, .accepted-list {
             margin-top: 20px;
             width: 100%;
             max-width: 400px;
             text-align: left;
         }
-        .user-item, .request-item {
+        .user-item, .request-item, .accepted-item {
             padding: 5px;
             border: 1px solid #ccc;
             margin: 5px 0;
@@ -46,6 +46,9 @@
     <div class="user-list" id="userList"></div>
     <h3>Pending Friend Requests</h3>
     <div class="request-list" id="requestList"></div>
+
+    <h3>Accepted Friends</h3>
+    <div class="accepted-list" id="acceptedList"></div>
 
     <script>
         // Initialize Firebase
@@ -178,6 +181,37 @@
             });
         }
 
+        // Function to fetch and display accepted friends
+        function displayAcceptedFriends() {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+            
+            database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
+                const acceptedList = document.getElementById('acceptedList');
+                acceptedList.innerHTML = ''; // Clear previous list
+
+                const requests = snapshot.val();
+                if (requests) {
+                    const requestsArray = Object.keys(requests);
+                    requestsArray.forEach(requesterId => {
+                        if (requests[requesterId].status === 'accepted') {
+                            // Fetch userId of the accepted requester
+                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                                const requesterData = userSnapshot.val();
+                                if (requesterData) {
+                                    const acceptedItem = document.createElement('div');
+                                    acceptedItem.classList.add('accepted-item');
+                                    acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
+                                    acceptedList.appendChild(acceptedItem); // Add to the list
+                                }
+                            });
+                        }
+                    });
+                }
+            }).catch(error => {
+                console.error("Error fetching accepted friends:", error);
+            });
+        }
+
         // Function to accept a friend request
         function acceptFriendRequest(requesterId) {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
@@ -188,6 +222,7 @@
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
                 displayPendingRequests(); // Refresh the pending requests display
+                displayAcceptedFriends(); // Refresh the accepted friends display
             }).catch(error => {
                 console.error("Error accepting friend request:", error);
             });
@@ -202,11 +237,12 @@
             });
         };
 
-        // Fetch users and pending requests when the page loads
+        // Fetch users and requests when the page loads
         auth.onAuthStateChanged(user => {
             if (user) {
                 displayUsers();
                 displayPendingRequests(); // Fetch and display pending friend requests
+                displayAcceptedFriends(); // Fetch and display accepted friends
             } else {
                 window.location.href = 'index.html'; // Redirect if not logged in
             }
