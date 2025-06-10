@@ -37,18 +37,19 @@
             appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
 
-        const app = firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Function to log out the user
-        document.getElementById('logoutBtn').onclick = function() {
+        // Log out function
+        document.getElementById('logoutBtn').addEventListener('click', function() {
             auth.signOut().then(() => {
                 // Redirect to the index page after logging out
                 window.location.href = 'index.html';
             }).catch((error) => {
                 console.error("Error logging out:", error);
             });
-        };
+        });
     </script>
 </body>
 </html>
