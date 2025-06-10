@@ -60,7 +60,10 @@
             const userId = document.getElementById('loginUserId').value;
             const password = document.getElementById('loginPassword').value;
 
-            auth.signInWithEmailAndPassword(userId + '@example.com', password)
+            // Append a default domain to the user ID
+            const email = userId + '@example.com';
+
+            auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     localStorage.setItem('currentUserId', userId);
                     window.location.href = 'account.html';
