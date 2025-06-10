@@ -29,18 +29,21 @@
     </div>
 
     <script>
-        // Retrieve the current user ID from localStorage
         const currentUserId = localStorage.getItem('currentUserId');
 
-        // Display the current user ID dynamically
-        document.getElementById('currentUserIdDisplay').textContent = currentUserId;
+        if (currentUserId) {
+            document.getElementById('currentUserIdDisplay').textContent = currentUserId;
+        } else {
+            alert("No user is logged in.");
+            window.location.href = 'index.html';
+        }
 
         function logout() {
-            // Clear user ID from localStorage
-            localStorage.removeItem('currentUserId');
-            alert("Logged out successfully!");
-            // Redirect to the login page
-            window.location.href = 'index.html';
+            firebase.auth().signOut().then(() => {
+                localStorage.removeItem('currentUserId');
+                alert("Logged out successfully!");
+                window.location.href = 'index.html';
+            });
         }
     </script>
 </body>
