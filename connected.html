@@ -99,33 +99,32 @@
                     // Create the button
                     const actionButton = document.createElement('button');
 
-                    // Check for request status
-                    database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
-                        if (requestSnapshot.exists()) {
-                            // If the current user has sent a request
-                            actionButton.textContent = 'Pending';
-                            actionButton.disabled = true; // Disable button
+                    // Check for incoming requests
+                    database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(friendSnapshot => {
+                        if (friendSnapshot.exists()) {
+                            // If the logged-in user has received a request
+                            if (friendSnapshot.val().status === 'pending') {
+                                actionButton.textContent = 'Pending';
+                                actionButton.disabled = true; // Disable button
+                            } else if (friendSnapshot.val().status === 'accepted') {
+                                actionButton.textContent = 'Friends';
+                                actionButton.disabled = true; // Disable button
+                            }
                         } else {
-                            // Check if the user has sent a friend request to the current user
-                            database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(incomingRequestSnapshot => {
-                                if (incomingRequestSnapshot.exists()) {
-                                    // If another user has sent a request
-                                    actionButton.textContent = 'Pending';
-                                    actionButton.disabled = true; // Disable button
+                            // Check for outgoing requests
+                            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                                if (requestSnapshot.exists()) {
+                                    // If the logged-in user has sent a request
+                                    if (requestSnapshot.val().status === 'pending') {
+                                        actionButton.textContent = 'Pending';
+                                        actionButton.disabled = true; // Disable button
+                                    }
                                 } else {
-                                    // Check if they are friends
-                                    database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(friendSnapshot => {
-                                        if (friendSnapshot.exists() && friendSnapshot.val().status === 'accepted') {
-                                            actionButton.textContent = 'Friends';
-                                            actionButton.disabled = true; // Disable button
-                                        } else {
-                                            // Set up the onclick for the button
-                                            actionButton.textContent = '+';
-                                            actionButton.onclick = function() {
-                                                sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
-                                            };
-                                        }
-                                    });
+                                    // If there are no requests, show the + button
+                                    actionButton.textContent = '+';
+                                    actionButton.onclick = function() {
+                                        sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
+                                    };
                                 }
                             });
                         }
