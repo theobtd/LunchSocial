@@ -112,12 +112,12 @@
         function sendConnectionRequest(targetUserId, targetUserData) {
             const connectionRequest = {
                 from: currentUserId,
-                to: targetUserId,
+                name: targetUserData.userId, // Use userID or any identifier
                 status: "pending",
-                name: targetUserData.userId // Use userID or any identifier
             };
 
-            database.ref('connectionRequests').push(connectionRequest)
+            // Store the connection request under the target user's profile
+            database.ref(`users/${targetUserId}/incomingRequests`).push(connectionRequest)
                 .then(() => {
                     alert("Connection request sent to " + targetUserData.userId);
                     loadNotifications(); // Load notifications after sending a request
@@ -131,20 +131,18 @@
             const notificationBox = document.getElementById('notificationBox');
             notificationBox.innerHTML = ''; // Clear previous notifications
 
-            database.ref('connectionRequests')
-                .orderByChild('to').equalTo(currentUserId)
-                .once('value').then(snapshot => {
-                    snapshot.forEach(childSnapshot => {
-                        const requestData = childSnapshot.val();
-                        const notificationItem = document.createElement('div');
-                        notificationItem.className = 'notification-item';
-                        notificationItem.textContent = `${requestData.name} wants to connect.`;
+            database.ref(`users/${currentUserId}/incomingRequests`).once('value').then(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const requestData = childSnapshot.val();
+                    const notificationItem = document.createElement('div');
+                    notificationItem.className = 'notification-item';
+                    notificationItem.textContent = `${requestData.name} wants to connect.`;
 
-                        notificationBox.appendChild(notificationItem);
-                    });
-                }).catch(error => {
-                    console.error("Error loading notifications: ", error);
+                    notificationBox.appendChild(notificationItem);
                 });
+            }).catch(error => {
+                console.error("Error loading notifications: ", error);
+            });
         }
 
         // Load notifications when the page loads
