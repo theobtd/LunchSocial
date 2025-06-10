@@ -69,15 +69,13 @@
                 const userList = document.getElementById('userList');
                 userList.innerHTML = ''; // Clear previous list
 
-                // Check if the current user exists in the database
+                // Display current user at the top
                 const currentUserData = snapshot.child(currentUserId).val();
                 if (currentUserData) {
                     const currentUserItem = document.createElement('div');
                     currentUserItem.classList.add('user-item');
                     currentUserItem.textContent = currentUserData.userId; // Display current user's ID
                     userList.appendChild(currentUserItem); // Add to the list
-                } else {
-                    console.error("Current user not found in the database.");
                 }
 
                 snapshot.forEach(childSnapshot => {
