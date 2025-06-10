@@ -76,11 +76,15 @@
 
             if (query) {
                 database.ref('users').once('value').then(snapshot => {
+                    const uniqueUsers = new Set(); // Use a Set to avoid duplicates
+
                     snapshot.forEach(childSnapshot => {
                         const userData = childSnapshot.val();
                         const userId = userData.userId.toLowerCase();
 
-                        if (userId.includes(query)) {
+                        if (userId.includes(query) && !uniqueUsers.has(userId)) {
+                            uniqueUsers.add(userId); // Add user ID to the Set
+
                             const userItem = document.createElement('div');
                             userItem.className = 'user-item';
                             userItem.textContent = userId;
@@ -102,7 +106,6 @@
         }
 
         function sendConnectionRequest(targetUserId, targetUserData) {
-            // Functionality to send connection requests can be implemented here
             alert("Connection request sent to " + targetUserData.userId);
         }
     </script>
