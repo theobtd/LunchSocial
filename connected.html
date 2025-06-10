@@ -22,20 +22,17 @@
             font-size: 16px;
             margin-top: 20px;
         }
-        .user-list {
+        .user-list, .request-list {
             margin-top: 20px;
             width: 100%;
             max-width: 400px;
             text-align: left;
         }
-        .user-item {
+        .user-item, .request-item {
             padding: 5px;
             border: 1px solid #ccc;
             margin: 5px 0;
             border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
     </style>
 </head>
@@ -44,6 +41,8 @@
     <button id="logoutBtn">Log Out</button>
 
     <div class="user-list" id="userList"></div>
+    <h3>Pending Friend Requests</h3>
+    <div class="request-list" id="requestList"></div>
 
     <script>
         // Initialize Firebase
@@ -125,6 +124,28 @@
             });
         }
 
+        // Function to fetch and display pending friend requests
+        function displayPendingRequests() {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+            
+            database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
+                const requestList = document.getElementById('requestList');
+                requestList.innerHTML = ''; // Clear previous list
+
+                snapshot.forEach(childSnapshot => {
+                    const requesterId = childSnapshot.key; // Get the UID of the requester
+                    const requesterData = snapshot.child(requesterId).val(); // Get details of the requester
+
+                    const requestItem = document.createElement('div');
+                    requestItem.classList.add('request-item');
+                    requestItem.textContent = requesterData.requestingUserId; // Display the userId of the requester
+                    requestList.appendChild(requestItem); // Add to the list
+                });
+            }).catch(error => {
+                console.error("Error fetching friend requests:", error);
+            });
+        }
+
         // Log out function
         document.getElementById('logoutBtn').onclick = function() {
             auth.signOut().then(() => {
@@ -134,10 +155,11 @@
             });
         };
 
-        // Fetch users when the page loads
+        // Fetch users and pending requests when the page loads
         auth.onAuthStateChanged(user => {
             if (user) {
                 displayUsers();
+                displayPendingRequests(); // Fetch and display pending friend requests
             } else {
                 window.location.href = 'index.html'; // Redirect if not logged in
             }
