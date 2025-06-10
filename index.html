@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -16,12 +19,68 @@
         button {
             padding: 10px 15px;
             font-size: 16px;
+            margin-top: 10px;
+        }
+        input {
+            margin: 5px 0;
+            padding: 10px;
+            width: 200px;
+        }
+        .message {
+            margin-top: 20px;
+            color: red;
         }
     </style>
 </head>
 <body>
     <div>
         <button id="signUpBtn" onclick="location.href='signup.html'">Sign Up</button>
+        <h2>Log In</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button id="loginBtn">Log In</button>
+        <div class="message" id="loginMessage"></div>
     </div>
+
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.appspot.com",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        document.getElementById('loginBtn').onclick = function() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Check for matching user credentials
+            database.ref('users').orderByChild('email').equalTo(email).once('value').then(snapshot => {
+                let userFound = false;
+                snapshot.forEach(childSnapshot => {
+                    const userData = childSnapshot.val();
+                    if (userData.password === password) {
+                        userFound = true;
+                        // Redirect to account page
+                        window.location.href = 'account.html';
+                    }
+                });
+
+                if (!userFound) {
+                    document.getElementById('loginMessage').textContent = "Invalid email or password.";
+                }
+            }).catch((error) => {
+                document.getElementById('loginMessage').textContent = "Error: " + error.message;
+            });
+        };
+    </script>
 </body>
 </html>
