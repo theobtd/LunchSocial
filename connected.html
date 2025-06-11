@@ -363,21 +363,21 @@
                     }
                 });
         
-            database.ref('users/' + currentUserId + '/events/' + eventKey).set({
-                title: title,
-                date: date,
-                time: time,
-                location: location,
-                comment: comment,
-                createdBy: currentUserId, // Store the creator's UID
-                visibleTo: selectedFriends
-            }).then(() => {
-                alert("Event created successfully!");
-                displayAllEvents(); // Refresh the events display
-                closeModal(); // Close the modal
-            }).catch(error => {
-                console.error("Error creating event:", error);
-            });
+                database.ref('users/' + currentUserId + '/events/' + eventKey).set({
+                    title: title,
+                    date: date,
+                    time: time,
+                    location: location,
+                    comment: comment,
+                    createdBy: currentUserId, // Store the creator's UID
+                    visibleTo: selectedFriends
+                }).then(() => {
+                    alert("Event created successfully!");
+                    displayAllEvents(); // Refresh the events display
+                    closeModal(); // Close the modal
+                }).catch(error => {
+                    console.error("Error creating event:", error);
+                });
             } else {
                 alert("All fields are required!");
             }
@@ -447,19 +447,15 @@
                 return;
             }
         
-            // Fetch the event data to get the creator's UID
+            // Fetch the specific event to get the creator's UID
             database.ref('users').once('value').then(snapshot => {
+                // Get the event's creator's UID by accessing the event directly
                 let eventCreatorId;
         
-                // Loop through users to find the event creator UID
                 snapshot.forEach(userSnapshot => {
                     const userEvents = userSnapshot.child('events').val();
-                    if (userEvents) {
-                        Object.keys(userEvents).forEach(key => {
-                            if (key === eventId) {
-                                eventCreatorId = userSnapshot.key; // This is the creator's UID
-                            }
-                        });
+                    if (userEvents && userEvents[eventId]) {
+                        eventCreatorId = userSnapshot.key; // This is the creator's UID
                     }
                 });
         
