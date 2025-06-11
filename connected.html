@@ -394,6 +394,14 @@
 
         // Function to open the event details modal
         function openEventDetails(event) {
+            console.log("Event object in openEventDetails:", event); // Debugging line
+        
+            // Ensure event has an ID
+            if (!event.id) {
+                console.error("Event ID is missing!"); // Log error if ID is missing
+                return;
+            }
+        
             const eventDetailsModal = document.getElementById('eventDetailsModal');
             const eventTitle = document.getElementById('eventDetailTitle');
             const eventDate = document.getElementById('eventDetailDate');
@@ -405,8 +413,6 @@
             const newComment = document.getElementById('newComment'); // Comment input
             const submitCommentBtn = document.getElementById('submitCommentBtn'); // Button for submitting comments
             const deleteEventBtn = document.getElementById('deleteEventBtn');
-
-            console.log("Event object in openEventDetails:", event);
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
@@ -423,9 +429,6 @@
                 commentItem.textContent = comment.text; // Adjust based on comment structure
                 commentsList.appendChild(commentItem);
             });
-        
-            // Log the event ID to confirm it's being passed correctly
-            console.log("Event ID in openEventDetails:", event.id);
         
             // Set up comment submission
             submitCommentBtn.onclick = () => {
@@ -553,22 +556,23 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
-                
+        
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
                                         date: eventData.date,
                                         time: eventData.time,
-                                        location: eventData.location || 'Not specified', // Ensure location is included
-                                        comment: eventData.comment || 'No comment', // Ensure comment is included
+                                        location: eventData.location || 'Not specified',
+                                        comments: eventData.comments || [], // Ensure comments are fetched
                                         createdBy: friendId, // Mark as created by the friend
                                         userId: friendUserId, // Use the friend's userId
                                         isFriendEvent: true, // Flag to indicate it's a friend's event
-                                        visibleTo: eventData.visibleTo || [] // Get the visibleTo array
+                                        visibleTo: eventData.visibleTo || [],
+                                        id: eventId // Ensure the ID is being set here
                                     });
                                 });
                             });
-                
+        
                             return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
                         }
                     });
