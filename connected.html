@@ -423,6 +423,7 @@
                             title: eventData.title,
                             date: eventData.date,
                             time: eventData.time,
+                            location: eventData.location || 'Not specified', // Ensure location is included
                             createdBy: currentUserId, // Mark as your event
                             userId: "You", // Display "You" for your events
                             isFriendEvent: false, // Flag to indicate it's your event
