@@ -453,8 +453,8 @@
                 text: commentText
             }).then(() => {
                 console.log("Comment added successfully.");
-                displayAllEvents(); // Refresh events to show the new comment
-                displayComments(eventId); // Refresh comments display for this specific event
+                // Refresh the event details modal to show the new comment
+                openEventDetails({ id: eventId }); // Call openEventDetails with the event ID
             }).catch(error => {
                 console.error("Error adding comment:", error);
             });
