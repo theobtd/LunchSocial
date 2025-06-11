@@ -368,10 +368,10 @@
                             // Combine date and time for comparison
                             let dateTimeA = new Date(`${a.date}T${a.time}:00`); // Ensure seconds are included
                             let dateTimeB = new Date(`${b.date}T${b.time}:00`); // Ensure seconds are included
-                            
+        
                             // Debugging: Log the dates being compared
                             console.log(`Comparing: ${dateTimeA} with ${dateTimeB}`);
-                            
+        
                             return dateTimeA - dateTimeB; // Ascending order
                         });
         
