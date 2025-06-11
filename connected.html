@@ -226,6 +226,27 @@
                         }
                     });
                 }
+
+                // Check for accepted requests from the sender's perspective
+                const outgoingAcceptedList = document.getElementById('acceptedList');
+                requestsArray.forEach(requesterId => {
+                    if (requests[requesterId].status === 'accepted') {
+                        database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                            if (requestSnapshot.exists() && requestSnapshot.val().status === 'accepted') {
+                                // If the logged-in user has sent a request and it's accepted
+                                database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                                    const requesterData = userSnapshot.val();
+                                    if (requesterData) {
+                                        const acceptedItem = document.createElement('div');
+                                        acceptedItem.classList.add('accepted-item');
+                                        acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
+                                        outgoingAcceptedList.appendChild(acceptedItem); // Add to the list
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
             }).catch(error => {
                 console.error("Error fetching accepted friends:", error);
             });
