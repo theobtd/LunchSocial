@@ -344,18 +344,16 @@
                                         const eventData = events[eventId];
                                         const eventItem = document.createElement('div');
                                         eventItem.classList.add('event-item');
-                                        // Display event details with friend's ID
-                                        eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${eventData.createdBy})`;
-        
+                                        
                                         // Fetch friend's userId to display the name instead of ID
                                         database.ref('users/' + eventData.createdBy).once('value').then(friendSnapshot => {
                                             const friendData = friendSnapshot.val();
-                                            if (friendData) {
-                                                eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${friendData.userId})`;
-                                            }
+                                            const creatorName = friendData ? friendData.userId : 'Unknown'; // Fallback if no user data
+                                            
+                                            // Display event details with friend's ID
+                                            eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${creatorName})`;
+                                            friendsEventList.appendChild(eventItem); // Add to the list
                                         });
-        
-                                        friendsEventList.appendChild(eventItem); // Add to the list
                                     });
                                 }
                             });
