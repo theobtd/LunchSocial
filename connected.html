@@ -368,6 +368,10 @@
                             // Create date objects for comparison
                             let dateTimeA = new Date(`${a.date}T${a.time}`);
                             let dateTimeB = new Date(`${b.date}T${b.time}`);
+                            
+                            // Debugging: Log the dates being compared
+                            console.log(`Comparing: ${dateTimeA} with ${dateTimeB}`);
+                            
                             return dateTimeA - dateTimeB; // Ascending order
                         });
         
