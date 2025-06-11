@@ -347,14 +347,17 @@
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
         
                                     const eventData = events[eventId];
-                                    allEvents.push({
-                                        title: eventData.title,
-                                        date: eventData.date,
-                                        time: eventData.time,
-                                        createdBy: friendId, // Mark as created by the friend
-                                        userId: friendUserId, // Use the friend's userId
-                                        isFriendEvent: true // Flag to indicate it's a friend's event
-                                    });
+                                    // Check if the event is already in the list to avoid duplicates
+                                    if (!allEvents.some(event => event.title === eventData.title && event.date === eventData.date && event.time === eventData.time && event.createdBy === friendId)) {
+                                        allEvents.push({
+                                            title: eventData.title,
+                                            date: eventData.date,
+                                            time: eventData.time,
+                                            createdBy: friendId, // Mark as created by the friend
+                                            userId: friendUserId, // Use the friend's userId
+                                            isFriendEvent: true // Flag to indicate it's a friend's event
+                                        });
+                                    }
                                 });
                             });
         
