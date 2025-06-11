@@ -282,7 +282,16 @@
                                 if (friendData) {
                                     const friendItem = document.createElement('div');
                                     friendItem.classList.add('friend-item');
-                                    friendItem.textContent = friendData.userId; // Display the friend's userId
+        
+                                    // Create a checkbox
+                                    const checkbox = document.createElement('input');
+                                    checkbox.type = 'checkbox';
+                                    checkbox.id = friendId; // Use friend's UID as ID
+                                    checkbox.value = friendData.userId; // Store userId as value
+        
+                                    // Append the checkbox and friend name
+                                    friendItem.appendChild(checkbox);
+                                    friendItem.appendChild(document.createTextNode(friendData.userId));
                                     friendsList.appendChild(friendItem); // Add to the list
                                 }
                             });
@@ -303,11 +312,21 @@
                 const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
                 const eventKey = database.ref('users/' + currentUserId + '/events').push().key; // Create a unique key for the event
         
+                // Collect selected friends' IDs
+                const selectedFriends = [];
+                const checkboxes = document.querySelectorAll('#friendsList input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selectedFriends.push(checkbox.id); // Add friend's UID to the list
+                    }
+                });
+        
                 database.ref('users/' + currentUserId + '/events/' + eventKey).set({
                     title: title,
                     date: date,
                     time: time,
-                    createdBy: currentUserId // Store the creator's user ID
+                    createdBy: currentUserId, // Store the creator's user ID
+                    visibleTo: selectedFriends // Store the list of friends who can see the event
                 }).then(() => {
                     alert("Event created successfully!");
                     displayAllEvents(); // Refresh the events display
@@ -350,7 +369,8 @@
                             time: eventData.time,
                             createdBy: currentUserId, // Mark as your event
                             userId: "You", // Display "You" for your events
-                            isFriendEvent: false // Flag to indicate it's your event
+                            isFriendEvent: false, // Flag to indicate it's your event
+                            visibleTo: eventData.visibleTo || [] // Get the visibleTo array
                         });
                     });
                 }
@@ -382,17 +402,15 @@
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
         
                                     const eventData = events[eventId];
-                                    // Check if the event is already in the list to avoid duplicates
-                                    if (!allEvents.some(event => event.title === eventData.title && event.date === eventData.date && event.time === eventData.time && event.createdBy === friendId)) {
-                                        allEvents.push({
-                                            title: eventData.title,
-                                            date: eventData.date,
-                                            time: eventData.time,
-                                            createdBy: friendId, // Mark as created by the friend
-                                            userId: friendUserId, // Use the friend's userId
-                                            isFriendEvent: true // Flag to indicate it's a friend's event
-                                        });
-                                    }
+                                    allEvents.push({
+                                        title: eventData.title,
+                                        date: eventData.date,
+                                        time: eventData.time,
+                                        createdBy: friendId, // Mark as created by the friend
+                                        userId: friendUserId, // Use the friend's userId
+                                        isFriendEvent: true, // Flag to indicate it's a friend's event
+                                        visibleTo: eventData.visibleTo || [] // Get the visibleTo array
+                                    });
                                 });
                             });
         
@@ -415,13 +433,19 @@
         
                 // Display all events in a single unified list
                 allEvents.forEach(event => {
-                    const eventItem = document.createElement('div');
-                    eventItem.classList.add('event-item');
+                    // Check if the event is visible to the current user
+                    const isVisible = event.isFriendEvent || event.createdBy === currentUserId || 
+                                      (event.visibleTo && event.visibleTo.includes(currentUserId));
         
-                    // Indicate if it's your event or a friend's event
-                    const eventOwner = event.isFriendEvent ? `(Created by: ${event.userId})` : `(Your Event)`;
-                    eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
-                    unifiedEventList.appendChild(eventItem); // Append each event in order
+                    if (isVisible) {
+                        const eventItem = document.createElement('div');
+                        eventItem.classList.add('event-item');
+        
+                        // Indicate if it's your event or a friend's event
+                        const eventOwner = event.isFriendEvent ? `(Created by: ${event.userId})` : `(Your Event)`;
+                        eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
+                        unifiedEventList.appendChild(eventItem); // Append each event in order
+                    }
                 });
             }).catch(error => {
                 console.error("Error fetching events:", error);
