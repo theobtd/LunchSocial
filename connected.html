@@ -367,10 +367,10 @@
                     title: title,
                     date: date,
                     time: time,
-                    location: location, // Store the location
-                    comment: comment, // Store the comment
-                    createdBy: currentUserId, // Store the creator's user ID
-                    visibleTo: selectedFriends // Store the list of friends who can see the event
+                    location: location,
+                    comment: comment,
+                    createdBy: currentUserId, // Store the creator's user ID here
+                    visibleTo: selectedFriends
                 }).then(() => {
                     alert("Event created successfully!");
                     displayAllEvents(); // Refresh the events display
