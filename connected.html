@@ -68,13 +68,7 @@
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
             <p id="eventDetailLocation"></p>
-            <p id="eventDetailComment"></p> <!-- Existing comment display -->
-            
-            <h4>Comments:</h4>
-            <div id="commentsList"></div> <!-- Container for comments -->
-            <textarea id="newComment" placeholder="Leave a comment..." rows="3"></textarea>
-            <button id="submitCommentBtn">Send</button> <!-- Button to submit comment -->
-            
+            <p id="eventDetailComment"></p> <!-- New element for comment -->
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
     </div>
@@ -363,21 +357,21 @@
                     }
                 });
         
-            database.ref('users/' + currentUserId + '/events/' + eventKey).set({
-                title: title,
-                date: date,
-                time: time,
-                location: location,
-                comment: comment,
-                createdBy: currentUserId, // Store the creator's UID
-                visibleTo: selectedFriends
-            }).then(() => {
-                alert("Event created successfully!");
-                displayAllEvents(); // Refresh the events display
-                closeModal(); // Close the modal
-            }).catch(error => {
-                console.error("Error creating event:", error);
-            });
+                database.ref('users/' + currentUserId + '/events/' + eventKey).set({
+                    title: title,
+                    date: date,
+                    time: time,
+                    location: location, // Store the location
+                    comment: comment, // Store the comment
+                    createdBy: currentUserId, // Store the creator's user ID
+                    visibleTo: selectedFriends // Store the list of friends who can see the event
+                }).then(() => {
+                    alert("Event created successfully!");
+                    displayAllEvents(); // Refresh the events display
+                    closeModal(); // Close the modal
+                }).catch(error => {
+                    console.error("Error creating event:", error);
+                });
             } else {
                 alert("All fields are required!");
             }
@@ -400,10 +394,7 @@
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
             const eventLocation = document.getElementById('eventDetailLocation');
-            const eventComment = document.getElementById('eventDetailComment');
-            const commentsList = document.getElementById('commentsList'); // Container for comments
-            const newComment = document.getElementById('newComment'); // Comment input
-            const submitCommentBtn = document.getElementById('submitCommentBtn'); // Button for submitting comments
+            const eventComment = document.getElementById('eventDetailComment'); // New element for comment
             const deleteEventBtn = document.getElementById('deleteEventBtn');
         
             // Set the event details
@@ -412,21 +403,7 @@
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
             eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
-            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
-        
-            // Load existing comments
-            commentsList.innerHTML = ''; // Clear previous comments
-            (event.comments || []).forEach(comment => { // Safely access comments
-                const commentItem = document.createElement('div');
-                commentItem.textContent = comment.text; // Adjust based on comment structure
-                commentsList.appendChild(commentItem);
-            });
-        
-            // Set up comment submission
-            submitCommentBtn.onclick = () => {
-                submitComment(event.id, newComment.value); // Pass event ID and new comment value
-                newComment.value = ''; // Clear input after submission
-            };
+            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`; // Set the comment
         
             // Show or hide the delete button based on creator
             if (event.createdBy === auth.currentUser.uid) {
@@ -439,47 +416,24 @@
             eventDetailsModal.style.display = "block"; // Show the modal
         }
 
-        function submitComment(eventId, commentText) {
+        function deleteEvent(creatorId, eventId) {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
         
-            if (commentText.trim() === '') {
-                alert("Comment cannot be empty.");
-                return;
-            }
-        
-            // Fetch the event data to get the creator's UID
-            database.ref('users').once('value').then(snapshot => {
-                let eventCreatorId;
-        
-                // Loop through users to find the event creator UID
-                snapshot.forEach(userSnapshot => {
-                    const userEvents = userSnapshot.child('events').val();
-                    if (userEvents) {
-                        Object.keys(userEvents).forEach(key => {
-                            if (key === eventId) {
-                                eventCreatorId = userSnapshot.key; // This is the creator's UID
-                            }
-                        });
-                    }
-                });
-        
-                if (eventCreatorId) {
-                    // Add the comment to the specific event under the creator's path
-                    database.ref('users/' + eventCreatorId + '/events/' + eventId + '/comments').push({
-                        userId: currentUserId, // Store the UID of the commenter
-                        text: commentText
-                    }).then(() => {
-                        console.log("Comment added successfully.");
-                        openEventDetails({ id: eventId }); // Refresh the event details
-                    }).catch(error => {
-                        console.error("Error adding comment:", error);
+            // Confirm deletion
+            if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+                // Remove the event from the creator's events
+                database.ref('users/' + creatorId + '/events/' + eventId).remove()
+                    .then(() => {
+                        console.log("Event deleted successfully.");
+                        displayAllEvents(); // Refresh the events display
+                        
+                        // Close the modal after deletion
+                        closeEventDetailsModal(); // Call the function to close the modal
+                    })
+                    .catch(error => {
+                        console.error("Error deleting event:", error);
                     });
-                } else {
-                    console.error("Event creator not found.");
-                }
-            }).catch(error => {
-                console.error("Error fetching event creator:", error);
-            });
+            }
         }
         
         // Function to close the event details modal
@@ -508,12 +462,12 @@
                             date: eventData.date,
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
-                            comments: eventData.comments || [], // Ensure comments are fetched
-                            createdBy: eventData.createdBy, // Store the creator's ID here
-                            userId: "You",
-                            isFriendEvent: false,
-                            visibleTo: eventData.visibleTo || [],
-                            id: eventId
+                            comment: eventData.comment || 'No comment', // Include the comment here
+                            createdBy: eventData.createdBy, // Use the creator's ID
+                            userId: "You", // Display "You" for your events
+                            isFriendEvent: false, // Flag to indicate it's your event
+                            visibleTo: eventData.visibleTo || [], // Get the visibleTo array
+                            id: eventId // Include the event ID
                         });
                     });
                 }
@@ -533,7 +487,7 @@
                     });
                 }
         
-                // Fetch friends' events
+                // Fetch events for each accepted friend
                 const friendEventPromises = friendIds.map(friendId => {
                     return database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
                         const events = eventSnapshot.val();
@@ -543,14 +497,12 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
-                
+        
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
                                         date: eventData.date,
                                         time: eventData.time,
-                                        location: eventData.location || 'Not specified', // Ensure location is included
-                                        comment: eventData.comment || 'No comment', // Ensure comment is included
                                         createdBy: friendId, // Mark as created by the friend
                                         userId: friendUserId, // Use the friend's userId
                                         isFriendEvent: true, // Flag to indicate it's a friend's event
@@ -558,7 +510,7 @@
                                     });
                                 });
                             });
-                
+        
                             return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
                         }
                     });
