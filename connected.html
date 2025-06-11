@@ -324,40 +324,67 @@
 
         // Function to fetch and display friends' events
         function displayFriendsEvents() {
-            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+            const currentUserId = auth.currentUser.uid; // Get current user’s Firebase UID
             const friendsEventList = document.getElementById('friendsEventList');
             friendsEventList.innerHTML = ''; // Clear previous list
+        
+            // Array to hold all events
+            let allEvents = [];
         
             // Fetch accepted friends
             database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
                 const requests = snapshot.val();
                 if (requests) {
                     const requestsArray = Object.keys(requests);
+                    let eventPromises = []; // Array to hold promises
+        
                     requestsArray.forEach(friendId => {
                         if (requests[friendId].status === 'accepted') {
                             // Fetch friend's events
-                            database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
+                            eventPromises.push(database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
                                 const events = eventSnapshot.val();
                                 if (events) {
                                     const eventsArray = Object.keys(events);
                                     eventsArray.forEach(eventId => {
                                         const eventData = events[eventId];
-                                        const eventItem = document.createElement('div');
-                                        eventItem.classList.add('event-item');
-                                        
-                                        // Fetch friend's userId to display the name instead of ID
-                                        database.ref('users/' + eventData.createdBy).once('value').then(friendSnapshot => {
-                                            const friendData = friendSnapshot.val();
-                                            const creatorName = friendData ? friendData.userId : 'Unknown'; // Fallback if no user data
-                                            
-                                            // Display event details with friend's ID
-                                            eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${creatorName})`;
-                                            friendsEventList.appendChild(eventItem); // Add to the list
+                                        // Push event data along with friend ID to the allEvents array
+                                        allEvents.push({
+                                            title: eventData.title,
+                                            date: eventData.date,
+                                            time: eventData.time,
+                                            createdBy: eventData.createdBy,
+                                            friendId: friendId
                                         });
                                     });
                                 }
-                            });
+                            }));
                         }
+                    });
+        
+                    // Wait for all eventPromises to resolve
+                    Promise.all(eventPromises).then(() => {
+                        // Sort allEvents array by date and time
+                        allEvents.sort((a, b) => {
+                            let dateA = new Date(`${a.date}T${a.time}`);
+                            let dateB = new Date(`${b.date}T${b.time}`);
+                            return dateA - dateB; // Ascending order
+                        });
+        
+                        // Display sorted events
+                        allEvents.forEach(event => {
+                            const eventItem = document.createElement('div');
+                            eventItem.classList.add('event-item');
+        
+                            // Fetch friend's userId to display the name instead of ID
+                            database.ref('users/' + event.createdBy).once('value').then(friendSnapshot => {
+                                const friendData = friendSnapshot.val();
+                                const creatorName = friendData ? friendData.userId : 'Unknown'; // Fallback if no user data
+        
+                                // Display event details
+                                eventItem.textContent = `${event.title} - ${event.date} at ${event.time} (Created by: ${creatorName})`;
+                                friendsEventList.appendChild(eventItem); // Add to the list
+                            });
+                        });
                     });
                 }
             }).catch(error => {
