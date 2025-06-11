@@ -226,24 +226,6 @@
                         }
                     });
                 }
-
-                // Check for accepted requests from the sender's perspective
-                requestsArray.forEach(requesterId => {
-                    database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
-                        if (requestSnapshot.exists() && requestSnapshot.val().status === 'accepted') {
-                            // If the logged-in user has sent a request and it's accepted
-                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
-                                const requesterData = userSnapshot.val();
-                                if (requesterData) {
-                                    const acceptedItem = document.createElement('div');
-                                    acceptedItem.classList.add('accepted-item');
-                                    acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
-                                    acceptedList.appendChild(acceptedItem); // Add to the list
-                                }
-                            });
-                        }
-                    });
-                });
             }).catch(error => {
                 console.error("Error fetching accepted friends:", error);
             });
@@ -259,7 +241,8 @@
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
                 // Also update the sender's request status to accepted
-                database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).update({
+                database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).set({
+                    requestingUserId: currentUserId,
                     status: 'accepted'
                 }).then(() => {
                     displayPendingRequests(); // Refresh the pending requests display
