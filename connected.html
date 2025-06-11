@@ -261,20 +261,20 @@
             modal.style.display = "block"; // Show the modal
         }
 
-        // Function to submit the event
         function submitEvent() {
             const title = document.getElementById("eventTitle").value;
             const date = document.getElementById("eventDate").value;
             const time = document.getElementById("eventTime").value;
-
+        
             if (title && date && time) {
                 const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
                 const eventKey = database.ref('users/' + currentUserId + '/events').push().key; // Create a unique key for the event
-
+        
                 database.ref('users/' + currentUserId + '/events/' + eventKey).set({
                     title: title,
                     date: date,
-                    time: time
+                    time: time,
+                    createdBy: currentUserId // Store the creator's user ID
                 }).then(() => {
                     alert("Event created successfully!");
                     displayEvents(); // Refresh the events display
@@ -321,12 +321,13 @@
             });
         }
 
+
         // Function to fetch and display friends' events
         function displayFriendsEvents() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const friendsEventList = document.getElementById('friendsEventList');
             friendsEventList.innerHTML = ''; // Clear previous list
-
+        
             // Fetch accepted friends
             database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
                 const requests = snapshot.val();
@@ -343,7 +344,17 @@
                                         const eventData = events[eventId];
                                         const eventItem = document.createElement('div');
                                         eventItem.classList.add('event-item');
-                                        eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time}`; // Display event details
+                                        // Display event details with friend's ID
+                                        eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${eventData.createdBy})`;
+        
+                                        // Fetch friend's userId to display the name instead of ID
+                                        database.ref('users/' + eventData.createdBy).once('value').then(friendSnapshot => {
+                                            const friendData = friendSnapshot.val();
+                                            if (friendData) {
+                                                eventItem.textContent = `${eventData.title} - ${eventData.date} at ${eventData.time} (Created by: ${friendData.userId})`;
+                                            }
+                                        });
+        
                                         friendsEventList.appendChild(eventItem); // Add to the list
                                     });
                                 }
