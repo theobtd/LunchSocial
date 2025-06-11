@@ -401,9 +401,9 @@
             const eventCreator = document.getElementById('eventDetailCreator');
             const eventLocation = document.getElementById('eventDetailLocation');
             const eventComment = document.getElementById('eventDetailComment');
-            const commentsList = document.getElementById('commentsList'); // New element for comments
-            const newComment = document.getElementById('newComment'); // New comment input
-            const submitCommentBtn = document.getElementById('submitCommentBtn'); // Button for submitting comments
+            const commentsList = document.getElementById('commentsList');
+            const newComment = document.getElementById('newComment');
+            const submitCommentBtn = document.getElementById('submitCommentBtn');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
         
             // Set the event details
@@ -416,7 +416,7 @@
         
             // Load existing comments
             commentsList.innerHTML = ''; // Clear previous comments
-            event.comments.forEach(comment => {
+            (event.comments || []).forEach(comment => { // Use safe access
                 const commentItem = document.createElement('div');
                 commentItem.textContent = comment.text; // Assuming comment is an object with a 'text' property
                 commentsList.appendChild(commentItem);
@@ -424,13 +424,13 @@
         
             // Set up comment submission
             submitCommentBtn.onclick = () => submitComment(event.id, newComment.value);
-            
+        
             // Show or hide the delete button based on creator
             if (event.createdBy === auth.currentUser.uid) {
-                deleteEventBtn.style.display = "block"; // Show the button
-                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id); // Pass the event ID
+                deleteEventBtn.style.display = "block";
+                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id);
             } else {
-                deleteEventBtn.style.display = "none"; // Hide the button
+                deleteEventBtn.style.display = "none";
             }
         
             eventDetailsModal.style.display = "block"; // Show the modal
@@ -498,16 +498,16 @@
                     eventsArray.forEach(eventId => {
                         const eventData = events[eventId];
                         allEvents.push({
-                                title: eventData.title,
-                                date: eventData.date,
-                                time: eventData.time,
-                                location: eventData.location || 'Not specified',
-                                comments: eventData.comments || [], // Include comments
-                                createdBy: eventData.createdBy,
-                                userId: "You",
-                                isFriendEvent: false,
-                                visibleTo: eventData.visibleTo || [],
-                                id: eventId
+                            title: eventData.title,
+                            date: eventData.date,
+                            time: eventData.time,
+                            location: eventData.location || 'Not specified',
+                            comments: eventData.comments || [], // Ensure comments is an array
+                            createdBy: eventData.createdBy,
+                            userId: "You",
+                            isFriendEvent: false,
+                            visibleTo: eventData.visibleTo || [],
+                            id: eventId
                         });
                     });
                 }
