@@ -110,24 +110,24 @@
                                 actionButton.textContent = 'Friends';
                                 actionButton.disabled = true; // Disable button
                             }
-                        } else {
-                            // Check for outgoing requests
-                            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
-                                if (requestSnapshot.exists()) {
-                                    // If the logged-in user has sent a request
-                                    if (requestSnapshot.val().status === 'pending') {
-                                        actionButton.textContent = 'Pending';
-                                        actionButton.disabled = true; // Disable button
-                                    }
-                                } else {
-                                    // If there are no requests, show the + button
-                                    actionButton.textContent = '+';
-                                    actionButton.onclick = function() {
-                                        sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
-                                    };
+                        } 
+
+                        // Check for outgoing requests
+                        database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                            if (requestSnapshot.exists()) {
+                                // If the logged-in user has sent a request
+                                if (requestSnapshot.val().status === 'pending') {
+                                    actionButton.textContent = 'Pending';
+                                    actionButton.disabled = true; // Disable button
                                 }
-                            });
-                        }
+                            } else {
+                                // If there are no requests, show the + button
+                                actionButton.textContent = '+';
+                                actionButton.onclick = function() {
+                                    sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
+                                };
+                            }
+                        });
                     });
 
                     // Append button to user item
@@ -190,6 +190,26 @@
                                     // Append tick button to request item
                                     requestItem.appendChild(acceptButton);
                                     requestList.appendChild(requestItem); // Add to the list
+                                }
+                            });
+                        }
+                    });
+
+                    // Also display outgoing requests
+                    const outgoingRequestsList = document.createElement('div');
+                    outgoingRequestsList.classList.add('outgoing-requests');
+                    requestList.appendChild(outgoingRequestsList);
+
+                    requestsArray.forEach(requesterId => {
+                        // Check if the user sent a request
+                        if (pendingRequests[requesterId].status === 'pending') {
+                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                                const requesterData = userSnapshot.val();
+                                if (requesterData) {
+                                    const outgoingRequestItem = document.createElement('div');
+                                    outgoingRequestItem.classList.add('request-item');
+                                    outgoingRequestItem.textContent = `To: ${requesterData.userId} (Pending)`; // Display outgoing request
+                                    outgoingRequestsList.appendChild(outgoingRequestItem); // Add to the list
                                 }
                             });
                         }
