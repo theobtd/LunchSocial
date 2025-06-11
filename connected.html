@@ -444,7 +444,7 @@
                 return;
             }
         
-            // Add the comment to the event in the database
+            // Add the comment to the specific event in the database
             database.ref('users/' + currentUserId + '/events/' + eventId + '/comments').push({
                 userId: currentUserId,
                 text: commentText
@@ -502,7 +502,7 @@
                             date: eventData.date,
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
-                            comments: eventData.comments || [], // Ensure comments is an array
+                            comments: eventData.comments || [], // Ensure comments are fetched
                             createdBy: eventData.createdBy,
                             userId: "You",
                             isFriendEvent: false,
