@@ -365,32 +365,32 @@
                     Promise.all(eventPromises).then(() => {
                         // Sort allEvents array by the event date and time
                         allEvents.sort((a, b) => {
-                            // Combine date and time for comparison
-                            let dateTimeA = new Date(`${a.date}T${a.time}:00`); // Ensure seconds are included
-                            let dateTimeB = new Date(`${b.date}T${b.time}:00`); // Ensure seconds are included
-        
-                            // Debugging: Log the dates being compared
-                            console.log(`Comparing: ${dateTimeA} with ${dateTimeB}`);
-        
+                            let dateTimeA = new Date(`${a.date}T${a.time}:00`);
+                            let dateTimeB = new Date(`${b.date}T${b.time}:00`);
                             return dateTimeA - dateTimeB; // Ascending order
                         });
         
                         // Check if sorting works as expected
                         console.log("Sorted Events:", allEvents);
         
-                        // Display sorted events
-                        allEvents.forEach(event => {
-                            const eventItem = document.createElement('div');
-                            eventItem.classList.add('event-item');
-        
-                            // Fetch friend's userId to display the name instead of ID
-                            database.ref('users/' + event.createdBy).once('value').then(friendSnapshot => {
+                        // Fetch `createdBy` data for all events and append them to the DOM
+                        let displayPromises = allEvents.map(event => {
+                            return database.ref('users/' + event.createdBy).once('value').then(friendSnapshot => {
                                 const friendData = friendSnapshot.val();
                                 const creatorName = friendData ? friendData.userId : 'Unknown'; // Fallback if no user data
         
-                                // Display event details
+                                // Create and return the event item
+                                const eventItem = document.createElement('div');
+                                eventItem.classList.add('event-item');
                                 eventItem.textContent = `${event.title} - ${event.date} at ${event.time} (Created by: ${creatorName})`;
-                                friendsEventList.appendChild(eventItem); // Add to the list
+                                return eventItem;
+                            });
+                        });
+        
+                        // Wait for all displayPromises to resolve before appending to the DOM
+                        Promise.all(displayPromises).then(eventElements => {
+                            eventElements.forEach(eventElement => {
+                                friendsEventList.appendChild(eventElement); // Append each event in order
                             });
                         });
                     });
