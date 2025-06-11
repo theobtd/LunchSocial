@@ -400,7 +400,7 @@
             // Show or hide the delete button based on creator
             if (event.createdBy === auth.currentUser.uid) {
                 deleteEventBtn.style.display = "block"; // Show the button
-                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id); // Pass the event ID
+                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id); // Ensure event.id is correct
             } else {
                 deleteEventBtn.style.display = "none"; // Hide the button
             }
@@ -451,11 +451,12 @@
                             title: eventData.title,
                             date: eventData.date,
                             time: eventData.time,
-                            location: eventData.location || 'Not specified', // Ensure location is included
-                            createdBy: currentUserId, // Mark as your event
+                            location: eventData.location || 'Not specified',
+                            createdBy: eventData.createdBy, // Use the creator's ID
                             userId: "You", // Display "You" for your events
                             isFriendEvent: false, // Flag to indicate it's your event
-                            visibleTo: eventData.visibleTo || [] // Get the visibleTo array
+                            visibleTo: eventData.visibleTo || [], // Get the visibleTo array
+                            id: eventId // Include the event ID
                         });
                     });
                 }
