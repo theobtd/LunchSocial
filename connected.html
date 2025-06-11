@@ -65,6 +65,7 @@
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
             <p id="eventDetailLocation"></p>
+            <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
     </div>
 
@@ -386,16 +387,40 @@
             const eventDate = document.getElementById('eventDetailDate');
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
-            const eventLocation = document.getElementById('eventDetailLocation'); // New element for location
+            const eventLocation = document.getElementById('eventDetailLocation');
+            const deleteEventBtn = document.getElementById('deleteEventBtn');
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
-            eventLocation.textContent = `Location: ${event.location}`; // Set the location
+            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
+        
+            // Show or hide the delete button based on creator
+            if (event.createdBy === auth.currentUser.uid) {
+                deleteEventBtn.style.display = "block"; // Show the button
+                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id); // Pass the event ID
+            } else {
+                deleteEventBtn.style.display = "none"; // Hide the button
+            }
         
             eventDetailsModal.style.display = "block"; // Show the modal
+        }
+
+        function deleteEvent(creatorId, eventId) {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+        
+            // Confirm deletion
+            if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
+                // Remove the event from the creator's events
+                database.ref('users/' + creatorId + '/events/' + eventId).remove().then(() => {
+                    console.log("Event deleted successfully.");
+                    displayAllEvents(); // Refresh the events display
+                }).catch(error => {
+                    console.error("Error deleting event:", error);
+                });
+            }
         }
         
         // Function to close the event details modal
