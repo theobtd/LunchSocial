@@ -424,7 +424,7 @@
         
             // Set up comment submission
             submitCommentBtn.onclick = () => {
-                submitComment(event.id, newComment.value); // Pass event ID and new comment value
+                submitComment(event.id, newComment.value); // Ensure event.id is defined
                 newComment.value = ''; // Clear input after submission
             };
         
@@ -517,7 +517,7 @@
                             userId: "You",
                             isFriendEvent: false,
                             visibleTo: eventData.visibleTo || [],
-                            id: eventId
+                            id: eventId // Ensure you're storing the event ID
                         });
                     });
                 }
