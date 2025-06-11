@@ -180,7 +180,7 @@
                                     requestItem.classList.add('request-item');
                                     requestItem.textContent = requesterData.userId; // Display the userId of the requester
                                     
-                                    // Create a tick button
+                                    // Create a tick button for the recipient
                                     const acceptButton = document.createElement('button');
                                     acceptButton.textContent = '✓';
                                     acceptButton.onclick = function() {
@@ -196,10 +196,6 @@
                     });
 
                     // Also display outgoing requests
-                    const outgoingRequestsList = document.createElement('div');
-                    outgoingRequestsList.classList.add('outgoing-requests');
-                    requestList.appendChild(outgoingRequestsList);
-
                     requestsArray.forEach(requesterId => {
                         // Check if the user sent a request
                         if (pendingRequests[requesterId].status === 'pending') {
@@ -208,8 +204,8 @@
                                 if (requesterData) {
                                     const outgoingRequestItem = document.createElement('div');
                                     outgoingRequestItem.classList.add('request-item');
-                                    outgoingRequestItem.textContent = `To: ${requesterData.userId} (Pending)`; // Display outgoing request
-                                    outgoingRequestsList.appendChild(outgoingRequestItem); // Add to the list
+                                    outgoingRequestItem.textContent = `To: ${requesterData.userId} - Pending`; // Display outgoing request
+                                    requestList.appendChild(outgoingRequestItem); // Add to the list
                                 }
                             });
                         }
