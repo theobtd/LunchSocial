@@ -49,7 +49,18 @@
             <h4>Your Friends:</h4>
             <button id="selectAllBtn">Select All Friends</button> <!-- Super button -->
             <div id="friendsList" class="friends-list"></div>
-            
+        </div>
+    </div>
+
+    <!-- Modal for Event Details -->
+    <div id="eventDetailsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEventDetailsModal()">&times;</span>
+            <h3>Event Details</h3>
+            <p id="eventTitle"></p>
+            <p id="eventDate"></p>
+            <p id="eventTime"></p>
+            <p id="eventCreator"></p>
         </div>
     </div>
 
@@ -362,6 +373,29 @@
             document.getElementById("eventTime").value = '';
         }
 
+        // Function to open the event details modal
+        function openEventDetails(event) {
+            const eventDetailsModal = document.getElementById('eventDetailsModal');
+            const eventTitle = document.getElementById('eventTitle');
+            const eventDate = document.getElementById('eventDate');
+            const eventTime = document.getElementById('eventTime');
+            const eventCreator = document.getElementById('eventCreator');
+        
+            // Set the event details
+            eventTitle.textContent = `Title: ${event.title}`;
+            eventDate.textContent = `Date: ${event.date}`;
+            eventTime.textContent = `Time: ${event.time}`;
+            eventCreator.textContent = `Created by: ${event.userId}`;
+        
+            eventDetailsModal.style.display = "block"; // Show the modal
+        }
+        
+        // Function to close the event details modal
+        function closeEventDetailsModal() {
+            const eventDetailsModal = document.getElementById('eventDetailsModal');
+            eventDetailsModal.style.display = "none"; // Hide the modal
+        }
+        
         // Function to fetch and display events
         function displayAllEvents() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
@@ -448,10 +482,9 @@
                 // Display all events in a single unified list
                 allEvents.forEach(event => {
                     // Check if the event is visible to the current user
-                    const isVisible = event.createdBy === currentUserId || 
+                    const isVisible = event.isFriendEvent || event.createdBy === currentUserId || 
                                       (event.visibleTo && event.visibleTo.includes(currentUserId));
         
-                    // Remove the condition for accepted friends to see the event
                     if (isVisible) {
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
@@ -459,6 +492,10 @@
                         // Indicate if it's your event or a friend's event
                         const eventOwner = event.isFriendEvent ? `(Created by: ${event.userId})` : `(Your Event)`;
                         eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
+                        
+                        // Add click event to open details
+                        eventItem.onclick = () => openEventDetails(event); // Pass the event object
+                        
                         unifiedEventList.appendChild(eventItem); // Append each event in order
                     }
                 });
