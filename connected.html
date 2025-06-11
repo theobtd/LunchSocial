@@ -298,7 +298,7 @@
         function displayAllEvents() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const unifiedEventList = document.getElementById('eventList');
-            unifiedEventList.innerHTML = ''; // Clear previous list
+            unifiedEventList.innerHTML = ''; // Clear the list to prevent duplicates
         
             let allEvents = []; // Array to hold all events (yours + friends')
         
@@ -382,6 +382,7 @@
         
                 // Wait for all display promises to resolve before appending to the DOM
                 Promise.all(displayPromises).then(eventElements => {
+                    unifiedEventList.innerHTML = ''; // Clear the list again to ensure no duplicates
                     eventElements.forEach(eventElement => {
                         unifiedEventList.appendChild(eventElement); // Append each event in order
                     });
