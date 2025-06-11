@@ -447,16 +447,22 @@
                 return;
             }
         
-            // Add the comment to the specific event in the database
-            database.ref('users/' + currentUserId + '/events/' + eventId + '/comments').push({
-                userId: currentUserId,
-                text: commentText
-            }).then(() => {
-                console.log("Comment added successfully.");
-                // Refresh the event details modal to show the new comment
-                openEventDetails({ id: eventId }); // Call openEventDetails with the event ID
+            // First, fetch the event to get the creator's ID
+            database.ref('users').once('value').then(snapshot => {
+                const eventCreatorId = snapshot.child(currentUserId + '/events/' + eventId + '/createdBy').val(); // Get the creator's ID
+        
+                // Add the comment to the specific event in the database under the creator's path
+                database.ref('users/' + eventCreatorId + '/events/' + eventId + '/comments').push({
+                    userId: currentUserId,
+                    text: commentText
+                }).then(() => {
+                    console.log("Comment added successfully.");
+                    openEventDetails({ id: eventId }); // Refresh the event details
+                }).catch(error => {
+                    console.error("Error adding comment:", error);
+                });
             }).catch(error => {
-                console.error("Error adding comment:", error);
+                console.error("Error fetching event creator:", error);
             });
         }
 
