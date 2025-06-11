@@ -365,9 +365,9 @@
                     Promise.all(eventPromises).then(() => {
                         // Sort allEvents array by the event date and time
                         allEvents.sort((a, b) => {
-                            // Create date objects for comparison
-                            let dateTimeA = new Date(`${a.date}T${a.time}`);
-                            let dateTimeB = new Date(`${b.date}T${b.time}`);
+                            // Combine date and time for comparison
+                            let dateTimeA = new Date(`${a.date}T${a.time}:00`); // Ensure seconds are included
+                            let dateTimeB = new Date(`${b.date}T${b.time}:00`); // Ensure seconds are included
                             
                             // Debugging: Log the dates being compared
                             console.log(`Comparing: ${dateTimeA} with ${dateTimeB}`);
