@@ -411,7 +411,8 @@
         function deleteEvent(creatorId, eventId) {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
         
-            // Confirm deletion
+            console.log("Attempting to delete event:", eventId); // Log the event ID
+        
             if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
                 // Remove the event from the creator's events
                 database.ref('users/' + creatorId + '/events/' + eventId).remove()
@@ -420,7 +421,7 @@
                         displayAllEvents(); // Refresh the events display
                     })
                     .catch(error => {
-                        console.error("Error deleting event:", error);
+                        console.error("Error deleting event:", error); // Log any errors
                     });
             }
         }
