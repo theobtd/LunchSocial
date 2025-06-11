@@ -258,7 +258,7 @@
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
-                // Update the sender's request status to accepted
+                // Also update the sender's request status to accepted
                 database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).update({
                     status: 'accepted'
                 }).then(() => {
