@@ -47,7 +47,8 @@
             <button id="submitEventBtn">Create Event</button>
 
             <h4>Your Friends:</h4>
-            <div id="friendsList" class="friends-list"></div> <!-- New section for friends -->
+            <button id="selectAllBtn">Select All Friends</button> <!-- Super button -->
+            <div id="friendsList" class="friends-list"></div>
             
         </div>
     </div>
@@ -302,6 +303,19 @@
                 console.error("Error fetching friends:", error);
             });
         }
+        
+        // Function to toggle all friend checkboxes
+        function toggleAllFriends() {
+            const checkboxes = document.querySelectorAll('#friendsList input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = !allChecked; // Toggle the checked state
+            });
+        }
+        
+        // Add event listener to the "Select All Friends" button
+        document.getElementById('selectAllBtn').onclick = toggleAllFriends;
 
         function submitEvent() {
             const title = document.getElementById("eventTitle").value;
