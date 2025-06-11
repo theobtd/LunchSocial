@@ -68,7 +68,13 @@
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
             <p id="eventDetailLocation"></p>
-            <p id="eventDetailComment"></p> <!-- New element for comment -->
+            <p id="eventDetailComment"></p> <!-- Existing comment display -->
+            
+            <h4>Comments:</h4>
+            <div id="commentsList"></div> <!-- Container for comments -->
+            <textarea id="newComment" placeholder="Leave a comment..." rows="3"></textarea>
+            <button id="submitCommentBtn">Send</button> <!-- Button to submit comment -->
+            
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
     </div>
@@ -394,7 +400,10 @@
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
             const eventLocation = document.getElementById('eventDetailLocation');
-            const eventComment = document.getElementById('eventDetailComment'); // Reference to the new comment element
+            const eventComment = document.getElementById('eventDetailComment');
+            const commentsList = document.getElementById('commentsList'); // New element for comments
+            const newComment = document.getElementById('newComment'); // New comment input
+            const submitCommentBtn = document.getElementById('submitCommentBtn'); // Button for submitting comments
             const deleteEventBtn = document.getElementById('deleteEventBtn');
         
             // Set the event details
@@ -402,9 +411,20 @@
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
-            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`; // Set the location
-            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`; // Set the comment
+            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
+            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
+            // Load existing comments
+            commentsList.innerHTML = ''; // Clear previous comments
+            event.comments.forEach(comment => {
+                const commentItem = document.createElement('div');
+                commentItem.textContent = comment.text; // Assuming comment is an object with a 'text' property
+                commentsList.appendChild(commentItem);
+            });
+        
+            // Set up comment submission
+            submitCommentBtn.onclick = () => submitComment(event.id, newComment.value);
+            
             // Show or hide the delete button based on creator
             if (event.createdBy === auth.currentUser.uid) {
                 deleteEventBtn.style.display = "block"; // Show the button
@@ -414,6 +434,26 @@
             }
         
             eventDetailsModal.style.display = "block"; // Show the modal
+        }
+
+        function submitComment(eventId, commentText) {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+        
+            if (commentText.trim() === '') {
+                alert("Comment cannot be empty.");
+                return;
+            }
+        
+            // Add the comment to the event in the database
+            database.ref('users/' + currentUserId + '/events/' + eventId + '/comments').push({
+                userId: currentUserId,
+                text: commentText
+            }).then(() => {
+                console.log("Comment added successfully.");
+                displayAllEvents(); // Refresh events to show the new comment
+            }).catch(error => {
+                console.error("Error adding comment:", error);
+            });
         }
 
         function deleteEvent(creatorId, eventId) {
@@ -458,16 +498,16 @@
                     eventsArray.forEach(eventId => {
                         const eventData = events[eventId];
                         allEvents.push({
-                            title: eventData.title,
-                            date: eventData.date,
-                            time: eventData.time,
-                            location: eventData.location || 'Not specified',
-                            comment: eventData.comment || 'No comment', // Include the comment here
-                            createdBy: eventData.createdBy, // Use the creator's ID
-                            userId: "You", // Display "You" for your events
-                            isFriendEvent: false, // Flag to indicate it's your event
-                            visibleTo: eventData.visibleTo || [], // Get the visibleTo array
-                            id: eventId // Include the event ID
+                                title: eventData.title,
+                                date: eventData.date,
+                                time: eventData.time,
+                                location: eventData.location || 'Not specified',
+                                comments: eventData.comments || [], // Include comments
+                                createdBy: eventData.createdBy,
+                                userId: "You",
+                                isFriendEvent: false,
+                                visibleTo: eventData.visibleTo || [],
+                                id: eventId
                         });
                     });
                 }
