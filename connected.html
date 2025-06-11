@@ -195,27 +195,6 @@
                         }
                     });
                 }
-
-                // Also display outgoing requests
-                database.ref('users').once('value').then(snapshot => {
-                    snapshot.forEach(childSnapshot => {
-                        const targetUserId = childSnapshot.key;
-                        if (targetUserId !== currentUserId) { // Ensure not to check self
-                            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
-                                if (requestSnapshot.exists() && requestSnapshot.val().status === 'pending') {
-                                    // If the logged-in user has sent a request
-                                    database.ref('users/' + targetUserId).once('value').then(userSnapshot => {
-                                        const targetUserData = userSnapshot.val();
-                                        const outgoingRequestItem = document.createElement('div');
-                                        outgoingRequestItem.classList.add('request-item');
-                                        outgoingRequestItem.textContent = `To: ${targetUserData.userId} - Pending`; // Display outgoing request
-                                        requestList.appendChild(outgoingRequestItem); // Add to the list
-                                    });
-                                }
-                            });
-                        }
-                    });
-                });
             }).catch(error => {
                 console.error("Error fetching friend requests:", error);
             });
@@ -247,6 +226,24 @@
                         }
                     });
                 }
+
+                // Check for accepted requests from the sender's perspective
+                requestsArray.forEach(requesterId => {
+                    database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                        if (requestSnapshot.exists() && requestSnapshot.val().status === 'accepted') {
+                            // If the logged-in user has sent a request and it's accepted
+                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                                const requesterData = userSnapshot.val();
+                                if (requesterData) {
+                                    const acceptedItem = document.createElement('div');
+                                    acceptedItem.classList.add('accepted-item');
+                                    acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
+                                    acceptedList.appendChild(acceptedItem); // Add to the list
+                                }
+                            });
+                        }
+                    });
+                });
             }).catch(error => {
                 console.error("Error fetching accepted friends:", error);
             });
@@ -261,8 +258,13 @@
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
-                displayPendingRequests(); // Refresh the pending requests display
-                displayAcceptedFriends(); // Refresh the accepted friends display
+                // Update the sender's request status to accepted
+                database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).update({
+                    status: 'accepted'
+                }).then(() => {
+                    displayPendingRequests(); // Refresh the pending requests display
+                    displayAcceptedFriends(); // Refresh the accepted friends display
+                });
             }).catch(error => {
                 console.error("Error accepting friend request:", error);
             });
