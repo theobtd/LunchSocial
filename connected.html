@@ -375,6 +375,9 @@
                             return dateTimeA - dateTimeB; // Ascending order
                         });
         
+                        // Check if sorting works as expected
+                        console.log("Sorted Events:", allEvents);
+        
                         // Display sorted events
                         allEvents.forEach(event => {
                             const eventItem = document.createElement('div');
@@ -396,7 +399,7 @@
                 console.error("Error fetching friends' events:", error);
             });
         }
-
+        
         // Log out function
         document.getElementById('logoutBtn').onclick = function() {
             auth.signOut().then(() => {
