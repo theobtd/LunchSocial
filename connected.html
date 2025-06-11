@@ -449,13 +449,14 @@
         
             // Fetch the event data to get the creator's ID
             database.ref('users').once('value').then(snapshot => {
-                // Get the event creator ID
                 let eventCreatorId;
+        
+                // Loop through users to find the event creator
                 snapshot.forEach(userSnapshot => {
                     const userEvents = userSnapshot.child('events').val();
                     if (userEvents) {
-                        Object.keys(userEvents).forEach(eventKey => {
-                            if (eventKey === eventId) {
+                        Object.keys(userEvents).forEach(key => {
+                            if (key === eventId) {
                                 eventCreatorId = userSnapshot.key; // This is the creator's UID
                             }
                         });
@@ -479,26 +480,6 @@
             }).catch(error => {
                 console.error("Error fetching event creator:", error);
             });
-        }
-
-        function deleteEvent(creatorId, eventId) {
-            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-        
-            // Confirm deletion
-            if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
-                // Remove the event from the creator's events
-                database.ref('users/' + creatorId + '/events/' + eventId).remove()
-                    .then(() => {
-                        console.log("Event deleted successfully.");
-                        displayAllEvents(); // Refresh the events display
-                        
-                        // Close the modal after deletion
-                        closeEventDetailsModal(); // Call the function to close the modal
-                    })
-                    .catch(error => {
-                        console.error("Error deleting event:", error);
-                    });
-            }
         }
         
         // Function to close the event details modal
@@ -528,7 +509,7 @@
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
                             comments: eventData.comments || [], // Ensure comments are fetched
-                            createdBy: eventData.createdBy,
+                            createdBy: eventData.createdBy, // Store the creator's ID here
                             userId: "You",
                             isFriendEvent: false,
                             visibleTo: eventData.visibleTo || [],
