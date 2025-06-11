@@ -447,20 +447,35 @@
                 return;
             }
         
-            // First, fetch the event to get the creator's ID
+            // Fetch the event data to get the creator's ID
             database.ref('users').once('value').then(snapshot => {
-                const eventCreatorId = snapshot.child(currentUserId + '/events/' + eventId + '/createdBy').val(); // Get the creator's ID
-        
-                // Add the comment to the specific event in the database under the creator's path
-                database.ref('users/' + eventCreatorId + '/events/' + eventId + '/comments').push({
-                    userId: currentUserId,
-                    text: commentText
-                }).then(() => {
-                    console.log("Comment added successfully.");
-                    openEventDetails({ id: eventId }); // Refresh the event details
-                }).catch(error => {
-                    console.error("Error adding comment:", error);
+                // Get the event creator ID
+                let eventCreatorId;
+                snapshot.forEach(userSnapshot => {
+                    const userEvents = userSnapshot.child('events').val();
+                    if (userEvents) {
+                        Object.keys(userEvents).forEach(eventKey => {
+                            if (eventKey === eventId) {
+                                eventCreatorId = userSnapshot.key; // This is the creator's UID
+                            }
+                        });
+                    }
                 });
+        
+                if (eventCreatorId) {
+                    // Add the comment to the specific event under the creator's path
+                    database.ref('users/' + eventCreatorId + '/events/' + eventId + '/comments').push({
+                        userId: currentUserId,
+                        text: commentText
+                    }).then(() => {
+                        console.log("Comment added successfully.");
+                        openEventDetails({ id: eventId }); // Refresh the event details
+                    }).catch(error => {
+                        console.error("Error adding comment:", error);
+                    });
+                } else {
+                    console.error("Event creator not found.");
+                }
             }).catch(error => {
                 console.error("Error fetching event creator:", error);
             });
