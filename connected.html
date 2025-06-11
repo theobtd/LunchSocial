@@ -405,6 +405,8 @@
             const newComment = document.getElementById('newComment'); // Comment input
             const submitCommentBtn = document.getElementById('submitCommentBtn'); // Button for submitting comments
             const deleteEventBtn = document.getElementById('deleteEventBtn');
+
+            console.log("Event object in openEventDetails:", event);
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
@@ -416,15 +418,19 @@
         
             // Load existing comments
             commentsList.innerHTML = ''; // Clear previous comments
-            (event.comments || []).forEach(comment => { // Safely access comments
+            (event.comments || []).forEach(comment => {
                 const commentItem = document.createElement('div');
                 commentItem.textContent = comment.text; // Adjust based on comment structure
                 commentsList.appendChild(commentItem);
             });
         
+            // Log the event ID to confirm it's being passed correctly
+            console.log("Event ID in openEventDetails:", event.id);
+        
             // Set up comment submission
             submitCommentBtn.onclick = () => {
-                submitComment(event.id, newComment.value); // Ensure event.id is defined
+                console.log("Calling submitComment with ID:", event.id); // Log ID before calling
+                submitComment(event.id, newComment.value); // Pass event ID and new comment value
                 newComment.value = ''; // Clear input after submission
             };
         
@@ -513,7 +519,7 @@
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
                             comments: eventData.comments || [], // Ensure comments are fetched
-                            createdBy: eventData.createdBy, // Store the creator's ID here
+                            createdBy: eventData.createdBy, // Store the creator's UID here
                             userId: "You",
                             isFriendEvent: false,
                             visibleTo: eventData.visibleTo || [],
