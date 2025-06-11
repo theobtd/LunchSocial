@@ -194,23 +194,28 @@
                             });
                         }
                     });
+                }
 
-                    // Also display outgoing requests
-                    requestsArray.forEach(requesterId => {
-                        // Check if the user sent a request
-                        if (pendingRequests[requesterId].status === 'pending') {
-                            database.ref('users/' + requesterId).once('value').then(userSnapshot => {
-                                const requesterData = userSnapshot.val();
-                                if (requesterData) {
-                                    const outgoingRequestItem = document.createElement('div');
-                                    outgoingRequestItem.classList.add('request-item');
-                                    outgoingRequestItem.textContent = `To: ${requesterData.userId} - Pending`; // Display outgoing request
-                                    requestList.appendChild(outgoingRequestItem); // Add to the list
+                // Also display outgoing requests
+                database.ref('users').once('value').then(snapshot => {
+                    snapshot.forEach(childSnapshot => {
+                        const targetUserId = childSnapshot.key;
+                        if (targetUserId !== currentUserId) { // Ensure not to check self
+                            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
+                                if (requestSnapshot.exists() && requestSnapshot.val().status === 'pending') {
+                                    // If the logged-in user has sent a request
+                                    database.ref('users/' + targetUserId).once('value').then(userSnapshot => {
+                                        const targetUserData = userSnapshot.val();
+                                        const outgoingRequestItem = document.createElement('div');
+                                        outgoingRequestItem.classList.add('request-item');
+                                        outgoingRequestItem.textContent = `To: ${targetUserData.userId} - Pending`; // Display outgoing request
+                                        requestList.appendChild(outgoingRequestItem); // Add to the list
+                                    });
                                 }
                             });
                         }
                     });
-                }
+                });
             }).catch(error => {
                 console.error("Error fetching friend requests:", error);
             });
