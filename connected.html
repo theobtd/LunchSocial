@@ -394,7 +394,7 @@
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
             const eventLocation = document.getElementById('eventDetailLocation');
-            const eventComment = document.getElementById('eventDetailComment'); // New element for comment
+            const eventComment = document.getElementById('eventDetailComment'); // Reference to the new comment element
             const deleteEventBtn = document.getElementById('deleteEventBtn');
         
             // Set the event details
@@ -402,7 +402,7 @@
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
-            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
+            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`; // Set the location
             eventComment.textContent = `Comment: ${event.comment || 'No comment'}`; // Set the comment
         
             // Show or hide the delete button based on creator
@@ -487,7 +487,7 @@
                     });
                 }
         
-                // Fetch events for each accepted friend
+                // Fetch friends' events
                 const friendEventPromises = friendIds.map(friendId => {
                     return database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
                         const events = eventSnapshot.val();
@@ -497,12 +497,14 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
-        
+                
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
                                         date: eventData.date,
                                         time: eventData.time,
+                                        location: eventData.location || 'Not specified', // Ensure location is included
+                                        comment: eventData.comment || 'No comment', // Ensure comment is included
                                         createdBy: friendId, // Mark as created by the friend
                                         userId: friendUserId, // Use the friend's userId
                                         isFriendEvent: true, // Flag to indicate it's a friend's event
@@ -510,7 +512,7 @@
                                     });
                                 });
                             });
-        
+                
                             return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
                         }
                     });
