@@ -447,15 +447,23 @@
                 return;
             }
         
+            console.log("Submitting comment...");
+            console.log("Event ID:", eventId);
+            console.log("Comment Text:", commentText);
+            console.log("Current User ID:", currentUserId);
+        
             // Fetch the specific event to get the creator's UID
             database.ref('users').once('value').then(snapshot => {
-                // Get the event's creator's UID by accessing the event directly
-                let eventCreatorId;
+                let eventCreatorId = null; // Initialize variable
         
                 snapshot.forEach(userSnapshot => {
                     const userEvents = userSnapshot.child('events').val();
-                    if (userEvents && userEvents[eventId]) {
-                        eventCreatorId = userSnapshot.key; // This is the creator's UID
+                    if (userEvents) {
+                        console.log("Checking user:", userSnapshot.key); // Log user ID
+                        if (userEvents[eventId]) { // Check if the event exists for this user
+                            eventCreatorId = userSnapshot.key; // This is the creator's UID
+                            console.log("Found event creator ID:", eventCreatorId); // Log found creator ID
+                        }
                     }
                 });
         
@@ -471,10 +479,10 @@
                         console.error("Error adding comment:", error);
                     });
                 } else {
-                    console.error("Event creator not found.");
+                    console.error("Event creator not found."); // Log if no creator was found
                 }
             }).catch(error => {
-                console.error("Error fetching event creator:", error);
+                console.error("Error fetching event creator:", error); // Log any errors from fetching data
             });
         }
         
