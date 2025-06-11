@@ -324,7 +324,7 @@
 
         // Function to fetch and display friends' events
         function displayFriendsEvents() {
-            const currentUserId = auth.currentUser.uid; // Get current user’s Firebase UID
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const friendsEventList = document.getElementById('friendsEventList');
             friendsEventList.innerHTML = ''; // Clear previous list
         
@@ -363,11 +363,12 @@
         
                     // Wait for all eventPromises to resolve
                     Promise.all(eventPromises).then(() => {
-                        // Sort allEvents array by date and time
+                        // Sort allEvents array by the event date and time
                         allEvents.sort((a, b) => {
-                            let dateA = new Date(`${a.date}T${a.time}`);
-                            let dateB = new Date(`${b.date}T${b.time}`);
-                            return dateA - dateB; // Ascending order
+                            // Create date objects for comparison
+                            let dateTimeA = new Date(`${a.date}T${a.time}`);
+                            let dateTimeB = new Date(`${b.date}T${b.time}`);
+                            return dateTimeA - dateTimeB; // Ascending order
                         });
         
                         // Display sorted events
