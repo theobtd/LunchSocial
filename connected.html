@@ -44,6 +44,9 @@
             <label for="eventTime">Event Time:</label>
             <input type="time" id="eventTime" required>
             <br>
+            <label for="eventLocation">Event Location:</label>
+            <input type="text" id="eventLocation" required>
+            <br>
             <button id="submitEventBtn">Create Event</button>
 
             <h4>Your Friends:</h4>
@@ -61,6 +64,7 @@
             <p id="eventDetailDate"></p>
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
+            <p id="eventDetailLocation"></p>
         </div>
     </div>
 
@@ -332,8 +336,9 @@
             const title = document.getElementById("eventTitle").value;
             const date = document.getElementById("eventDate").value;
             const time = document.getElementById("eventTime").value;
+            const location = document.getElementById("eventLocation").value; // Get the location
         
-            if (title && date && time) {
+            if (title && date && time && location) { // Check if all fields are filled
                 const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
                 const eventKey = database.ref('users/' + currentUserId + '/events').push().key; // Create a unique key for the event
         
@@ -350,6 +355,7 @@
                     title: title,
                     date: date,
                     time: time,
+                    location: location, // Store the location
                     createdBy: currentUserId, // Store the creator's user ID
                     visibleTo: selectedFriends // Store the list of friends who can see the event
                 }).then(() => {
@@ -380,12 +386,14 @@
             const eventDate = document.getElementById('eventDetailDate');
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
+            const eventLocation = document.getElementById('eventDetailLocation'); // New element for location
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
+            eventLocation.textContent = `Location: ${event.location}`; // Set the location
         
             eventDetailsModal.style.display = "block"; // Show the modal
         }
