@@ -314,6 +314,7 @@
                             date: eventData.date,
                             time: eventData.time,
                             createdBy: currentUserId, // Mark as your event
+                            userId: "You", // Display "You" for your events
                             isFriendEvent: false // Flag to indicate it's your event
                         });
                     });
@@ -340,16 +341,24 @@
                         const events = eventSnapshot.val();
                         if (events) {
                             const eventsArray = Object.keys(events);
-                            eventsArray.forEach(eventId => {
-                                const eventData = events[eventId];
-                                allEvents.push({
-                                    title: eventData.title,
-                                    date: eventData.date,
-                                    time: eventData.time,
-                                    createdBy: friendId, // Mark as created by the friend
-                                    isFriendEvent: true // Flag to indicate it's a friend's event
+                            const userIdPromises = eventsArray.map(eventId => {
+                                return database.ref('users/' + friendId).once('value').then(userSnapshot => {
+                                    const userData = userSnapshot.val();
+                                    const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
+        
+                                    const eventData = events[eventId];
+                                    allEvents.push({
+                                        title: eventData.title,
+                                        date: eventData.date,
+                                        time: eventData.time,
+                                        createdBy: friendId, // Mark as created by the friend
+                                        userId: friendUserId, // Use the friend's userId
+                                        isFriendEvent: true // Flag to indicate it's a friend's event
+                                    });
                                 });
                             });
+        
+                            return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
                         }
                     });
                 });
@@ -372,7 +381,7 @@
                     eventItem.classList.add('event-item');
         
                     // Indicate if it's your event or a friend's event
-                    const eventOwner = event.isFriendEvent ? `(Created by: ${event.createdBy})` : `(Your Event)`;
+                    const eventOwner = event.isFriendEvent ? `(Created by: ${event.userId})` : `(Your Event)`;
                     eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
                     unifiedEventList.appendChild(eventItem); // Append each event in order
                 });
