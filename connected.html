@@ -363,21 +363,21 @@
                     }
                 });
         
-                database.ref('users/' + currentUserId + '/events/' + eventKey).set({
-                    title: title,
-                    date: date,
-                    time: time,
-                    location: location,
-                    comment: comment,
-                    createdBy: currentUserId, // Store the creator's UID
-                    visibleTo: selectedFriends
-                }).then(() => {
-                    alert("Event created successfully!");
-                    displayAllEvents(); // Refresh the events display
-                    closeModal(); // Close the modal
-                }).catch(error => {
-                    console.error("Error creating event:", error);
-                });
+            database.ref('users/' + currentUserId + '/events/' + eventKey).set({
+                title: title,
+                date: date,
+                time: time,
+                location: location,
+                comment: comment,
+                createdBy: currentUserId, // Store the creator's UID
+                visibleTo: selectedFriends
+            }).then(() => {
+                alert("Event created successfully!");
+                displayAllEvents(); // Refresh the events display
+                closeModal(); // Close the modal
+            }).catch(error => {
+                console.error("Error creating event:", error);
+            });
             } else {
                 alert("All fields are required!");
             }
@@ -394,14 +394,6 @@
 
         // Function to open the event details modal
         function openEventDetails(event) {
-            console.log("Event object in openEventDetails:", event); // Debugging line
-        
-            // Ensure event has an ID
-            if (!event.id) {
-                console.error("Event ID is missing!"); // Log error if ID is missing
-                return;
-            }
-        
             const eventDetailsModal = document.getElementById('eventDetailsModal');
             const eventTitle = document.getElementById('eventDetailTitle');
             const eventDate = document.getElementById('eventDetailDate');
@@ -424,7 +416,7 @@
         
             // Load existing comments
             commentsList.innerHTML = ''; // Clear previous comments
-            (event.comments || []).forEach(comment => {
+            (event.comments || []).forEach(comment => { // Safely access comments
                 const commentItem = document.createElement('div');
                 commentItem.textContent = comment.text; // Adjust based on comment structure
                 commentsList.appendChild(commentItem);
@@ -432,7 +424,6 @@
         
             // Set up comment submission
             submitCommentBtn.onclick = () => {
-                console.log("Calling submitComment with ID:", event.id); // Log ID before calling
                 submitComment(event.id, newComment.value); // Pass event ID and new comment value
                 newComment.value = ''; // Clear input after submission
             };
@@ -456,23 +447,19 @@
                 return;
             }
         
-            console.log("Submitting comment...");
-            console.log("Event ID:", eventId);
-            console.log("Comment Text:", commentText);
-            console.log("Current User ID:", currentUserId);
-        
-            // Fetch the specific event to get the creator's UID
+            // Fetch the event data to get the creator's UID
             database.ref('users').once('value').then(snapshot => {
-                let eventCreatorId = null; // Initialize variable
+                let eventCreatorId;
         
+                // Loop through users to find the event creator UID
                 snapshot.forEach(userSnapshot => {
                     const userEvents = userSnapshot.child('events').val();
                     if (userEvents) {
-                        console.log("Checking user:", userSnapshot.key); // Log user ID
-                        if (userEvents[eventId]) { // Check if the event exists for this user
-                            eventCreatorId = userSnapshot.key; // This is the creator's UID
-                            console.log("Found event creator ID:", eventCreatorId); // Log found creator ID
-                        }
+                        Object.keys(userEvents).forEach(key => {
+                            if (key === eventId) {
+                                eventCreatorId = userSnapshot.key; // This is the creator's UID
+                            }
+                        });
                     }
                 });
         
@@ -488,10 +475,10 @@
                         console.error("Error adding comment:", error);
                     });
                 } else {
-                    console.error("Event creator not found."); // Log if no creator was found
+                    console.error("Event creator not found.");
                 }
             }).catch(error => {
-                console.error("Error fetching event creator:", error); // Log any errors from fetching data
+                console.error("Error fetching event creator:", error);
             });
         }
         
@@ -522,11 +509,11 @@
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
                             comments: eventData.comments || [], // Ensure comments are fetched
-                            createdBy: eventData.createdBy, // Store the creator's UID here
+                            createdBy: eventData.createdBy, // Store the creator's ID here
                             userId: "You",
                             isFriendEvent: false,
                             visibleTo: eventData.visibleTo || [],
-                            id: eventId // Ensure you're storing the event ID
+                            id: eventId
                         });
                     });
                 }
@@ -556,23 +543,22 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
-        
+                
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
                                         date: eventData.date,
                                         time: eventData.time,
-                                        location: eventData.location || 'Not specified',
-                                        comments: eventData.comments || [], // Ensure comments are fetched
+                                        location: eventData.location || 'Not specified', // Ensure location is included
+                                        comment: eventData.comment || 'No comment', // Ensure comment is included
                                         createdBy: friendId, // Mark as created by the friend
                                         userId: friendUserId, // Use the friend's userId
                                         isFriendEvent: true, // Flag to indicate it's a friend's event
-                                        visibleTo: eventData.visibleTo || [],
-                                        id: eventId // Ensure the ID is being set here
+                                        visibleTo: eventData.visibleTo || [] // Get the visibleTo array
                                     });
                                 });
                             });
-        
+                
                             return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
                         }
                     });
