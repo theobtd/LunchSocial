@@ -414,12 +414,14 @@
             // Confirm deletion
             if (confirm("Are you sure you want to delete this event? This action cannot be undone.")) {
                 // Remove the event from the creator's events
-                database.ref('users/' + creatorId + '/events/' + eventId).remove().then(() => {
-                    console.log("Event deleted successfully.");
-                    displayAllEvents(); // Refresh the events display
-                }).catch(error => {
-                    console.error("Error deleting event:", error);
-                });
+                database.ref('users/' + creatorId + '/events/' + eventId).remove()
+                    .then(() => {
+                        console.log("Event deleted successfully.");
+                        displayAllEvents(); // Refresh the events display
+                    })
+                    .catch(error => {
+                        console.error("Error deleting event:", error);
+                    });
             }
         }
         
