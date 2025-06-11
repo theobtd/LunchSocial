@@ -245,7 +245,7 @@
                 }).then(() => {
                     displayPendingRequests(); // Refresh the pending requests display
                     displayAcceptedFriends(); // Refresh the accepted friends display
-                    displayFriendsEvents(); // Refresh friends' events display
+                    displayAllEvents(); // Refresh friends' events display
                 });
             }).catch(error => {
                 console.error("Error accepting friend request:", error);
@@ -274,8 +274,8 @@
                     createdBy: currentUserId // Store the creator's user ID
                 }).then(() => {
                     alert("Event created successfully!");
-                    displayEvents(); // Refresh the events display
-                    displayFriendsEvents(); // Refresh friends' events display
+                    displayAllEvents(); // Refresh the events display
+                    displayAllEvents(); // Refresh friends' events display
                     closeModal(); // Close the modal
                 }).catch(error => {
                     console.error("Error creating event:", error);
@@ -413,8 +413,8 @@
                 displayUsers();
                 displayPendingRequests(); // Fetch and display pending friend requests
                 displayAcceptedFriends(); // Fetch and display accepted friends
-                displayEvents(); // Fetch and display user's events
-                displayFriendsEvents(); // Fetch and display friends' events
+                displayAllEvents(); // Fetch and display user's events
+                displayAllEvents(); // Fetch and display friends' events
             } else {
                 window.location.href = 'index.html'; // Redirect if not logged in
             }
