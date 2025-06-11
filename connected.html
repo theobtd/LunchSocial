@@ -68,7 +68,7 @@
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
             <p id="eventDetailLocation"></p>
-            <p id="eventDetailComment"></p>
+            <p id="eventDetailComment"></p> <!-- New element for comment -->
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
     </div>
@@ -462,7 +462,7 @@
                             date: eventData.date,
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
-                            comment: eventData.comment || 'No comment', // Include the comment
+                            comment: eventData.comment || 'No comment', // Include the comment here
                             createdBy: eventData.createdBy, // Use the creator's ID
                             userId: "You", // Display "You" for your events
                             isFriendEvent: false, // Flag to indicate it's your event
