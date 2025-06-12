@@ -317,7 +317,6 @@
         }
 
         // Function to fetch and display accepted friends
-        // Function to display accepted friends
         function displayAcceptedFriends() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const acceptedFriendsList = document.getElementById('acceptedFriendsList');
@@ -325,11 +324,11 @@
         
             acceptedFriendsList.innerHTML = ''; // Clear previous list in modal
         
-            // Copy content from the sidebar accepted friends list to the modal
+            // Iterate over existing accepted friends in the sidebar
             const acceptedFriends = existingAcceptedFriends.children;
             for (let friend of acceptedFriends) {
                 const friendItem = document.createElement('div');
-                
+        
                 // Create a checkbox
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
