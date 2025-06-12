@@ -851,16 +851,22 @@
                 }
             });
         
-            // Store the selected friends in the database
-            database.ref('users/' + currentUserId + '/selectedFriends').set(selectedFriends)
-                .then(() => {
-                    console.log("Selected friends saved:", selectedFriends);
-                    alert("Selected friends have been confirmed and saved!");
-                    closeAcceptedFriendsModal(); // Close the modal after saving
-                })
-                .catch(error => {
-                    console.error("Error saving selected friends:", error);
-                });
+            // Generate a unique key for the new group
+            const newGroupKey = database.ref('users/' + currentUserId + '/friendGroups').push().key;
+        
+            // Store the selected friends in a new group in the database
+            database.ref('users/' + currentUserId + '/friendGroups/' + newGroupKey).set({
+                friends: selectedFriends,
+                createdAt: new Date().toISOString() // Optional: store the creation date
+            })
+            .then(() => {
+                console.log("New group created with friends:", selectedFriends);
+                alert("New group has been created and friends have been saved!");
+                closeAcceptedFriendsModal(); // Close the modal after saving
+            })
+            .catch(error => {
+                console.error("Error saving selected friends:", error);
+            });
         };
 
         // Event listener for the view friends button
