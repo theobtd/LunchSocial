@@ -462,12 +462,11 @@
                             date: eventData.date,
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
-                            comment: eventData.comment || 'No comment', // Include the comment here
-                            createdBy: eventData.createdBy, // Use the creator's ID
-                            userId: "You", // Display "You" for your events
-                            isFriendEvent: false, // Flag to indicate it's your event
+                            comment: eventData.comment || 'No comment',
+                            createdBy: eventData.createdBy,
+                            userId: "You",
                             visibleTo: eventData.visibleTo || [], // Get the visibleTo array
-                            id: eventId // Include the event ID
+                            id: eventId
                         });
                     });
                 }
@@ -496,29 +495,29 @@
                             const userIdPromises = eventsArray.map(eventId => {
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
-                                    const friendUserId = userData ? userData.userId : friendId; // Fallback to UID if not found
-                
+                                    const friendUserId = userData ? userData.userId : friendId;
+        
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
                                         date: eventData.date,
                                         time: eventData.time,
-                                        location: eventData.location || 'Not specified', // Ensure location is included
-                                        comment: eventData.comment || 'No comment', // Ensure comment is included
-                                        createdBy: friendId, // Mark as created by the friend
-                                        userId: friendUserId, // Use the friend's userId
-                                        isFriendEvent: true, // Flag to indicate it's a friend's event
-                                        visibleTo: eventData.visibleTo || [] // Get the visibleTo array
+                                        location: eventData.location || 'Not specified',
+                                        comment: eventData.comment || 'No comment',
+                                        createdBy: friendId,
+                                        userId: friendUserId,
+                                        visibleTo: eventData.visibleTo || [],
+                                        id: eventId
                                     });
                                 });
                             });
-                
-                            return Promise.all(userIdPromises); // Wait for all user ID promises to resolve
+        
+                            return Promise.all(userIdPromises);
                         }
                     });
                 });
         
-                return Promise.all(friendEventPromises); // Wait for all friend event promises to resolve
+                return Promise.all(friendEventPromises);
             });
         
             // Wait for both your events and friends' events to be fetched
@@ -533,7 +532,7 @@
                 // Display all events in a single unified list
                 allEvents.forEach(event => {
                     // Check if the event is visible to the current user
-                    const isVisible = event.isFriendEvent || event.createdBy === currentUserId || 
+                    const isVisible = event.createdBy === currentUserId || 
                                       (event.visibleTo && event.visibleTo.includes(currentUserId));
         
                     if (isVisible) {
@@ -541,7 +540,7 @@
                         eventItem.classList.add('event-item');
         
                         // Indicate if it's your event or a friend's event
-                        const eventOwner = event.isFriendEvent ? `(Created by: ${event.userId})` : `(Your Event)`;
+                        const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
                         eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
                         
                         // Add click event to open details
