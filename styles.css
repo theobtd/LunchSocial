@@ -99,3 +99,7 @@ button {
 .user-list {
     display: none; /* Hide the user list by default */
 }
+
+.sidebar {
+    display: none; /* Hide the sidebar by default */
+}
