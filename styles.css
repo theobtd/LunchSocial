@@ -67,3 +67,9 @@ button {
     text-decoration: none;
     cursor: pointer;
 }
+.welcome-message {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 15px 0;
+    color: #333;
+}
