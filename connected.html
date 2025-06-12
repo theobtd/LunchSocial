@@ -150,15 +150,27 @@
             const userList = document.getElementById('userList');
             userList.innerHTML = ''; // Clear the user list
         
+            // Check if the search bar is empty
+            if (searchValue === '') {
+                userList.style.display = 'none'; // Hide the user list
+                return; // Exit the function
+            } else {
+                userList.style.display = 'block'; // Show the user list
+            }
+        
             // Filter and display users based on the search
+            let hasResults = false; // Flag to check if any results are found
+        
             allUsers.forEach(user => {
                 if (user.userId.toLowerCase().includes(searchValue)) {
+                    hasResults = true; // Indicate that a result has been found
+        
                     // Create and display the user item
                     const userItem = document.createElement('div');
                     userItem.classList.add('user-item');
                     userItem.textContent = user.userId;
         
-                    // Create the action button
+                    // Create the action button (existing logic)
                     const actionButton = document.createElement('button');
         
                     // Determine the button text and functionality
@@ -199,6 +211,11 @@
                     userList.appendChild(userItem);
                 }
             });
+        
+            // If no results were found, hide the user list
+            if (!hasResults) {
+                userList.style.display = 'none'; // Hide the user list if no matches
+            }
         }
 
         // Function to send a friend request
