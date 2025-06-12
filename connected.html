@@ -909,6 +909,7 @@
                 console.log("New group created with name:", groupName, "and friends:", selectedFriends);
                 alert("New group has been created and friends have been saved!");
                 closeAcceptedFriendsModal(); // Close the modal after saving
+                displayGroups(); // Refresh the group list in the sidebar
             })
             .catch(error => {
                 console.error("Error saving selected friends:", error);
