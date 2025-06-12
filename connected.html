@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
 </head>
 <body>
+    <div id="welcomeMessage" class="welcome-message"></div>
     <div class="sidebar">
         <h2>You are connected</h2>
         <button id="logoutBtn">Log Out</button>
@@ -651,6 +652,15 @@
         // Fetch users and requests when the page loads
         auth.onAuthStateChanged(user => {
             if (user) {
+                // Fetch userId from the database using UID
+                database.ref('users/' + user.uid).once('value').then(snapshot => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        const userId = userData.userId; // Get userId from database
+                        document.getElementById('welcomeMessage').textContent = `Welcome, ${userId}!`; // Display welcome message
+                    }
+                });
+        
                 displayUsers();
                 displayPendingRequests(); // Fetch and display pending friend requests
                 displayAcceptedFriends(); // Fetch and display accepted friends
