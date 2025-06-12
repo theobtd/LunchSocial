@@ -30,11 +30,19 @@ button {
     margin-top: 20px;
 }
 
-.user-list, .request-list, .accepted-list, .event-list, .friends-event-list {
+.user-list, .request-list, .accepted-list, .friends-event-list {
     margin-top: 10px; /* Adjust margin for tighter spacing */
     width: 100%;
     max-width: 400px;
     text-align: left;
+}
+
+.event-list {
+    margin-top: 10px; /* Adjust margin for tighter spacing */
+    width: 100%; /* Full width of the container */
+    max-width: 400px; /* Maximum width to keep it contained */
+    text-align: left; /* Align text to the left */
+    align-self: flex-start; /* Align the event list to the start of the container */
 }
 
 .user-item, .request-item, .accepted-item, .event-item {
