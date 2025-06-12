@@ -146,6 +146,8 @@
             const acceptedFriendsList = document.getElementById('acceptedFriendsList');
             acceptedFriendsList.innerHTML = ''; // Clear previous list
         
+            console.log("Fetching accepted friends for user:", currentUserId);
+        
             database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
                 const requests = snapshot.val();
                 if (requests) {
@@ -163,9 +165,12 @@
                             });
                         }
                     });
+                } else {
+                    acceptedFriendsList.textContent = "No accepted friends found."; // Message if no friends
                 }
             }).catch(error => {
                 console.error("Error fetching accepted friends:", error);
+                acceptedFriendsList.textContent = "Error loading friends."; // Display error in modal
             });
         }
         
