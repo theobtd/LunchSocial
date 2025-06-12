@@ -661,7 +661,7 @@
                     });
                 }
         
-                // Fetch accepted friends' events
+                // Fetch friends' events
                 const friendEventPromises = friendIds.map(friendId => {
                     return database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
                         const events = eventSnapshot.val();
@@ -671,7 +671,7 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId;
-                
+        
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
@@ -679,7 +679,6 @@
                                         time: eventData.time,
                                         location: eventData.location || 'Not specified',
                                         comment: eventData.comment || 'No comment',
-                                        category: eventData.category || 'Not specified', // Ensure category is included
                                         createdBy: friendId,
                                         userId: friendUserId,
                                         visibleTo: eventData.visibleTo || [],
@@ -687,7 +686,7 @@
                                     });
                                 });
                             });
-                
+        
                             return Promise.all(userIdPromises);
                         }
                     });
