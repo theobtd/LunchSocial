@@ -28,6 +28,7 @@
 
         <h3>My Clusters</h3>
         <div class="clusters-list" id="clustersList"></div>
+        <button id="createClusterBtn">Create Cluster</button>
 
         <button id="logoutBtn">Log Out</button>
     </div>
@@ -97,6 +98,15 @@
             <p id="eventDetailComment"></p>
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
+        </div>
+    </div>
+
+    <!-- Modal for Cluster Creation -->
+    <div id="clusterModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeClusterModal()">&times;</span>
+            <h3>Create Cluster</h3>
+            <!-- Modal content can be added later -->
         </div>
     </div>
 
