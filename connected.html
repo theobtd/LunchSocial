@@ -889,8 +889,8 @@
             groupMembersList.innerHTML = ''; // Clear previous list
         
             // Fetch userIds for each friend and display them
-            friends.forEach(friendId => {
-                database.ref('users/' + friendId).once('value').then(userSnapshot => {
+            const promises = friends.map(friendId => {
+                return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                     const friendData = userSnapshot.val();
                     if (friendData) {
                         const memberItem = document.createElement('div');
@@ -900,9 +900,13 @@
                 });
             });
         
-            // Open the modal
-            const modal = document.getElementById("groupMembersModal");
-            modal.style.display = "block";
+            // Wait for all user data to be fetched before opening the modal
+            Promise.all(promises).then(() => {
+                const modal = document.getElementById("groupMembersModal");
+                modal.style.display = "block"; // Open the modal after loading members
+            }).catch(error => {
+                console.error("Error fetching group members:", error);
+            });
         }
         
         // Function to close the group members modal
