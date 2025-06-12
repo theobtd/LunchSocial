@@ -15,7 +15,6 @@
     <div class="sidebar" id="sidebar">
         <h2 id="welcomeHeader">Welcome!</h2>
         <button id="logoutBtn">Log Out</button>
-        <button id="createEventBtn">Create Event</button>
 
         <div class="collapsible">
             <h3 onclick="toggleCollapsible()">Users</h3>
@@ -34,6 +33,11 @@
 
     <div class="main-content">
         <h3>All Events</h3>
+        <div class="main-content">
+    <h3>All Events</h3>
+        <button id="createEventBtn">Create Event</button> <!-- Moved here -->
+        <div class="event-list" id="eventList"></div>
+    </div>
         <div class="event-list" id="eventList"></div>
     </div>
 
