@@ -35,6 +35,19 @@
         <div class="event-list" id="eventList"></div>
     </div>
 
+    <!-- Button to open the modal -->
+    <button id="openModalBtn">Open Modal</button>
+    
+    <!-- Modal for Confirmation -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConfirmationModal()">&times;</span>
+            <h3>Confirmation</h3>
+            <p>Are you sure?</p>
+            <button id="yesBtn">YES</button>
+        </div>
+    </div>
+
     <!-- Existing modal code and scripts remain unchanged -->
 </body>
 
@@ -777,6 +790,32 @@
                 content.style.display = "block"; // Show the content
             }
         }
+
+        // Function to open the confirmation modal
+        function openConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'block'; // Show the modal
+        }
+        
+        // Function to close the confirmation modal
+        function closeConfirmationModal() {
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'none'; // Hide the modal
+        }
+        
+        // Add event listener to the button to open the modal
+        document.getElementById('openModalBtn').onclick = openConfirmationModal;
+        
+        // Add event listener to the YES button to close the modal
+        document.getElementById('yesBtn').onclick = closeConfirmationModal;
+        
+        // Optional: Close the modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('confirmationModal');
+            if (event.target === modal) {
+                closeConfirmationModal();
+            }
+        };
         
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
