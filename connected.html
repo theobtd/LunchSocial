@@ -399,7 +399,7 @@
             const eventLocation = document.getElementById('eventDetailLocation');
             const eventComment = document.getElementById('eventDetailComment');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
-            const joinEventBtn = document.getElementById('joinEventBtn'); // Reference to the new button
+            const joinEventBtn = document.getElementById('joinEventBtn'); // Reference to the Join button
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
@@ -410,28 +410,30 @@
             eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
             // Show or hide the delete button based on creator
-            if (event.createdBy === auth.currentUser.uid) {
+            if (event.createdBy === currentUserId) {
                 deleteEventBtn.style.display = "block";
                 deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id);
+                joinEventBtn.style.display = "none"; // Hide the Join button for the creator
             } else {
                 deleteEventBtn.style.display = "none";
+        
+                // Set up the "Join!" button for non-creators
+                database.ref(`users/${event.createdBy}/events/${event.id}/participants`)
+                    .once('value')
+                    .then(snapshot => {
+                        const participants = snapshot.val() || [];
+                        const isParticipant = participants.includes(currentUserId);
+        
+                        // Update button text based on participation status
+                        joinEventBtn.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        
+                        // Set up toggle functionality
+                        joinEventBtn.style.display = "block"; // Ensure the button is visible
+                        joinEventBtn.onclick = function() {
+                            toggleParticipation(event.createdBy, event.id, currentUserId, joinEventBtn);
+                        };
+                    });
             }
-        
-            // Set up the "Join!" button
-            database.ref(`users/${event.createdBy}/events/${event.id}/participants`)
-                .once('value')
-                .then(snapshot => {
-                    const participants = snapshot.val() || [];
-                    const isParticipant = participants.includes(currentUserId);
-        
-                    // Update button text based on participation status
-                    joinEventBtn.textContent = isParticipant ? 'Leave Event' : 'Join!';
-        
-                    // Set up toggle functionality
-                    joinEventBtn.onclick = function() {
-                        toggleParticipation(event.createdBy, event.id, currentUserId, joinEventBtn);
-                    };
-                });
         
             eventDetailsModal.style.display = "block"; // Show the modal
         }
