@@ -118,3 +118,11 @@ button {
 .user-list {
     display: none; /* Hide the user list by default */
 }
+
+.event-item {
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+    color: #000; /* Change text color for better contrast */
+    cursor: pointer; /* Change cursor to pointer */
+}
