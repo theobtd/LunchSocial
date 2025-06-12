@@ -348,10 +348,12 @@
                                 if (requesterData) {
                                     const acceptedItem = document.createElement('div');
                                     acceptedItem.classList.add('accepted-item');
-                                    acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
+                                    acceptedItem.textContent = requesterData.userId; // Display the userId
                                     acceptedItem.dataset.uid = requesterId; // Store the corresponding UID
                                     acceptedList.appendChild(acceptedItem); // Add to the list
                                 }
+                            }).catch(error => {
+                                console.error("Error fetching requester data:", error);
                             });
                         }
                     });
@@ -898,8 +900,10 @@
                         memberItem.textContent = friendData.userId; // Display the userId of the member
                         groupMembersList.appendChild(memberItem); // Add to the list
                     } else {
-                        console.error("No data found for friend ID:", friendId);
+                        console.error("No data found for friend ID:", friendId); // Log UID that couldn't be found
                     }
+                }).catch(error => {
+                    console.error("Error fetching user data for friend ID:", friendId, error);
                 });
             });
         
