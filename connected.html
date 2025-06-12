@@ -115,6 +115,16 @@
 
         let allUsers = [];
 
+        const categoryColors = {
+            apero: '#FFA07A',   // Light Salmon
+            coffee: '#FFD700',  // Gold
+            lunch: '#90EE90',   // Light Green
+            dinner: '#ADD8E6',  // Light Blue
+            workout: '#FFB6C1', // Light Pink
+            party: '#9370DB',   // Medium Purple
+            other: '#D3D3D3'    // Light Gray
+        };
+
         // Function to fetch and display users
         function displayUsers() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
@@ -695,25 +705,26 @@
                 });
         
                 // Display all events in a single unified list
-                allEvents.forEach(event => {
-                    // Check if the event is visible to the current user
-                    const isVisible = event.createdBy === currentUserId || 
-                                      (event.visibleTo && event.visibleTo.includes(currentUserId));
-        
-                    if (isVisible) {
-                        const eventItem = document.createElement('div');
-                        eventItem.classList.add('event-item');
-        
-                        // Indicate if it's your event or a friend's event
-                        const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
-                        eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
-                        
-                        // Add click event to open details
-                        eventItem.onclick = () => openEventDetails(event); // Pass the event object
-                        
-                        unifiedEventList.appendChild(eventItem); // Append each event in order
-                    }
-                });
+                    allEvents.forEach(event => {
+                        const isVisible = event.createdBy === currentUserId || 
+                                          (event.visibleTo && event.visibleTo.includes(currentUserId));
+                    
+                        if (isVisible) {
+                            const eventItem = document.createElement('div');
+                            eventItem.classList.add('event-item');
+                    
+                            // Set the background color based on category
+                            eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Default to white if category not found
+                    
+                            const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
+                            eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
+                            
+                            // Add click event to open details
+                            eventItem.onclick = () => openEventDetails(event); // Pass the event object
+                            
+                            unifiedEventList.appendChild(eventItem); // Append each event in order
+                        }
+                    });
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
