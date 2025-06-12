@@ -10,12 +10,10 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
 </head>
 <body>
-<body>
-    <div id="welcomeMessage" class="welcome-message"></div>
-    
+<body>    
     <button id="toggleMenuBtn">Toggle Menu</button>
     <div class="sidebar" id="sidebar">
-        <h2>You are connected</h2>
+        <h2 id="welcomeHeader">Welcome!</h2>
         <button id="logoutBtn">Log Out</button>
         <button id="createEventBtn">Create Event</button>
 
@@ -668,7 +666,7 @@
                     const userData = snapshot.val();
                     if (userData) {
                         const userId = userData.userId; // Get userId from database
-                        document.getElementById('welcomeMessage').textContent = `Welcome, ${userId}!`; // Display welcome message
+                        document.getElementById('welcomeHeader').textContent = `Welcome, ${userId}!`; // Display welcome message
                     }
                 });
         
