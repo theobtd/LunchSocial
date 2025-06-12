@@ -95,3 +95,7 @@ button {
 .collapsible h3:hover {
     background-color: #ddd;
 }
+
+.user-list {
+    display: none; /* Hide the user list by default */
+}
