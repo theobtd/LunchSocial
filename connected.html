@@ -58,8 +58,20 @@
             <label for="eventComment">Event Comment:</label>
             <textarea id="eventComment" maxlength="200" rows="4" required></textarea>
             <br>
+            <label for="eventCategory">Category:</label>
+            <select id="eventCategory" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="apero">Apero</option>
+                <option value="coffee">Coffee</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="workout">Workout</option>
+                <option value="party">Party</option>
+                <option value="other">Other</option>
+            </select>
+            <br>
             <button id="submitEventBtn">Create Event</button>
-
+    
             <h4>Your Friends:</h4>
             <button id="selectAllBtn">Select All Friends</button> <!-- Super button -->
             <div id="friendsList" class="friends-list"></div>
@@ -406,8 +418,9 @@
             const time = document.getElementById("eventTime").value;
             const location = document.getElementById("eventLocation").value; // Get the location
             const comment = document.getElementById("eventComment").value; // Get the comment
+            const category = document.getElementById("eventCategory").value; // Get the selected category
         
-            if (title && date && time && location && comment) { // Check if all fields are filled
+            if (title && date && time && location && comment && category) { // Check if all fields are filled
                 const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
                 const eventKey = database.ref('users/' + currentUserId + '/events').push().key; // Create a unique key for the event
         
@@ -426,6 +439,7 @@
                     time: time,
                     location: location, // Store the location
                     comment: comment, // Store the comment
+                    category: category, // Store the selected category
                     createdBy: currentUserId, // Store the creator's user ID
                     visibleTo: selectedFriends // Store the list of friends who can see the event
                 }).then(() => {
