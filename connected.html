@@ -26,19 +26,6 @@
         <h3>Accepted Friends</h3>
         <div class="accepted-list" id="acceptedList"></div>
 
-        <h3>My Clusters</h3>
-        <div class="clusters-list" id="clustersList"></div>
-        <button id="createClusterBtn">Create Cluster</button>
-
-        <!-- Modal for Cluster Creation -->
-        <div id="clusterModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeClusterModal()">&times;</span>
-                <h3>Create Cluster</h3>
-                <!-- Modal content can be added later -->
-            </div>
-        </div>
-
         <button id="logoutBtn">Log Out</button>
     </div>
 
@@ -790,24 +777,6 @@
                 content.style.display = "block"; // Show the content
             }
         }
-
-        // Function to open the cluster modal
-        function openClusterModal() {
-            const clusterModal = document.getElementById('clusterModal');
-            clusterModal.style.display = 'block'; // Show the modal
-        }
-        
-        // Function to close the cluster modal
-        function closeClusterModal() {
-            const clusterModal = document.getElementById('clusterModal');
-            clusterModal.style.display = 'none'; // Hide the modal
-        }
-        
-        // Add event listener to the button
-        document.getElementById('createClusterBtn').onclick = openClusterModal;
-
-        // Event listener for closing the modal
-        document.getElementById('closeClusterBtn').onclick = closeClusterModal;
         
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
