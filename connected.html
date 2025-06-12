@@ -87,6 +87,7 @@
             <p id="eventDetailDate"></p>
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
+            <p id="eventDetailCategory"></p> <!-- New line for category -->
             <h4>Participants</h4>
             <div id="participantList"></div>
             <p id="eventDetailLocation"></p>
@@ -471,6 +472,7 @@
             const eventDate = document.getElementById('eventDetailDate');
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
+            const eventCategory = document.getElementById('eventDetailCategory'); // Reference to category
             const eventLocation = document.getElementById('eventDetailLocation');
             const eventComment = document.getElementById('eventDetailComment');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
@@ -482,6 +484,7 @@
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
+            eventCategory.textContent = `Category: ${event.category}`; // Set the category text
             eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
             eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
