@@ -19,7 +19,6 @@ body {
 .main-content {
     flex: 2;
     padding: 20px;
-    text-align: center;
     display: flex;
     flex-direction: column; /* Stack elements vertically */
     align-items: center; /* Center align items */
@@ -32,7 +31,7 @@ button {
 }
 
 .user-list, .request-list, .accepted-list, .event-list, .friends-event-list {
-    margin-top: 10px; /* Reduced margin for tighter spacing */
+    margin-top: 10px; /* Adjust margin for tighter spacing */
     width: 100%;
     max-width: 400px;
     text-align: left;
