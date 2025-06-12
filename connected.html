@@ -808,14 +808,6 @@
 
         // Event listener for closing the modal
         document.getElementById('closeClusterBtn').onclick = closeClusterModal;
-
-        // Close the modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById('clusterModal');
-            if (event.target === modal) {
-                closeClusterModal();
-            }
-        };
         
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
