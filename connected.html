@@ -69,6 +69,8 @@
             <p id="eventDetailCreator"></p>
             <p id="eventDetailLocation"></p>
             <p id="eventDetailComment"></p> <!-- New element for comment -->
+            <!-- Add this button inside the modal-content div -->
+            <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
     </div>
@@ -388,32 +390,78 @@
 
         // Function to open the event details modal
         function openEventDetails(event) {
+            const currentUserId = auth.currentUser.uid; // Get the current user's UID
             const eventDetailsModal = document.getElementById('eventDetailsModal');
             const eventTitle = document.getElementById('eventDetailTitle');
             const eventDate = document.getElementById('eventDetailDate');
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
             const eventLocation = document.getElementById('eventDetailLocation');
-            const eventComment = document.getElementById('eventDetailComment'); // Reference to the new comment element
+            const eventComment = document.getElementById('eventDetailComment');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
+            const joinEventBtn = document.getElementById('joinEventBtn'); // Reference to the new button
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
-            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`; // Set the location
-            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`; // Set the comment
+            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
+            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
             // Show or hide the delete button based on creator
             if (event.createdBy === auth.currentUser.uid) {
-                deleteEventBtn.style.display = "block"; // Show the button
-                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id); // Pass the event ID
+                deleteEventBtn.style.display = "block";
+                deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id);
             } else {
-                deleteEventBtn.style.display = "none"; // Hide the button
+                deleteEventBtn.style.display = "none";
             }
         
+            // Set up the "Join!" button
+            database.ref(`users/${event.createdBy}/events/${event.id}/participants`)
+                .once('value')
+                .then(snapshot => {
+                    const participants = snapshot.val() || [];
+                    const isParticipant = participants.includes(currentUserId);
+        
+                    // Update button text based on participation status
+                    joinEventBtn.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        
+                    // Set up toggle functionality
+                    joinEventBtn.onclick = function() {
+                        toggleParticipation(event.createdBy, event.id, currentUserId, joinEventBtn);
+                    };
+                });
+        
             eventDetailsModal.style.display = "block"; // Show the modal
+        }
+
+        function toggleParticipation(creatorId, eventId, userId, button) {
+            const participantsRef = database.ref(`users/${creatorId}/events/${eventId}/participants`);
+        
+            participantsRef.once('value').then(snapshot => {
+                let participants = snapshot.val() || []; // Get the current list of participants
+        
+                if (participants.includes(userId)) {
+                    // User is already a participant, remove them
+                    participants = participants.filter(participant => participant !== userId);
+                    button.textContent = 'Join!'; // Update button text
+                } else {
+                    // User is not a participant, add them
+                    participants.push(userId);
+                    button.textContent = 'Leave Event'; // Update button text
+                }
+        
+                // Update the participants list in the database
+                participantsRef.set(participants)
+                    .then(() => {
+                        console.log(`Participation toggled for user ${userId} in event ${eventId}`);
+                        displayAllEvents(); // Refresh the event list
+                    })
+                    .catch(error => {
+                        console.error('Error updating participants:', error);
+                    });
+            });
         }
 
         function deleteEvent(creatorId, eventId) {
