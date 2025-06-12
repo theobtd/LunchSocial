@@ -627,9 +627,10 @@
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
                             comment: eventData.comment || 'No comment',
+                            category: eventData.category || 'Not specified', // Access the category here
                             createdBy: eventData.createdBy,
-                            userId: "You",
-                            visibleTo: eventData.visibleTo || [], // Get the visibleTo array
+                            userId: "You", // or fetch the userId based on createdBy UID
+                            visibleTo: eventData.visibleTo || [],
                             id: eventId
                         });
                     });
