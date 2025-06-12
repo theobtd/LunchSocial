@@ -872,7 +872,7 @@
             // Fetch groups from the database
             database.ref('users/' + currentUserId + '/friendGroups').once('value').then(snapshot => {
                 const groups = snapshot.val();
-                console.log("Groups data:", groups);
+                console.log("Groups data:", groups); // Log the entire groups object
                 
                 if (groups) {
                     const groupNames = Object.keys(groups);
@@ -884,6 +884,7 @@
         
                         // Add click event to show group members
                         groupItem.onclick = function() {
+                            console.log("Group clicked:", groupData); // Log group data when clicked
                             showGroupMembers(groupData.friends); // Pass the friends array
                         };
         
@@ -901,13 +902,15 @@
             const groupMembersList = document.getElementById('groupMembersList');
             groupMembersList.innerHTML = ''; // Clear previous list
         
-            console.log("Fetching members for friends IDs:", friends);
+            console.log("Fetching members for friends IDs:", friends); // Log friends array
         
             // Fetch userIds for each friend and display them
             const promises = friends.map(friendId => {
                 console.log("Fetching user data for friend ID:", friendId); // Log each fetch attempt
                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                     const friendData = userSnapshot.val();
+                    console.log("Friend data for ID:", friendId, "is", friendData); // Log friend data
+                    
                     if (friendData) {
                         const memberItem = document.createElement('div');
                         memberItem.textContent = friendData.userId; // Display the userId of the member
