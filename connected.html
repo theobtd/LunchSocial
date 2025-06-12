@@ -10,26 +10,37 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
 </head>
 <body>
+<body>
     <div id="welcomeMessage" class="welcome-message"></div>
-    <div class="sidebar">
+    
+    <button id="toggleMenuBtn">Toggle Menu</button>
+    <div class="sidebar" id="sidebar">
         <h2>You are connected</h2>
         <button id="logoutBtn">Log Out</button>
         <button id="createEventBtn">Create Event</button>
 
-        <h3>All Users</h3>
-        <div class="user-list" id="userList"></div>
+        <div class="collapsible">
+            <h3 onclick="toggleCollapsible()">Users</h3>
+            <div class="collapsible-content">
+                <h3>All Users</h3>
+                <div class="user-list" id="userList"></div>
 
-        <h3>Pending Friend Requests</h3>
-        <div class="request-list" id="requestList"></div>
+                <h3>Pending Friend Requests</h3>
+                <div class="request-list" id="requestList"></div>
 
-        <h3>Accepted Friends</h3>
-        <div class="accepted-list" id="acceptedList"></div>
+                <h3>Accepted Friends</h3>
+                <div class="accepted-list" id="acceptedList"></div>
+            </div>
+        </div>
     </div>
 
     <div class="main-content">
         <h3>All Events</h3>
         <div class="event-list" id="eventList"></div>
     </div>
+
+    <!-- Existing modal code and scripts remain unchanged -->
+</body>
 
     <!-- Modal for Event Creation -->
     <div id="eventModal" class="modal">
@@ -669,6 +680,22 @@
                 window.location.href = 'index.html'; // Redirect if not logged in
             }
         });
+
+        // Function to toggle the collapsible content
+        function toggleCollapsible() {
+            const content = document.querySelector('.collapsible-content');
+            if (content.style.display === "block") {
+                content.style.display = "none"; // Hide the content
+            } else {
+                content.style.display = "block"; // Show the content
+            }
+        }
+        
+        // Add event listener to the toggle button
+        document.getElementById('toggleMenuBtn').onclick = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
+        };
     </script>
 
 </body>
