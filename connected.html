@@ -336,7 +336,7 @@
             database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
                 const acceptedList = document.getElementById('acceptedList');
                 acceptedList.innerHTML = ''; // Clear previous list
-
+        
                 const requests = snapshot.val();
                 if (requests) {
                     const requestsArray = Object.keys(requests);
@@ -349,6 +349,7 @@
                                     const acceptedItem = document.createElement('div');
                                     acceptedItem.classList.add('accepted-item');
                                     acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
+                                    acceptedItem.dataset.uid = requesterId; // Store the corresponding UID
                                     acceptedList.appendChild(acceptedItem); // Add to the list
                                 }
                             });
