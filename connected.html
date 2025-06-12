@@ -13,22 +13,19 @@
 <body>    
     <button id="toggleMenuBtn">Toggle Menu</button>
     <div class="sidebar" id="sidebar">
-        <h2 id="welcomeHeader">Welcome!</h2>
+        <h2 id="welcomeHeader">Welcome, [userId]!</h2>
         <button id="logoutBtn">Log Out</button>
-
-        <div class="collapsible">
-            <h3 onclick="toggleCollapsible()">Users</h3>
-            <div class="collapsible-content">
-                <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()">
-                <div class="user-list" id="userList"></div>
-
-                <h3>Pending Friend Requests</h3>
-                <div class="request-list" id="requestList"></div>
-
-                <h3>Accepted Friends</h3>
-                <div class="accepted-list" id="acceptedList"></div>
-            </div>
-        </div>
+    
+        <!-- Directly include the search bar and lists -->
+        <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()">
+        
+        <h3>Pending Friend Requests</h3>
+        <div class="request-list" id="requestList"></div>
+    
+        <h3>Accepted Friends</h3>
+        <div class="accepted-list" id="acceptedList"></div>
+    
+        <div class="user-list" id="userList"></div> <!-- Ensure this is still included -->
     </div>
 
     <div class="main-content">
