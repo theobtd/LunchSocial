@@ -95,71 +95,62 @@
         // Function to fetch and display users
         function displayUsers() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            
+            const userList = document.getElementById('userList'); // Reference to the user list container
+        
             database.ref('users').once('value').then(snapshot => {
-                const userList = document.getElementById('userList');
                 userList.innerHTML = ''; // Clear previous list
-
-                // Display current user at the top
-                const currentUserData = snapshot.child(currentUserId).val();
-                if (currentUserData) {
-                    const currentUserItem = document.createElement('div');
-                    currentUserItem.classList.add('user-item');
-                    currentUserItem.textContent = currentUserData.userId; // Display current user's ID
-                    userList.appendChild(currentUserItem); // Add to the list
-                }
-
+        
                 snapshot.forEach(childSnapshot => {
                     const userData = childSnapshot.val();
                     const userId = userData.userId;
-                    const targetUserId = childSnapshot.key; // Get the UID
-
-                    // Skip adding the current user again
-                    if (userId === currentUserData?.userId) return;
-
+                    const targetUserId = childSnapshot.key; // Get the UID of the user
+        
+                    // Exclude the currently logged-in user
+                    if (targetUserId === currentUserId) {
+                        return; // Skip adding the current user to the list
+                    }
+        
                     // Create a user item
                     const userItem = document.createElement('div');
                     userItem.classList.add('user-item');
                     userItem.textContent = userId;
-
-                    // Create the button
+        
+                    // Create the action button
                     const actionButton = document.createElement('button');
-
-                    // Check for incoming requests
-                    database.ref('users/' + currentUserId + '/friendRequests/' + targetUserId).once('value').then(friendSnapshot => {
+        
+                    // Check for incoming friend requests
+                    database.ref(`users/${currentUserId}/friendRequests/${targetUserId}`).once('value').then(friendSnapshot => {
                         if (friendSnapshot.exists()) {
-                            // If the logged-in user has received a request
                             if (friendSnapshot.val().status === 'pending') {
                                 actionButton.textContent = 'Pending';
-                                actionButton.disabled = true; // Disable button
+                                actionButton.disabled = true; // Disable the button
                             } else if (friendSnapshot.val().status === 'accepted') {
                                 actionButton.textContent = 'Friends';
-                                actionButton.disabled = true; // Disable button
+                                actionButton.disabled = true; // Disable the button
                             }
-                        } 
-
-                        // Check for outgoing requests
-                        database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).once('value').then(requestSnapshot => {
-                            if (requestSnapshot.exists()) {
-                                // If the logged-in user has sent a request
-                                if (requestSnapshot.val().status === 'pending') {
-                                    actionButton.textContent = 'Pending';
-                                    actionButton.disabled = true; // Disable button
+                        } else {
+                            // Check for outgoing friend requests
+                            database.ref(`users/${targetUserId}/friendRequests/${currentUserId}`).once('value').then(requestSnapshot => {
+                                if (requestSnapshot.exists()) {
+                                    if (requestSnapshot.val().status === 'pending') {
+                                        actionButton.textContent = 'Pending';
+                                        actionButton.disabled = true; // Disable the button
+                                    }
+                                } else {
+                                    // If no requests exist, show a "+" button
+                                    actionButton.textContent = '+';
+                                    actionButton.onclick = function () {
+                                        sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
+                                    };
                                 }
-                            } else {
-                                // If there are no requests, show the + button
-                                actionButton.textContent = '+';
-                                actionButton.onclick = function() {
-                                    sendFriendRequest(targetUserId, actionButton); // Pass user UID and button
-                                };
-                            }
-                        });
+                            });
+                        }
                     });
-
-                    // Append button to user item
+        
+                    // Append the action button to the user item
                     userItem.appendChild(actionButton);
-                    
-                    // Append to the user list
+        
+                    // Append the user item to the user list
                     userList.appendChild(userItem);
                 });
             }).catch(error => {
