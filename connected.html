@@ -896,6 +896,8 @@
                         const memberItem = document.createElement('div');
                         memberItem.textContent = friendData.userId; // Display the userId of the member
                         groupMembersList.appendChild(memberItem); // Add to the list
+                    } else {
+                        console.error("No data found for friend ID:", friendId);
                     }
                 });
             });
