@@ -905,17 +905,15 @@
         
             // Fetch userIds for each friend and display them
             const promises = friends.map(friendId => {
-                console.log("Fetching user data for friend ID:", friendId);
+                console.log("Fetching user data for friend ID:", friendId); // Log each fetch attempt
                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                     const friendData = userSnapshot.val();
-                    console.log("Friend data for ID:", friendId, "is", friendData);
-                    
                     if (friendData) {
                         const memberItem = document.createElement('div');
                         memberItem.textContent = friendData.userId; // Display the userId of the member
                         groupMembersList.appendChild(memberItem); // Add to the list
                     } else {
-                        console.error("No data found for friend ID:", friendId);
+                        console.error("No data found for friend ID:", friendId); // Log when no data is found
                     }
                 }).catch(error => {
                     console.error("Error fetching user data for friend ID:", friendId, error);
@@ -961,7 +959,7 @@
             const checkboxes = document.querySelectorAll('#acceptedFriendsList input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
                 if (checkbox.checked) {
-                    selectedFriends.push(checkbox.value); // Add the userId of the checked friend
+                    selectedFriends.push(checkbox.id); // Use UID here
                 }
             });
         
@@ -971,7 +969,7 @@
             // Store the selected friends in a new group in the database
             database.ref('users/' + currentUserId + '/friendGroups/' + newGroupKey).set({
                 name: groupName, // Store the group name
-                friends: selectedFriends,
+                friends: selectedFriends, // Store UIDs
                 createdAt: new Date().toISOString() // Optional: store the creation date
             })
             .then(() => {
