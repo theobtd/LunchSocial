@@ -99,9 +99,11 @@
     <div id="acceptedFriendsModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAcceptedFriendsModal()">&times;</span>
-            <h3>Toggle Accepted Friends</h3>
+            <h3>Create Group</h3>
+            <label for="groupTitle">Group Name:</label>
+            <input type="text" id="groupTitle" placeholder="Enter group name" required>
             <div id="acceptedFriendsList"></div>
-            <button id="confirmFriendsBtn">Confirm</button> <!-- New Confirm Button -->
+            <button id="confirmFriendsBtn">Create Group</button> <!-- Updated Button -->
         </div>
     </div>
 
@@ -842,6 +844,13 @@
         document.getElementById('confirmFriendsBtn').onclick = function() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const selectedFriends = [];
+            const groupName = document.getElementById('groupTitle').value; // Get the group name
+        
+            // Validate the group name
+            if (!groupName) {
+                alert("Please enter a group name.");
+                return;
+            }
         
             // Get all checkboxes and add checked ones to the array
             const checkboxes = document.querySelectorAll('#acceptedFriendsList input[type="checkbox"]');
@@ -856,11 +865,12 @@
         
             // Store the selected friends in a new group in the database
             database.ref('users/' + currentUserId + '/friendGroups/' + newGroupKey).set({
+                name: groupName, // Store the group name
                 friends: selectedFriends,
                 createdAt: new Date().toISOString() // Optional: store the creation date
             })
             .then(() => {
-                console.log("New group created with friends:", selectedFriends);
+                console.log("New group created with name:", groupName, "and friends:", selectedFriends);
                 alert("New group has been created and friends have been saved!");
                 closeAcceptedFriendsModal(); // Close the modal after saving
             })
