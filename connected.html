@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
 </head>
-<body>
 <body>    
     <button id="toggleMenuBtn">Toggle Menu</button>
     <div class="sidebar" id="sidebar">
@@ -753,6 +752,12 @@
             const sidebar = document.getElementById('sidebar');
             sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
         };
+
+                // Initially hide the sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'none'; // Start with the sidebar hidden
+        });
     </script>
 
 </body>
