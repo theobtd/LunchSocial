@@ -30,22 +30,6 @@
         <div class="event-list" id="eventList"></div>
     </div>
 
-    <div class="sidebar">
-        <h2>You are connected</h2>
-        <p id="welcomeMessage"></p> <!-- Placeholder for the logged-in user's userId -->
-        <button id="logoutBtn">Log Out</button>
-        <button id="createEventBtn">Create Event</button>
-    
-        <h3>All Users</h3>
-        <div class="user-list" id="userList"></div>
-    
-        <h3>Pending Friend Requests</h3>
-        <div class="request-list" id="requestList"></div>
-    
-        <h3>Accepted Friends</h3>
-        <div class="accepted-list" id="acceptedList"></div>
-    </div>
-
     <!-- Modal for Event Creation -->
     <div id="eventModal" class="modal">
         <div class="modal-content">
@@ -107,36 +91,6 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-
-        function displayWelcomeMessage() {
-            const currentUserId = auth.currentUser.uid; // Get the current user's UID
-            const welcomeMessage = document.getElementById('welcomeMessage'); // Reference the welcome message placeholder
-        
-            // Fetch the userId from the database
-            database.ref(`users/${currentUserId}`).once('value').then(snapshot => {
-                const userData = snapshot.val();
-                const userId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
-        
-                // Display the welcome message
-                welcomeMessage.textContent = `Welcome, ${userId}!`;
-            }).catch(error => {
-                console.error("Error fetching userId for welcome message:", error);
-                welcomeMessage.textContent = "Welcome, User!"; // Fallback message in case of error
-            });
-        }
-        
-        // Call displayWelcomeMessage when the user is authenticated
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                displayUsers(); // Fetch and display all users
-                displayPendingRequests(); // Fetch and display pending friend requests
-                displayAcceptedFriends(); // Fetch and display accepted friends
-                displayAllEvents(); // Fetch and display all events
-                displayWelcomeMessage(); // Display the welcome message
-            } else {
-                window.location.href = 'index.html'; // Redirect if not logged in
-            }
-        });
 
         // Function to fetch and display users
         function displayUsers() {
