@@ -110,6 +110,15 @@
         </div>
     </div>
 
+    <!-- Modal for Group Members -->
+    <div id="groupMembersModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeGroupMembersModal()">&times;</span>
+            <h3>Group Members</h3>
+            <div id="groupMembersList"></div>
+        </div>
+    </div>
+
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -859,11 +868,10 @@
                         const groupItem = document.createElement('div');
                         groupItem.classList.add('group-item');
                         groupItem.textContent = groupData.name; // Display the group name
-                        
-                        // Optional: Add functionality to view members or delete the group
-                        // For example, clicking the group name could show members
+        
+                        // Add click event to show group members
                         groupItem.onclick = function() {
-                            alert("Group Members: " + groupData.friends.join(", "));
+                            showGroupMembers(groupData.friends); // Pass the friends array
                         };
         
                         groupList.appendChild(groupItem); // Add to the list
@@ -875,6 +883,41 @@
                 console.error("Error fetching groups:", error);
             });
         }
+
+        function showGroupMembers(friends) {
+            const groupMembersList = document.getElementById('groupMembersList');
+            groupMembersList.innerHTML = ''; // Clear previous list
+        
+            // Fetch userIds for each friend and display them
+            friends.forEach(friendId => {
+                database.ref('users/' + friendId).once('value').then(userSnapshot => {
+                    const friendData = userSnapshot.val();
+                    if (friendData) {
+                        const memberItem = document.createElement('div');
+                        memberItem.textContent = friendData.userId; // Display the userId of the member
+                        groupMembersList.appendChild(memberItem); // Add to the list
+                    }
+                });
+            });
+        
+            // Open the modal
+            const modal = document.getElementById("groupMembersModal");
+            modal.style.display = "block";
+        }
+        
+        // Function to close the group members modal
+        function closeGroupMembersModal() {
+            const modal = document.getElementById("groupMembersModal");
+            modal.style.display = "none"; // Hide the modal
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById("groupMembersModal");
+            if (event.target === modal) {
+                closeGroupMembersModal();
+            }
+        };
         
         // Function to handle confirm button click
         document.getElementById('confirmFriendsBtn').onclick = function() {
