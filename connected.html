@@ -158,9 +158,41 @@
                     userItem.classList.add('user-item');
                     userItem.textContent = user.userId;
         
-                    // Create the action button (existing logic)
+                    // Create the action button
                     const actionButton = document.createElement('button');
-                    // (Add the existing action button logic here...)
+        
+                    // Determine the button text and functionality
+                    const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+                    const targetUserId = user.uid; // Get the UID of the user being displayed
+        
+                    // Check for incoming friend requests
+                    database.ref(`users/${currentUserId}/friendRequests/${targetUserId}`).once('value').then(friendSnapshot => {
+                        if (friendSnapshot.exists()) {
+                            if (friendSnapshot.val().status === 'pending') {
+                                actionButton.textContent = 'Pending';
+                                actionButton.disabled = true; // Disable the button
+                            } else if (friendSnapshot.val().status === 'accepted') {
+                                actionButton.textContent = 'Friends';
+                                actionButton.disabled = true; // Disable the button
+                            }
+                        } else {
+                            // Check for outgoing friend requests
+                            database.ref(`users/${targetUserId}/friendRequests/${currentUserId}`).once('value').then(requestSnapshot => {
+                                if (requestSnapshot.exists()) {
+                                    if (requestSnapshot.val().status === 'pending') {
+                                        actionButton.textContent = 'Pending';
+                                        actionButton.disabled = true; // Disable the button
+                                    }
+                                } else {
+                                    // If no requests exist, show a "+" button
+                                    actionButton.textContent = '+';
+                                    actionButton.onclick = function () {
+                                        sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
+                                    };
+                                }
+                            });
+                        }
+                    });
         
                     // Append the action button to the user item
                     userItem.appendChild(actionButton);
