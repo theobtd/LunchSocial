@@ -898,125 +898,98 @@
                             const detailsSection = document.createElement('div');
                             detailsSection.classList.add('event-details', 'hidden'); // Initially hidden
                     
-                            // Determine if the Join button should be displayed
-                            let joinButtonHtml = '';
-                            if (event.createdBy !== currentUserId) { // Only show the button if the user is not the creator
-                                joinButtonHtml = '<button class="join-btn">Join</button>';
-                            }
-                    
-                            // Check participation status and set button text accordingly
-                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                                const participants = snapshot.val() || [];
-                                const isParticipating = participants.includes(currentUserId);
-                                joinButton.textContent = isParticipating ? 'Cancel' : 'Join'; // Set initial text based on participation
-                    
-                                // Initialize upload section
-                                let uploadSectionHtml = '';
-                                if (isParticipating) {
-                                    uploadSectionHtml = `
-                                        <h4>Upload a Picture</h4>
-                                        <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
-                                        <button id="eventUploadPictureBtn">Upload Picture</button>
-                                        <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
-                                    `;
-                                }
-                    
-                                detailsSection.innerHTML = `
-                                    <p>${event.comment || 'No comment'}</p>
-                                    <p>Location: ${event.location || 'Not specified'}</p>
-                                    <p>Category: ${event.category || 'Not specified'}</p>
-                                    ${joinButtonHtml}
-                                    ${uploadSectionHtml}
-                                `;
-                            });
-                    
                             // Add click event to toggle details
                             eventItem.onclick = function() {
                                 const isExpanded = detailsSection.classList.contains('hidden');
                                 detailsSection.classList.toggle('hidden', !isExpanded); // Toggle visibility
+                                if (isExpanded) { // Only populate details if expanding
+                                    populateDetails(); // Call function to populate details
+                                }
                             };
                     
-                            // Add Join button functionality if it exists
-                            const joinButton = detailsSection.querySelector('.join-btn');
-                            if (joinButton) {
-                                joinButton.onclick = function(e) {
-                                    e.stopPropagation(); // Prevent the event from bubbling up to the parent div
-                                    const currentUserId = auth.currentUser.uid; // Get the current user's ID
+                            // Function to populate event details
+                            function populateDetails() {
+                                // Determine if the Join button should be displayed
+                                let joinButtonHtml = '';
+                                if (event.createdBy !== currentUserId) { // Only show the button if the user is not the creator
+                                    joinButtonHtml = '<button class="join-btn">Join</button>';
+                                }
                     
-                                    // Check current participation status
-                                    database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                                        let participants = snapshot.val() || [];
-                                        const isParticipating = participants.includes(currentUserId);
+                                // Check participation status and set button text accordingly
+                                database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                    const participants = snapshot.val() || [];
+                                    const isParticipating = participants.includes(currentUserId);
+                                    const joinButtonText = isParticipating ? 'Cancel' : 'Join'; // Set button text
                     
-                                        if (isParticipating) {
-                                            // User is already a participant, remove them
-                                            participants = participants.filter(participant => participant !== currentUserId);
-                                            joinButton.textContent = 'Join'; // Change button text
-                                        } else {
-                                            // User is not a participant, add them
-                                            participants.push(currentUserId);
-                                            joinButton.textContent = 'Cancel'; // Change button text
-                                        }
-                    
-                                        // Update the participants list in the database
-                                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).set(participants)
-                                            .then(() => {
-                                                console.log(`Participation toggled for user ${currentUserId} in event ${event.id}`);
-                                            })
-                                            .catch(error => {
-                                                console.error('Error updating participants:', error);
-                                            });
-                                    });
-                                };
-                            }
-                    
-                            // Add event listener for the upload button if it exists
-                            const uploadButton = detailsSection.querySelector('#eventUploadPictureBtn');
-                            if (uploadButton) {
-                                uploadButton.onclick = function() {
-                                    const fileInput = detailsSection.querySelector('#eventUploadPictureInput');
-                                    const file = fileInput.files[0]; // Get the selected file
-                    
-                                    if (!file) {
-                                        document.getElementById('eventUploadStatus').textContent = "Please select a file.";
-                                        return;
+                                    // Initialize upload section
+                                    let uploadSectionHtml = '';
+                                    if (isParticipating) {
+                                        uploadSectionHtml = `
+                                            <h4>Upload a Picture</h4>
+                                            <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
+                                            <button id="eventUploadPictureBtn">Upload Picture</button>
+                                            <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
+                                        `;
                                     }
                     
-                                    // Create a storage reference for the event picture
-                                    const storageRef = storage.ref(`event_pictures/${event.id}/${file.name}`); // Adjust path as needed
+                                    detailsSection.innerHTML = `
+                                        <p>${event.comment || 'No comment'}</p>
+                                        <p>Location: ${event.location || 'Not specified'}</p>
+                                        <p>Category: ${event.category || 'Not specified'}</p>
+                                        ${joinButtonHtml}
+                                        <button class="join-btn">${joinButtonText}</button>
+                                        ${uploadSectionHtml}
+                                    `;
                     
-                                    // Upload the file
-                                    const uploadTask = storageRef.put(file);
+                                    // Add event listener for the upload button if it exists
+                                    const uploadButton = detailsSection.querySelector('#eventUploadPictureBtn');
+                                    if (uploadButton) {
+                                        uploadButton.onclick = function() {
+                                            const fileInput = detailsSection.querySelector('#eventUploadPictureInput');
+                                            const file = fileInput.files[0]; // Get the selected file
                     
-                                    // Monitor the upload status
-                                    uploadTask.on(
-                                        'state_changed',
-                                        (snapshot) => {
-                                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                            document.getElementById('eventUploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
-                                        },
-                                        (error) => {
-                                            console.error("Error uploading file:", error);
-                                            document.getElementById('eventUploadStatus').textContent = `Error: ${error.message}`;
-                                        },
-                                        () => {
-                                            // Handle successful upload
-                                            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                                                // Save the download URL to the database under the event ID
-                                                database.ref(`events/${event.id}/pictures`).push({
-                                                    url: downloadURL,
-                                                    uploadedAt: new Date().toISOString()
-                                                }).then(() => {
-                                                    document.getElementById('eventUploadStatus').textContent = "Picture uploaded successfully!";
-                                                    fileInput.value = ''; // Clear the file input
-                                                }).catch((error) => {
-                                                    console.error("Error saving picture URL to database:", error);
+                                            if (!file) {
+                                                document.getElementById('eventUploadStatus').textContent = "Please select a file.";
+                                                return;
+                                            }
+                    
+                                            // Create a storage reference for the event picture
+                                            const storageRef = storage.ref(`event_pictures/${event.id}/${file.name}`); // Adjust path as needed
+                    
+                                            // Upload the file
+                                            const uploadTask = storageRef.put(file);
+                    
+                                            // Monitor the upload status
+                                            uploadTask.on(
+                                                'state_changed',
+                                                (snapshot) => {
+                                                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                                    document.getElementById('eventUploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
+                                                },
+                                                (error) => {
+                                                    console.error("Error uploading file:", error);
                                                     document.getElementById('eventUploadStatus').textContent = `Error: ${error.message}`;
-                                                });
-                                            });
-                                        }
-                                    );
-                                };
+                                                },
+                                                () => {
+                                                    // Handle successful upload
+                                                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                                                        // Save the download URL to the database under the event ID
+                                                        database.ref(`events/${event.id}/pictures`).push({
+                                                            url: downloadURL,
+                                                            uploadedAt: new Date().toISOString()
+                                                        }).then(() => {
+                                                            document.getElementById('eventUploadStatus').textContent = "Picture uploaded successfully!";
+                                                            fileInput.value = ''; // Clear the file input
+                                                        }).catch((error) => {
+                                                            console.error("Error saving picture URL to database:", error);
+                                                            document.getElementById('eventUploadStatus').textContent = `Error: ${error.message}`;
+                                                        });
+                                                    });
+                                                }
+                                            );
+                                        };
+                                    }
+                                });
                             }
                     
                             // Append the details section to the event item
