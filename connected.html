@@ -26,11 +26,7 @@
         <h3>Accepted Friends</h3>
         <div class="accepted-list" id="acceptedList"></div>
 
-        <h3>Your Groups</h3>
-        <div class="group-list" id="groupList"></div>
-
         <button id="logoutBtn">Log Out</button>
-        <button id="viewFriendsBtn">View Accepted Friends</button>
     </div>
 
     <div class="main-content">
@@ -38,6 +34,9 @@
         <button id="createEventBtn">Create Event</button> <!-- Moved here -->
         <div class="event-list" id="eventList"></div>
     </div>
+
+    <!-- Existing modal code and scripts remain unchanged -->
+</body>
 
     <!-- Modal for Event Creation -->
     <div id="eventModal" class="modal">
@@ -95,27 +94,6 @@
             <p id="eventDetailComment"></p>
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
-        </div>
-    </div>
-
-    <!-- Modal for Accepted Friends -->
-    <div id="acceptedFriendsModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeAcceptedFriendsModal()">&times;</span>
-            <h3>Create Group</h3>
-            <label for="groupTitle">Group Name:</label>
-            <input type="text" id="groupTitle" placeholder="Enter group name" required>
-            <div id="acceptedFriendsList"></div>
-            <button id="confirmFriendsBtn">Create Group</button> <!-- Updated Button -->
-        </div>
-    </div>
-
-    <!-- Modal for Group Members -->
-    <div id="groupMembersModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeGroupMembersModal()">&times;</span>
-            <h3>Group Members</h3>
-            <div id="groupMembersList"></div>
         </div>
     </div>
 
@@ -330,35 +308,27 @@
             });
         }
 
+        // Function to fetch and display accepted friends
         function displayAcceptedFriends() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            console.log("Fetching accepted friends for user:", currentUserId);
             
             database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
                 const acceptedList = document.getElementById('acceptedList');
                 acceptedList.innerHTML = ''; // Clear previous list
-        
+
                 const requests = snapshot.val();
-                console.log("Friend requests:", requests);
-                
                 if (requests) {
                     const requestsArray = Object.keys(requests);
                     requestsArray.forEach(requesterId => {
                         if (requests[requesterId].status === 'accepted') {
-                            console.log("Fetching data for requesterId:", requesterId);
                             // Fetch userId of the accepted requester
                             database.ref('users/' + requesterId).once('value').then(userSnapshot => {
                                 const requesterData = userSnapshot.val();
-                                console.log("Requester data for ID:", requesterId, "is", requesterData);
-                                
                                 if (requesterData) {
                                     const acceptedItem = document.createElement('div');
                                     acceptedItem.classList.add('accepted-item');
-                                    acceptedItem.textContent = requesterData.userId; // Display the userId
-                                    acceptedItem.dataset.uid = requesterId; // Store the corresponding UID
+                                    acceptedItem.textContent = requesterData.userId; // Display the userId of the accepted friend
                                     acceptedList.appendChild(acceptedItem); // Add to the list
-                                } else {
-                                    console.error("No data found for requester ID:", requesterId);
                                 }
                             });
                         }
@@ -789,10 +759,9 @@
                     }
                 });
         
-                displayUsers(); // Fetch and display users
+                displayUsers();
                 displayPendingRequests(); // Fetch and display pending friend requests
                 displayAcceptedFriends(); // Fetch and display accepted friends
-                displayGroups(); // <-- Insert this line here
                 displayAllEvents(); // Fetch and display friends' and user's events
             } else {
                 window.location.href = 'index.html'; // Redirect if not logged in
@@ -808,197 +777,6 @@
                 content.style.display = "block"; // Show the content
             }
         }
-
-        // Function to open the accepted friends modal
-        function openAcceptedFriendsModal() {
-            const modal = document.getElementById("acceptedFriendsModal");
-            const acceptedFriendsList = document.getElementById('acceptedFriendsList');
-            const existingAcceptedFriends = document.getElementById('acceptedList');
-        
-            // Clear previous list in modal
-            acceptedFriendsList.innerHTML = '';
-        
-            // Copy content from the sidebar accepted friends list to the modal
-            acceptedFriendsList.innerHTML = existingAcceptedFriends.innerHTML;
-        
-            // Show the modal
-            modal.style.display = "block";
-        }
-        
-        // Function to close the accepted friends modal
-        function closeAcceptedFriendsModal() {
-            const modal = document.getElementById("acceptedFriendsModal");
-            modal.style.display = "none"; // Hide the modal
-        }
-
-        function displayAcceptedFriendsInModal() {
-            const acceptedFriendsList = document.getElementById('acceptedFriendsList');
-            const existingAcceptedFriends = document.getElementById('acceptedList');
-        
-            acceptedFriendsList.innerHTML = ''; // Clear previous list in modal
-        
-            // Iterate over existing accepted friends in the sidebar
-            const acceptedFriends = existingAcceptedFriends.children;
-            for (let friend of acceptedFriends) {
-                const friendItem = document.createElement('div');
-        
-                // Create a checkbox
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = friend.textContent; // Use userId as the ID for the checkbox
-                checkbox.value = friend.textContent; // Store userId as value
-        
-                // Append checkbox and friend name
-                friendItem.appendChild(checkbox);
-                friendItem.appendChild(document.createTextNode(friend.textContent));
-                acceptedFriendsList.appendChild(friendItem);
-            }
-        }
-        
-        // Function to open the accepted friends modal
-        function openAcceptedFriendsModal() {
-            displayAcceptedFriendsInModal(); // Populate the modal
-            const modal = document.getElementById("acceptedFriendsModal");
-            modal.style.display = "block"; // Show the modal
-        }
-
-        function displayGroups() {
-            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            const groupList = document.getElementById('groupList');
-            groupList.innerHTML = ''; // Clear previous list
-        
-            console.log("Fetching groups for user:", currentUserId);
-            
-            // Fetch groups from the database
-            database.ref('users/' + currentUserId + '/friendGroups').once('value').then(snapshot => {
-                const groups = snapshot.val();
-                console.log("Groups data:", groups); // Log the entire groups object
-                
-                if (groups) {
-                    const groupNames = Object.keys(groups);
-                    groupNames.forEach(groupId => {
-                        const groupData = groups[groupId];
-                        const groupItem = document.createElement('div');
-                        groupItem.classList.add('group-item');
-                        groupItem.textContent = groupData.name; // Display the group name
-        
-                        // Add click event to show group members
-                        groupItem.onclick = function() {
-                            console.log("Group clicked:", groupData); // Log group data when clicked
-                            showGroupMembers(groupData.friends); // Pass the friends array
-                        };
-        
-                        groupList.appendChild(groupItem); // Add to the list
-                    });
-                } else {
-                    groupList.textContent = "No groups found."; // Message if no groups
-                }
-            }).catch(error => {
-                console.error("Error fetching groups:", error);
-            });
-        }
-
-        function showGroupMembers(friends) {
-            const groupMembersList = document.getElementById('groupMembersList');
-            groupMembersList.innerHTML = ''; // Clear previous list
-        
-            console.log("Fetching members for friends IDs:", friends); // Log friends array
-        
-            // Fetch userIds for each friend and display them
-            const promises = friends.map(friendId => {
-                console.log("Fetching user data for friend ID:", friendId); // Log each fetch attempt
-                return database.ref('users/' + friendId).once('value').then(userSnapshot => {
-                    const friendData = userSnapshot.val();
-                    console.log("Friend data for ID:", friendId, "is", friendData); // Log friend data
-                    
-                    if (friendData) {
-                        const memberItem = document.createElement('div');
-                        memberItem.textContent = friendData.userId; // Display the userId of the member
-                        groupMembersList.appendChild(memberItem); // Add to the list
-                    } else {
-                        console.error("No data found for friend ID:", friendId); // Log when no data is found
-                    }
-                }).catch(error => {
-                    console.error("Error fetching user data for friend ID:", friendId, error);
-                });
-            });
-        
-            // Wait for all user data to be fetched before opening the modal
-            Promise.all(promises).then(() => {
-                const modal = document.getElementById("groupMembersModal");
-                modal.style.display = "block"; // Open the modal after loading members
-            }).catch(error => {
-                console.error("Error fetching group members:", error);
-            });
-        }
-        
-        // Function to close the group members modal
-        function closeGroupMembersModal() {
-            const modal = document.getElementById("groupMembersModal");
-            modal.style.display = "none"; // Hide the modal
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById("groupMembersModal");
-            if (event.target === modal) {
-                closeGroupMembersModal();
-            }
-        };
-        
-        // Function to handle confirm button click
-        document.getElementById('confirmFriendsBtn').onclick = function() {
-            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            const selectedFriends = [];
-            const groupName = document.getElementById('groupTitle').value; // Get the group name
-        
-            // Validate the group name
-            if (!groupName) {
-                alert("Please enter a group name.");
-                return;
-            }
-        
-            // Get all checkboxes and add checked ones to the array
-            const checkboxes = document.querySelectorAll('#acceptedFriendsList input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedFriends.push(checkbox.id); // Use UID here
-                }
-            });
-        
-            // Generate a unique key for the new group
-            const newGroupKey = database.ref('users/' + currentUserId + '/friendGroups').push().key;
-        
-            // Store the selected friends in a new group in the database
-            database.ref('users/' + currentUserId + '/friendGroups/' + newGroupKey).set({
-                name: groupName, // Store the group name
-                friends: selectedFriends, // Store UIDs
-                createdAt: new Date().toISOString() // Optional: store the creation date
-            })
-            .then(() => {
-                console.log("New group created with name:", groupName, "and friends:", selectedFriends);
-                alert("New group has been created and friends have been saved!");
-                closeAcceptedFriendsModal(); // Close the modal after saving
-                displayGroups(); // Refresh the group list in the sidebar
-            })
-            .catch(error => {
-                console.error("Error saving selected friends:", error);
-            });
-        };
-
-        // Event listener for the view friends button
-        document.getElementById('viewFriendsBtn').onclick = openAcceptedFriendsModal;
-
-        // Event listener for the view friends button
-        document.getElementById('viewFriendsBtn').onclick = openAcceptedFriendsModal;
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById("acceptedFriendsModal");
-            if (event.target === modal) {
-                closeAcceptedFriendsModal();
-            }
-        };
         
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
