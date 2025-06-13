@@ -899,11 +899,16 @@
                             detailsSection.classList.add('event-details', 'hidden'); // Initially hidden
                     
                             // Populate details with Join button
+                            let joinButtonHtml = '';
+                            if (event.createdBy !== currentUserId) { // Check if the current user is not the creator
+                                joinButtonHtml = '<button class="join-btn">Join</button>';
+                            }
+                            
                             detailsSection.innerHTML = `
                                 <p>${event.comment || 'No comment'}</p>
                                 <p>Location: ${event.location || 'Not specified'}</p>
                                 <p>Category: ${event.category || 'Not specified'}</p>
-                                <button class="join-btn">Join</button>
+                                ${joinButtonHtml}
                             `;
                     
                             // Add click event to toggle details
