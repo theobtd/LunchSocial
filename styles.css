@@ -100,3 +100,11 @@ button:hover {
 .hidden {
     display: none; /* Hides the element */
 }
+
+.event-details {
+    padding: 10px;
+    background-color: #f9f9f9; /* Light background for details */
+    border: 1px solid #ddd; /* Border for separation */
+    border-radius: 5px; /* Rounded corners */
+    margin-top: 10px; /* Space above the details */
+}
