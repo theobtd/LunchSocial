@@ -101,12 +101,20 @@
             <p id="eventDetailLocation"></p>
             <p id="eventDetailComment"></p>
             
+            <!-- Picture Carousel Section -->
+            <h3>Event Pictures</h3>
+            <div id="eventPicturesCarousel" class="carousel">
+                <div id="carouselImages"></div>
+                <button id="prevBtn">Previous</button>
+                <button id="nextBtn">Next</button>
+            </div>
+            
             <!-- Picture Upload Section -->
             <h3>Upload a Picture</h3>
             <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
             <button id="eventUploadPictureBtn">Upload Picture</button>
             <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
-    
+        
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
@@ -238,6 +246,31 @@
         };
 
         let allUsers = [];
+
+        let currentImageIndex = 0;
+
+        document.getElementById('prevBtn').onclick = function () {
+            const images = document.querySelectorAll('#carouselImages img');
+            if (images.length > 0) {
+                currentImageIndex = (currentImageIndex - 1 + images.length) % images.length; // Loop back to last image
+                updateCarousel();
+            }
+        };
+        
+        document.getElementById('nextBtn').onclick = function () {
+            const images = document.querySelectorAll('#carouselImages img');
+            if (images.length > 0) {
+                currentImageIndex = (currentImageIndex + 1) % images.length; // Loop back to first image
+                updateCarousel();
+            }
+        };
+        
+        function updateCarousel() {
+            const images = document.querySelectorAll('#carouselImages img');
+            images.forEach((img, index) => {
+                img.style.display = index === currentImageIndex ? 'block' : 'none'; // Show only the current image
+            });
+        }
 
         const categoryColors = {
             apero: '#FFA07A',   // Light Salmon
@@ -608,19 +641,20 @@
             const eventDate = document.getElementById('eventDetailDate');
             const eventTime = document.getElementById('eventDetailTime');
             const eventCreator = document.getElementById('eventDetailCreator');
-            const eventCategory = document.getElementById('eventDetailCategory'); // Reference to category
+            const eventCategory = document.getElementById('eventDetailCategory');
             const eventLocation = document.getElementById('eventDetailLocation');
             const eventComment = document.getElementById('eventDetailComment');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
             const joinEventBtn = document.getElementById('joinEventBtn');
-            const participantList = document.getElementById('participantList'); // Reference to the participant list
+            const participantList = document.getElementById('participantList');
+            const carouselImages = document.getElementById('carouselImages');
         
             // Set the event details
             eventTitle.textContent = `Title: ${event.title}`;
             eventDate.textContent = `Date: ${event.date}`;
             eventTime.textContent = `Time: ${event.time}`;
             eventCreator.textContent = `Created by: ${event.userId}`;
-            eventCategory.textContent = `Category: ${event.category}`; // Set the category text
+            eventCategory.textContent = `Category: ${event.category}`;
             eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
             eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
@@ -628,25 +662,34 @@
             if (event.createdBy === currentUserId) {
                 deleteEventBtn.style.display = "block";
                 deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id);
-                joinEventBtn.style.display = "none"; // Hide the Join button for the creator
+                joinEventBtn.style.display = "none";
             } else {
                 deleteEventBtn.style.display = "none";
-        
-                // Set up the "Join!" button for non-creators
-                database.ref(`users/${event.createdBy}/events/${event.id}/participants`)
-                    .once('value')
-                    .then(snapshot => {
-                        const participants = snapshot.val() || [];
-                        const isParticipant = participants.includes(currentUserId);
-        
-                        // Update button text based on participation status
-                        joinEventBtn.textContent = isParticipant ? 'Leave Event' : 'Join!';
-                        joinEventBtn.style.display = "block"; // Ensure the button is visible
-                        joinEventBtn.onclick = function() {
-                            toggleParticipation(event.createdBy, event.id, currentUserId, joinEventBtn);
-                        };
-                    });
+                // Set up the "Join!" button for non-creators...
             }
+        
+            // Fetch and display the list of participants
+            displayParticipants(event.createdBy, event.id, participantList);
+        
+            // Fetch and display pictures in the carousel
+            database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
+                carouselImages.innerHTML = ''; // Clear previous images
+                snapshot.forEach(childSnapshot => {
+                    const pictureData = childSnapshot.val();
+                    const img = document.createElement('img');
+                    img.src = pictureData.url;
+                    img.alt = "Event Picture";
+                    img.style.width = "100px"; // Set width as needed
+                    img.style.margin = "5px"; // Add margin
+        
+                    carouselImages.appendChild(img);
+                });
+            }).catch(error => {
+                console.error("Error fetching event pictures:", error);
+            });
+        
+            eventDetailsModal.style.display = "block"; // Show the modal
+        }
         
             // Fetch and display the list of participants
             displayParticipants(event.createdBy, event.id, participantList);
