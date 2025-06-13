@@ -909,12 +909,6 @@
                     
                             // Function to populate event details
                             function populateDetails() {
-                                // Determine if the Join button should be displayed
-                                let joinButtonHtml = '';
-                                if (event.createdBy !== currentUserId) { // Only show the button if the user is not the creator
-                                    joinButtonHtml = '<button class="join-btn">Join</button>';
-                                }
-                    
                                 // Check participation status and set button text accordingly
                                 database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
                                     const participants = snapshot.val() || [];
@@ -936,10 +930,41 @@
                                         <p>${event.comment || 'No comment'}</p>
                                         <p>Location: ${event.location || 'Not specified'}</p>
                                         <p>Category: ${event.category || 'Not specified'}</p>
-                                        ${joinButtonHtml}
                                         <button class="join-btn">${joinButtonText}</button>
                                         ${uploadSectionHtml}
                                     `;
+                    
+                                    // Add event listener for the single join button
+                                    const joinButton = detailsSection.querySelector('.join-btn');
+                                    joinButton.onclick = function(e) {
+                                        e.stopPropagation(); // Prevent the event from bubbling up to the parent div
+                                        const currentUserId = auth.currentUser.uid; // Get the current user's ID
+                    
+                                        // Check current participation status
+                                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                            let participants = snapshot.val() || [];
+                                            const isParticipating = participants.includes(currentUserId);
+                    
+                                            if (isParticipating) {
+                                                // User is already a participant, remove them
+                                                participants = participants.filter(participant => participant !== currentUserId);
+                                                joinButton.textContent = 'Join'; // Change button text
+                                            } else {
+                                                // User is not a participant, add them
+                                                participants.push(currentUserId);
+                                                joinButton.textContent = 'Cancel'; // Change button text
+                                            }
+                    
+                                            // Update the participants list in the database
+                                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).set(participants)
+                                                .then(() => {
+                                                    console.log(`Participation toggled for user ${currentUserId} in event ${event.id}`);
+                                                })
+                                                .catch(error => {
+                                                    console.error('Error updating participants:', error);
+                                                });
+                                        });
+                                    });
                     
                                     // Add event listener for the upload button if it exists
                                     const uploadButton = detailsSection.querySelector('#eventUploadPictureBtn');
