@@ -631,7 +631,7 @@
             document.getElementById("eventTime").value = '';
         }
 
-        let currentEventId; // Declare a variable at the top of your script
+        let currentEventId; // Declare a variable to hold the current event ID
         
         function openEventDetails(event) {
             currentEventId = event.id; // Store the current event ID
@@ -662,10 +662,24 @@
             if (event.createdBy === currentUserId) {
                 deleteEventBtn.style.display = "block";
                 deleteEventBtn.onclick = () => deleteEvent(event.createdBy, event.id);
-                joinEventBtn.style.display = "none";
+                joinEventBtn.style.display = "none"; // Hide the Join button for the creator
             } else {
                 deleteEventBtn.style.display = "none";
-                // Set up the "Join!" button for non-creators...
+        
+                // Set up the "Join!" button for non-creators
+                database.ref(`users/${event.createdBy}/events/${event.id}/participants`)
+                    .once('value')
+                    .then(snapshot => {
+                        const participants = snapshot.val() || [];
+                        const isParticipant = participants.includes(currentUserId);
+        
+                        // Update button text based on participation status
+                        joinEventBtn.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                        joinEventBtn.style.display = "block"; // Ensure the button is visible
+                        joinEventBtn.onclick = function() {
+                            toggleParticipation(event.createdBy, event.id, currentUserId, joinEventBtn);
+                        };
+                    });
             }
         
             // Fetch and display the list of participants
@@ -687,56 +701,6 @@
             }).catch(error => {
                 console.error("Error fetching event pictures:", error);
             });
-        
-            eventDetailsModal.style.display = "block"; // Show the modal
-        }
-        
-            // Fetch and display the list of participants
-            displayParticipants(event.createdBy, event.id, participantList);
-        
-            // Picture Upload Section for event details modal
-            const eventUploadPictureInput = document.getElementById('eventUploadPictureInput');
-            const eventUploadPictureBtn = document.getElementById('eventUploadPictureBtn');
-            const eventUploadStatus = document.getElementById('eventUploadStatus');
-        
-            eventUploadPictureBtn.onclick = function () {
-                const file = eventUploadPictureInput.files[0]; // Get the selected file
-                
-                if (!file) {
-                    eventUploadStatus.textContent = "Please select a file.";
-                    return;
-                }
-        
-                const storageRef = storage.ref(`event_pictures/${event.id}/${file.name}`);
-        
-                const uploadTask = storageRef.put(file);
-        
-                uploadTask.on(
-                    'state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        eventUploadStatus.textContent = `Upload is ${progress.toFixed(0)}% done.`;
-                    },
-                    (error) => {
-                        console.error("Error uploading file:", error);
-                        eventUploadStatus.textContent = `Error: ${error.message}`;
-                    },
-                    () => {
-                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                            database.ref(`events/${event.id}/pictures`).push({
-                                url: downloadURL,
-                                uploadedAt: new Date().toISOString()
-                            }).then(() => {
-                                eventUploadStatus.textContent = "Picture uploaded successfully!";
-                                eventUploadPictureInput.value = ''; // Clear the file input
-                            }).catch((error) => {
-                                console.error("Error saving picture URL to database:", error);
-                                eventUploadStatus.textContent = `Error: ${error.message}`;
-                            });
-                        });
-                    }
-                );
-            };
         
             eventDetailsModal.style.display = "block"; // Show the modal
         }
