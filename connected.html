@@ -34,6 +34,12 @@
         <h3>All Events</h3>
         <button id="createEventBtn">Create Event</button> <!-- Moved here -->
         <div class="event-list" id="eventList"></div>
+        
+        <!-- Picture Upload Section -->
+        <h3>Upload a Picture</h3>
+        <input type="file" id="uploadPictureInput" accept="image/*" style="margin: 10px 0;">
+        <button id="uploadPictureBtn">Upload Picture</button>
+        <div id="uploadStatus" class="message"></div> <!-- Status message -->
     </div>
 
 
@@ -130,6 +136,61 @@
         const auth = firebase.auth();
         const database = firebase.database();
         const storage = firebase.storage(); // Initialize Firebase Storage
+
+        // Upload picture functionality
+        document.getElementById('uploadPictureBtn').onclick = function () {
+            const fileInput = document.getElementById('uploadPictureInput');
+            const file = fileInput.files[0]; // Get the selected file
+            
+            if (!file) {
+                document.getElementById('uploadStatus').textContent = "Please select a file.";
+                return;
+            }
+        
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                const userId = currentUser.uid; // Get the logged-in user's UID
+                
+                // Create a storage reference (folder: "user_pictures", file: "UID/filename")
+                const storageRef = storage.ref(`user_pictures/${userId}/${file.name}`);
+                
+                // Upload the file
+                const uploadTask = storageRef.put(file);
+                
+                // Monitor the upload status
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        // Progress feedback (optional)
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        document.getElementById('uploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
+                    },
+                    (error) => {
+                        // Handle unsuccessful uploads
+                        console.error("Error uploading file:", error);
+                        document.getElementById('uploadStatus').textContent = `Error: ${error.message}`;
+                    },
+                    () => {
+                        // Handle successful upload
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            // Save the download URL to the database under the user's UID
+                            database.ref(`users/${userId}/pictures`).push({
+                                url: downloadURL,
+                                uploadedAt: new Date().toISOString()
+                            }).then(() => {
+                                document.getElementById('uploadStatus').textContent = "Picture uploaded successfully!";
+                                fileInput.value = ''; // Clear the file input
+                            }).catch((error) => {
+                                console.error("Error saving picture URL to database:", error);
+                                document.getElementById('uploadStatus').textContent = `Error: ${error.message}`;
+                            });
+                        });
+                    }
+                );
+            } else {
+                document.getElementById('uploadStatus').textContent = "User not authenticated.";
+            }
+        };
 
         // Upload picture functionality for event details modal
         document.getElementById('eventUploadPictureBtn').onclick = function () {
