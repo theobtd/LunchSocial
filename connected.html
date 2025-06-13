@@ -903,12 +903,19 @@
                                 <p>${event.comment || 'No comment'}</p>
                                 <p>Location: ${event.location || 'Not specified'}</p>
                                 <p>Category: ${event.category || 'Not specified'}</p>
+                                <button class="join-btn">Join</button>
                             `;
                     
                             // Add click event to toggle details
                             eventItem.onclick = function() {
                                 const isExpanded = detailsSection.classList.contains('hidden');
                                 detailsSection.classList.toggle('hidden', !isExpanded); // Toggle visibility
+                            };
+
+                            const joinButton = detailsSection.querySelector('.join-btn');
+                            joinButton.onclick = function(e) {
+                                e.stopPropagation(); // Prevent the event from bubbling up to the parent div
+                                toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
                             };
                     
                             // Append the details section to the event item
