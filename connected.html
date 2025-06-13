@@ -197,7 +197,7 @@
             const currentUser = auth.currentUser;
             if (currentUser) {
                 const userId = currentUser.uid; // Get the logged-in user's UID
-                const eventId = /* Get the current event ID here, you might need to pass it as a variable */;
+                const eventId = currentEventId;
         
                 // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
                 const storageRef = storage.ref(`event_pictures/${eventId}/${file.name}`);
