@@ -898,7 +898,7 @@
                             const detailsSection = document.createElement('div');
                             detailsSection.classList.add('event-details', 'hidden'); // Initially hidden
                     
-                            // Populate details
+                            // Populate details with Join button
                             detailsSection.innerHTML = `
                                 <p>${event.comment || 'No comment'}</p>
                                 <p>Location: ${event.location || 'Not specified'}</p>
@@ -911,11 +911,45 @@
                                 const isExpanded = detailsSection.classList.contains('hidden');
                                 detailsSection.classList.toggle('hidden', !isExpanded); // Toggle visibility
                             };
-
+                    
+                            // Add Join button functionality
                             const joinButton = detailsSection.querySelector('.join-btn');
+                            
+                            // Check participation status and set button text accordingly
+                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                const participants = snapshot.val() || [];
+                                const isParticipating = participants.includes(currentUserId);
+                                joinButton.textContent = isParticipating ? 'Cancel' : 'Join'; // Set initial text
+                            });
+                    
                             joinButton.onclick = function(e) {
                                 e.stopPropagation(); // Prevent the event from bubbling up to the parent div
-                                toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                const currentUserId = auth.currentUser.uid; // Get the current user's ID
+                    
+                                // Check current participation status
+                                database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                    let participants = snapshot.val() || [];
+                                    const isParticipating = participants.includes(currentUserId);
+                    
+                                    if (isParticipating) {
+                                        // User is already a participant, remove them
+                                        participants = participants.filter(participant => participant !== currentUserId);
+                                        joinButton.textContent = 'Join'; // Change button text
+                                    } else {
+                                        // User is not a participant, add them
+                                        participants.push(currentUserId);
+                                        joinButton.textContent = 'Cancel'; // Change button text
+                                    }
+                    
+                                    // Update the participants list in the database
+                                    database.ref(`users/${event.createdBy}/events/${event.id}/participants`).set(participants)
+                                        .then(() => {
+                                            console.log(`Participation toggled for user ${currentUserId} in event ${event.id}`);
+                                        })
+                                        .catch(error => {
+                                            console.error('Error updating participants:', error);
+                                        });
+                                });
                             };
                     
                             // Append the details section to the event item
