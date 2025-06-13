@@ -95,11 +95,18 @@
             <p id="eventDetailDate"></p>
             <p id="eventDetailTime"></p>
             <p id="eventDetailCreator"></p>
-            <p id="eventDetailCategory"></p> <!-- New line for category -->
+            <p id="eventDetailCategory"></p>
             <h4>Participants</h4>
             <div id="participantList"></div>
             <p id="eventDetailLocation"></p>
             <p id="eventDetailComment"></p>
+            
+            <!-- Picture Upload Section -->
+            <h3>Upload a Picture</h3>
+            <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
+            <button id="eventUploadPictureBtn">Upload Picture</button>
+            <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
+    
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
@@ -174,6 +181,59 @@
                 );
             } else {
                 document.getElementById('uploadStatus').textContent = "User not authenticated.";
+            }
+        };
+
+        // Upload picture functionality for event details modal
+        document.getElementById('eventUploadPictureBtn').onclick = function () {
+            const fileInput = document.getElementById('eventUploadPictureInput');
+            const file = fileInput.files[0]; // Get the selected file
+            
+            if (!file) {
+                document.getElementById('eventUploadStatus').textContent = "Please select a file.";
+                return;
+            }
+        
+            const currentUser = auth.currentUser;
+            if (currentUser) {
+                const userId = currentUser.uid; // Get the logged-in user's UID
+                const eventId = /* Get the current event ID here, you might need to pass it as a variable */;
+        
+                // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
+                const storageRef = storage.ref(`event_pictures/${eventId}/${file.name}`);
+        
+                // Upload the file
+                const uploadTask = storageRef.put(file);
+        
+                // Monitor the upload status
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        document.getElementById('eventUploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
+                    },
+                    (error) => {
+                        console.error("Error uploading file:", error);
+                        document.getElementById('eventUploadStatus').textContent = `Error: ${error.message}`;
+                    },
+                    () => {
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            // Save the download URL to the database under the event ID
+                            database.ref(`events/${eventId}/pictures`).push({
+                                url: downloadURL,
+                                uploadedAt: new Date().toISOString()
+                            }).then(() => {
+                                document.getElementById('eventUploadStatus').textContent = "Picture uploaded successfully!";
+                                fileInput.value = ''; // Clear the file input
+                            }).catch((error) => {
+                                console.error("Error saving picture URL to database:", error);
+                                document.getElementById('eventUploadStatus').textContent = `Error: ${error.message}`;
+                            });
+                        });
+                    }
+                );
+            } else {
+                document.getElementById('eventUploadStatus').textContent = "User not authenticated.";
             }
         };
 
@@ -538,8 +598,11 @@
             document.getElementById("eventTime").value = '';
         }
 
+        let currentEventId; // Declare a variable at the top of your script
+        
         // Function to open the event details modal
         function openEventDetails(event) {
+            currentEventId = event.id; // Store the current event ID
             const currentUserId = auth.currentUser.uid; // Get the current user's UID
             const eventDetailsModal = document.getElementById('eventDetailsModal');
             const eventTitle = document.getElementById('eventDetailTitle');
@@ -588,6 +651,50 @@
         
             // Fetch and display the list of participants
             displayParticipants(event.createdBy, event.id, participantList);
+        
+            // Picture Upload Section for event details modal
+            const eventUploadPictureInput = document.getElementById('eventUploadPictureInput');
+            const eventUploadPictureBtn = document.getElementById('eventUploadPictureBtn');
+            const eventUploadStatus = document.getElementById('eventUploadStatus');
+        
+            eventUploadPictureBtn.onclick = function () {
+                const file = eventUploadPictureInput.files[0]; // Get the selected file
+                
+                if (!file) {
+                    eventUploadStatus.textContent = "Please select a file.";
+                    return;
+                }
+        
+                const storageRef = storage.ref(`event_pictures/${event.id}/${file.name}`);
+        
+                const uploadTask = storageRef.put(file);
+        
+                uploadTask.on(
+                    'state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        eventUploadStatus.textContent = `Upload is ${progress.toFixed(0)}% done.`;
+                    },
+                    (error) => {
+                        console.error("Error uploading file:", error);
+                        eventUploadStatus.textContent = `Error: ${error.message}`;
+                    },
+                    () => {
+                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            database.ref(`events/${event.id}/pictures`).push({
+                                url: downloadURL,
+                                uploadedAt: new Date().toISOString()
+                            }).then(() => {
+                                eventUploadStatus.textContent = "Picture uploaded successfully!";
+                                eventUploadPictureInput.value = ''; // Clear the file input
+                            }).catch((error) => {
+                                console.error("Error saving picture URL to database:", error);
+                                eventUploadStatus.textContent = `Error: ${error.message}`;
+                            });
+                        });
+                    }
+                );
+            };
         
             eventDetailsModal.style.display = "block"; // Show the modal
         }
