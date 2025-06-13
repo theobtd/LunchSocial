@@ -885,20 +885,34 @@
                     allEvents.forEach(event => {
                         const isVisible = event.createdBy === currentUserId || 
                                           (event.visibleTo && event.visibleTo.includes(currentUserId));
-                    
+                        
                         if (isVisible) {
                             const eventItem = document.createElement('div');
                             eventItem.classList.add('event-item');
-                    
-                            // Set the background color based on category
                             eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Default to white if category not found
-                    
+                            
                             const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
                             eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
                             
-                            // Add click event to open details
-                            eventItem.onclick = () => openEventDetails(event); // Pass the event object
-                            
+                            // Create a details section
+                            const detailsSection = document.createElement('div');
+                            detailsSection.classList.add('event-details', 'hidden'); // Initially hidden
+                    
+                            // Populate details
+                            detailsSection.innerHTML = `
+                                <p>${event.comment || 'No comment'}</p>
+                                <p>Location: ${event.location || 'Not specified'}</p>
+                                <p>Category: ${event.category || 'Not specified'}</p>
+                            `;
+                    
+                            // Add click event to toggle details
+                            eventItem.onclick = function() {
+                                const isExpanded = detailsSection.classList.contains('hidden');
+                                detailsSection.classList.toggle('hidden', !isExpanded); // Toggle visibility
+                            };
+                    
+                            // Append the details section to the event item
+                            eventItem.appendChild(detailsSection);
                             unifiedEventList.appendChild(eventItem); // Append each event in order
                         }
                     });
