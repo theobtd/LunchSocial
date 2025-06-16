@@ -898,6 +898,22 @@
                             console.error("Error fetching participants:", error);
                             participantList.textContent = "Unable to load participants."; // Display error message
                         });
+
+                        // Create the Delete button
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete Event';
+                        deleteButton.style.display = 'none'; // Initially hide the button
+                        
+                        // Check if the current user is the creator of the event
+                        if (event.createdBy === currentUserId) {
+                            deleteButton.style.display = 'block'; // Show the button if the user is the creator
+                            deleteButton.onclick = function() {
+                                deleteEvent(event.createdBy, event.id); // Call the deleteEvent function
+                            };
+                        }
+                        
+                        // Append the delete button to the event item
+                        eventItem.appendChild(deleteButton);
         
                         const buttonContainer = document.createElement('div');
                         buttonContainer.style.display = 'flex';
@@ -923,32 +939,8 @@
                             buttonContainer.appendChild(joinButton); // Add the join button if applicable
                         }
 
-                        const participantList = document.createElement('div');
                         participantList.classList.add('participant-list');
                         eventItem.appendChild(participantList); // Append the participant list to the event item
-
-                        // Fetch participants for the event
-                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
-                            const participantUids = participantSnapshot.val() || [];
-                            participantList.innerHTML = ''; // Clear previous participants
-                        
-                            if (participantUids.length === 0) {
-                                participantList.textContent = "No participants yet."; // Message if no participants
-                            } else {
-                                participantUids.forEach(uid => {
-                                    database.ref(`users/${uid}`).once('value').then(userSnapshot => {
-                                        const userData = userSnapshot.val();
-                                        const userId = userData ? userData.userId : "Unknown User"; // Fallback
-                                        const participantItem = document.createElement('div');
-                                        participantItem.textContent = userId; // Display the userId
-                                        participantList.appendChild(participantItem); // Add to the participant list
-                                    });
-                                });
-                            }
-                        }).catch(error => {
-                            console.error("Error fetching participants:", error);
-                            participantList.textContent = "Unable to load participants."; // Display error message
-                        });
         
                         // Create the "Pictures" button
                         const picturesButton = document.createElement('button');
