@@ -798,6 +798,7 @@
                             id: eventId
                         });
                     });
+                    return Promise.all(participantPromises); // Wait for all participants to be fetched
                 }
             });
         
