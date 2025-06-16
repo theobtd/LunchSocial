@@ -813,9 +813,9 @@
                             time: eventData.time,
                             location: eventData.location || 'Not specified',
                             comment: eventData.comment || 'No comment',
-                            category: eventData.category || 'Not specified', // Access the category here
+                            category: eventData.category || 'Not specified',
                             createdBy: eventData.createdBy,
-                            userId: "You", // or fetch the userId based on createdBy UID
+                            userId: "You",
                             visibleTo: eventData.visibleTo || [],
                             id: eventId
                         });
@@ -832,12 +832,11 @@
                     const requestsArray = Object.keys(requests);
                     requestsArray.forEach(friendId => {
                         if (requests[friendId].status === 'accepted') {
-                            friendIds.push(friendId); // Store accepted friend IDs
+                            friendIds.push(friendId);
                         }
                     });
                 }
         
-                // Fetch accepted friends' events
                 const friendEventPromises = friendIds.map(friendId => {
                     return database.ref('users/' + friendId + '/events').once('value').then(eventSnapshot => {
                         const events = eventSnapshot.val();
@@ -847,7 +846,7 @@
                                 return database.ref('users/' + friendId).once('value').then(userSnapshot => {
                                     const userData = userSnapshot.val();
                                     const friendUserId = userData ? userData.userId : friendId;
-                
+        
                                     const eventData = events[eventId];
                                     allEvents.push({
                                         title: eventData.title,
@@ -855,7 +854,7 @@
                                         time: eventData.time,
                                         location: eventData.location || 'Not specified',
                                         comment: eventData.comment || 'No comment',
-                                        category: eventData.category || 'Not specified', // Ensure category is included
+                                        category: eventData.category || 'Not specified',
                                         createdBy: friendId,
                                         userId: friendUserId,
                                         visibleTo: eventData.visibleTo || [],
@@ -863,7 +862,7 @@
                                     });
                                 });
                             });
-                
+        
                             return Promise.all(userIdPromises);
                         }
                     });
@@ -872,58 +871,52 @@
                 return Promise.all(friendEventPromises);
             });
         
-            // Wait for both your events and friends' events to be fetched
             Promise.all([yourEventsPromise, acceptedFriendsPromise]).then(() => {
                 // Sort all events by date and time
                 allEvents.sort((a, b) => {
                     const dateTimeA = new Date(`${a.date}T${a.time}:00`);
                     const dateTimeB = new Date(`${b.date}T${b.time}:00`);
-                    return dateTimeA - dateTimeB; // Ascending order
+                    return dateTimeA - dateTimeB;
                 });
         
-                // Display all events in a single unified list
-                    allEvents.forEach(event => {
-                        const isVisible = event.createdBy === currentUserId || 
-                                          (event.visibleTo && event.visibleTo.includes(currentUserId));
-                        
-                        if (isVisible) {
-                            const eventItem = document.createElement('div');
-                            eventItem.classList.add('event-item');
-                            eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Default to white if category not found
-                            
-                            const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
-
-                            // Create the event content container
-                            const eventContent = document.createElement('div');
-                            eventContent.classList.add('event-content');
-                            eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
-                                | Comment: ${event.comment || 'No comment'} 
-                                | Location: ${event.location || 'Not specified'} 
-                                | Category: ${event.category || 'Not specified'}`;
-
-                            // Create the "Join" button
-                            const joinButton = document.createElement('button');
-                            joinButton.classList.add('join-btn');
-                            joinButton.textContent = 'Join'; // Default text
-                            joinButton.style.marginLeft = 'auto'; // Push the button to the right
-
-                            // Check if the user is already a participant
-                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                                const participants = snapshot.val() || [];
-                                const isParticipant = participants.includes(currentUserId);
-                            
-                                // Update button text and functionality based on participation status
-                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-                                joinButton.onclick = function () {
-                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
-                                };
-                            });
-
-                            // Add the content and button to the event item
-                            eventItem.appendChild(eventContent);
-                            eventItem.appendChild(joinButton);
-                        }
-                    });
+                allEvents.forEach(event => {
+                    const isVisible = event.createdBy === currentUserId || 
+                                      (event.visibleTo && event.visibleTo.includes(currentUserId));
+                    
+                    if (isVisible) {
+                        const eventItem = document.createElement('div');
+                        eventItem.classList.add('event-item');
+                        eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF';
+        
+                        const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
+        
+                        const eventContent = document.createElement('div');
+                        eventContent.classList.add('event-content');
+                        eventContent.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
+                            | Comment: ${event.comment || 'No comment'} 
+                            | Location: ${event.location || 'Not specified'} 
+                            | Category: ${event.category || 'Not specified'}`;
+        
+                        const joinButton = document.createElement('button');
+                        joinButton.classList.add('join-btn');
+                        joinButton.textContent = 'Join';
+                        joinButton.style.marginLeft = 'auto';
+        
+                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                            const participants = snapshot.val() || [];
+                            const isParticipant = participants.includes(currentUserId);
+        
+                            joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                            joinButton.onclick = function () {
+                                toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                            };
+                        });
+        
+                        eventItem.appendChild(eventContent);
+                        eventItem.appendChild(joinButton);
+                        unifiedEventList.appendChild(eventItem);
+                    }
+                });
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
