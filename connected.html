@@ -981,16 +981,73 @@
                         eventItem.appendChild(buttonContainer);
                         // Create a container for the upload section
                         const uploadContainer = document.createElement('div');
+
+                        // Create a single "Upload Picture" button
+                        const singleUploadButton = document.createElement('button');
+                        singleUploadButton.textContent = 'Choose and Upload Picture';
+                        singleUploadButton.onclick = function() {
+                            const fileInput = document.createElement('input');
+                            fileInput.type = 'file';
+                            fileInput.accept = 'image/*'; // Accept only image files
                         
-                        // Create a file input for uploading pictures
-                        const uploadInput = document.createElement('input');
-                        uploadInput.type = 'file';
-                        uploadInput.accept = 'image/*'; // Accept only image files
-                        uploadInput.style.margin = '10px 0'; // Add margin for styling
+                            fileInput.onchange = function() {
+                                const file = fileInput.files[0]; // Get the selected file
                         
-                        // Create the "Upload" button
-                        const uploadButton = document.createElement('button');
-                        uploadButton.textContent = 'Upload Picture';
+                                if (!file) {
+                                    alert("Please select a file to upload.");
+                                    return;
+                                }
+                        
+                                const currentUser = auth.currentUser;
+                                if (currentUser) {
+                                    const userId = currentUser.uid; // Get the logged-in user's UID
+                                    const eventId = event.id; // Get the current event ID
+                        
+                                    // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
+                                    const storageRef = storage.ref(`event_pictures/${eventId}/${file.name}`);
+                        
+                                    // Upload the file
+                                    const uploadTask = storageRef.put(file);
+                        
+                                    // Monitor the upload status
+                                    uploadTask.on(
+                                        'state_changed',
+                                        (snapshot) => {
+                                            // Optional: Progress feedback
+                                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                            console.log(`Upload is ${progress.toFixed(0)}% done.`);
+                                        },
+                                        (error) => {
+                                            console.error("Error uploading file:", error);
+                                            alert(`Error: ${error.message}`);
+                                        },
+                                        () => {
+                                            // Handle successful upload
+                                            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                                                // Save the download URL to the database under the event ID
+                                                database.ref(`events/${eventId}/pictures`).push({
+                                                    url: downloadURL,
+                                                    uploadedAt: new Date().toISOString()
+                                                }).then(() => {
+                                                    alert("Picture uploaded successfully!");
+                                                }).catch((error) => {
+                                                    console.error("Error saving picture URL to database:", error);
+                                                    alert(`Error: ${error.message}`);
+                                                });
+                                            });
+                                        }
+                                    );
+                                } else {
+                                    alert("User not authenticated.");
+                                }
+                            };
+                        
+                            fileInput.click(); // Trigger the file input dialog
+                        };
+
+                        // Append the new button to the button container
+                        buttonContainer.appendChild(singleUploadButton);
+                        
                         uploadButton.onclick = function() {
                             const file = uploadInput.files[0]; // Get the selected file
                         
