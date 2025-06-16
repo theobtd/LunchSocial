@@ -170,3 +170,22 @@ button {
 button:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+.toggle-button {
+    position: absolute; /* Position the button absolutely */
+    top: 10px; /* Space from the top */
+    left: 10px; /* Space from the left */
+    background-color: #007BFF; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 10px; /* Padding for the button */
+    font-size: 18px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    z-index: 1000; /* Ensure it is above other content */
+}
+
+.sidebar {
+    display: none; /* Hide the sidebar initially */
+    /* Other sidebar styles */
+}
