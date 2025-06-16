@@ -1026,7 +1026,13 @@
         
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
-        document.querySelector("#eventDetailsModal .close").onclick = closeEventDetailsModal;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const closeButton = document.querySelector("#eventDetailsModal .close");
+            if (closeButton) {
+                closeButton.onclick = closeEventDetailsModal;
+            }
+        });
 
         // Fetch users and requests when the page loads
         auth.onAuthStateChanged(user => {
