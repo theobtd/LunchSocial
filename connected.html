@@ -867,7 +867,7 @@
                 allEvents.sort((a, b) => {
                     const dateTimeA = new Date(`${a.date}T${a.time}:00`);
                     const dateTimeB = new Date(`${b.date}T${b.time}:00`);
-                    return dateTimeA - dateTimeB;
+                    return showFutureEvents ? dateTimeA - dateTimeB : dateTimeB - dateTimeA; // Reverse order for past events
                 });
         
                 allEvents.forEach(event => {
