@@ -1095,7 +1095,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none'; // Start with the sidebar hidden
+
+                // Hide modals initially
+                const eventModal = document.getElementById("eventModal");
+                const eventDetailsModal = document.getElementById("eventDetailsModal");
+                eventModal.style.display = "none"; // Hide event creation modal
+                eventDetailsModal.style.display = "none"; // Hide event details modal
         });
+
+        // Event modal functionality
+        document.getElementById("submitEventBtn").onclick = submitEvent;
+        document.getElementsByClassName("close")[0].onclick = closeModal;
+        
+        // Create event button functionality
+        document.getElementById('createEventBtn').onclick = function() {
+            const modal = document.getElementById("eventModal");
+            modal.style.display = "block"; // Show the modal when the button is clicked
+        };
     </script>
 
 </body>
