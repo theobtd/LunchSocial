@@ -927,11 +927,20 @@
                             });
                         });
         
+                        // Create the "Photos" button
+                        const photoButton = document.createElement('button');
+                        photoButton.classList.add('photo-btn');
+                        photoButton.textContent = 'Photos';
+                        photoButton.onclick = function () {
+                            openEventDetails(event); // Open the event details modal
+                        };
+        
                         const buttonContainer = document.createElement('div');
                         buttonContainer.style.display = 'flex';
                         buttonContainer.style.flexDirection = 'column';
                         buttonContainer.style.gap = '10px';
                         buttonContainer.appendChild(joinButton);
+                        buttonContainer.appendChild(photoButton); // Add the Photos button here
         
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
