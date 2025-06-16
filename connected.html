@@ -915,6 +915,10 @@
                         // Create the pictures container
                         const picturesContainer = document.createElement('div');
                         picturesContainer.classList.add('event-pictures'); // Optional class for styling
+                        picturesContainer.style.display = 'flex'; // Use flexbox
+                        picturesContainer.style.flexDirection = 'column'; // Stack images vertically
+                        picturesContainer.style.alignItems = 'center'; // Center images
+        
                         database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
                             snapshot.forEach(childSnapshot => {
                                 const pictureData = childSnapshot.val();
