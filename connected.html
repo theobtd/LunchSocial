@@ -1208,6 +1208,11 @@
             sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
         };
 
+                // Initially hide the sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = 'none'; // Start with the sidebar hidden
+
                 // Hide modals initially
                 const eventModal = document.getElementById("eventModal");
                 const eventDetailsModal = document.getElementById("eventDetailsModal");
@@ -1223,12 +1228,6 @@
         document.getElementById('createEventBtn').onclick = function() {
             const modal = document.getElementById("eventModal");
             modal.style.display = "block"; // Show the modal when the button is clicked
-        };
-
-        document.getElementById('toggleMenuBtn').onclick = function() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active'); // Toggle the active class
-            console.log("Toggle button clicked"); // Debugging line
         };
     </script>
 
