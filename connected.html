@@ -910,6 +910,13 @@
                             };
                         });
         
+                        // Create the "Pictures" button
+                        const picturesButton = document.createElement('button');
+                        picturesButton.textContent = 'Pictures';
+                        picturesButton.onclick = function () {
+                            openEventDetails(event); // Open the event details modal
+                        };
+        
                         // Create picture carousel container
                         const carouselContainer = document.createElement('div');
                         const picturesContainer = document.createElement('div');
@@ -980,6 +987,7 @@
                         buttonContainer.style.flexDirection = 'column';
                         buttonContainer.style.gap = '10px';
                         buttonContainer.appendChild(joinButton);
+                        buttonContainer.appendChild(picturesButton); // Add pictures button
                         buttonContainer.appendChild(prevButton); // Add previous button
                         buttonContainer.appendChild(nextButton); // Add next button
         
