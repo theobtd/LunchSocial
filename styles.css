@@ -124,3 +124,18 @@ button:hover {
     border-radius: 5px; /* Rounded corners */
     margin-top: 10px; /* Space above the details */
 }
+
+.photo-btn {
+    padding: 5px 10px; /* Adjust padding for smaller size */
+    font-size: 14px; /* Slightly smaller font */
+    background-color: #28a745; /* Green color for differentiation */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.photo-btn:hover {
+    background-color: #218838; /* Darker green on hover */
+}
