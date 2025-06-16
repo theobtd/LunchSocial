@@ -11,7 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
 </head>
 <body>    
-    <button id="toggleMenuBtn" class="toggle-button">☰</button>
+    <button id="toggleMenuBtn">Toggle Menu</button>
     <div class="sidebar" id="sidebar">
         <h2 id="welcomeHeader">Welcome, [userId]!</h2>
     
@@ -1205,12 +1205,7 @@
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
             const sidebar = document.getElementById('sidebar');
-            // Check current position and toggle
-            if (sidebar.style.left === "0px") {
-                sidebar.style.left = "-250px"; // Hide the sidebar
-            } else {
-                sidebar.style.left = "0px"; // Show the sidebar
-            }
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
         };
 
                 // Initially hide the sidebar
