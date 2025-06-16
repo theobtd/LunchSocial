@@ -170,3 +170,18 @@ button {
 button:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 50%; /* Center the modal */
+    top: 50%; /* Center the modal */
+    transform: translate(-50%, -50%); /* Adjust for the modal's own width/height */
+    width: 80%; /* Width of the modal */
+    max-width: 600px; /* Max width */
+    background-color: white; /* Background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
+    padding: 20px; /* Padding inside the modal */
+    border-radius: 8px; /* Rounded corners */
+}
