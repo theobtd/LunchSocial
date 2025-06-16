@@ -93,6 +93,14 @@
             <h4>Participants</h4>
             <div id="participantList"></div>
             
+            <!-- Picture Carousel Section -->
+            <h3>Event Pictures</h3>
+            <div id="eventPicturesCarousel" class="carousel">
+                <div id="carouselImages"></div>
+                <button id="prevBtn">Previous</button>
+                <button id="nextBtn">Next</button>
+            </div>
+            
             <!-- Picture Upload Section -->
             <h3>Upload a Picture</h3>
             <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
@@ -624,6 +632,7 @@
             const deleteEventBtn = document.getElementById('deleteEventBtn');
             const joinEventBtn = document.getElementById('joinEventBtn');
             const participantList = document.getElementById('participantList');
+            const carouselImages = document.getElementById('carouselImages');
         
             // Show or hide the delete button based on creator
             if (event.createdBy === currentUserId) {
@@ -651,6 +660,23 @@
         
             // Fetch and display the list of participants
             displayParticipants(event.createdBy, event.id, participantList);
+        
+            // Fetch and display pictures in the carousel
+            database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
+                carouselImages.innerHTML = ''; // Clear previous images
+                snapshot.forEach(childSnapshot => {
+                    const pictureData = childSnapshot.val();
+                    const img = document.createElement('img');
+                    img.src = pictureData.url;
+                    img.alt = "Event Picture";
+                    img.style.width = "100px"; // Set width as needed
+                    img.style.margin = "5px"; // Add margin
+        
+                    carouselImages.appendChild(img);
+                });
+            }).catch(error => {
+                console.error("Error fetching event pictures:", error);
+            });
         
             eventDetailsModal.style.display = "block"; // Show the modal
         }
@@ -1023,16 +1049,10 @@
 
         // Create event button functionality
         document.getElementById('createEventBtn').onclick = createEvent;
-        
+
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            const closeButton = document.querySelector("#eventDetailsModal .close");
-            if (closeButton) {
-                closeButton.onclick = closeEventDetailsModal;
-            }
-        });
+        document.getElementsByClassName("close")[0].onclick = closeModal;
 
         // Fetch users and requests when the page loads
         auth.onAuthStateChanged(user => {
