@@ -247,6 +247,8 @@
 
         let currentImageIndex = 0;
 
+        let showFutureEvents = true; // Default to showing future events
+
         document.getElementById('prevBtn').onclick = function () {
             const images = document.querySelectorAll('#carouselImages img');
             if (images.length > 0) {
@@ -779,7 +781,6 @@
             unifiedEventList.innerHTML = ''; // Clear the list to prevent duplicates
         
             let allEvents = []; // Array to hold all events (yours + friends')
-            let showFutureEvents = true; // Default to showing future events
 
             document.getElementById('showPastBtn').onclick = function() {
                 showFutureEvents = false; // Set to show past events
