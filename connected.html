@@ -100,14 +100,6 @@
             <p id="eventDetailLocation"></p>
             <p id="eventDetailComment"></p>
             
-            <!-- Picture Carousel Section -->
-            <h3>Event Pictures</h3>
-            <div id="eventPicturesCarousel" class="carousel">
-                <div id="carouselImages"></div>
-                <button id="prevBtn">Previous</button>
-                <button id="nextBtn">Next</button>
-            </div>
-            
             <!-- Picture Upload Section -->
             <h3>Upload a Picture</h3>
             <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
@@ -912,22 +904,29 @@
                             };
                         });
         
-                        const photoButton = document.createElement('button');
-                        photoButton.classList.add('photo-btn');
-                        photoButton.textContent = 'Photo';
-                        photoButton.onclick = function () {
-                            openEventDetails(event);
-                        };
+                        // Fetch and display event pictures
+                        const picturesContainer = document.createElement('div');
+                        database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
+                            snapshot.forEach(childSnapshot => {
+                                const pictureData = childSnapshot.val();
+                                const img = document.createElement('img');
+                                img.src = pictureData.url;
+                                img.alt = "Event Picture";
+                                img.style.width = "100px"; // Set width as needed
+                                img.style.margin = "5px"; // Add margin
+                                picturesContainer.appendChild(img); // Add to the pictures container
+                            });
+                        });
         
                         const buttonContainer = document.createElement('div');
                         buttonContainer.style.display = 'flex';
                         buttonContainer.style.flexDirection = 'column';
                         buttonContainer.style.gap = '10px';
                         buttonContainer.appendChild(joinButton);
-                        buttonContainer.appendChild(photoButton);
         
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
+                        eventItem.appendChild(picturesContainer); // Append pictures directly to event item
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
