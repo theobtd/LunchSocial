@@ -49,12 +49,28 @@ button:hover {
 }
 
 .event-item {
-    background-color: #ffffff; /* White background for event items */
-    padding: 20px; 
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-    cursor: pointer; 
-    transition: transform 0.3s;
+    display: flex; /* Use flexbox to align content and button */
+    justify-content: space-between; /* Space out the content and button */
+    align-items: center; /* Vertically align items */
+}
+
+.event-content {
+    flex-grow: 1; /* Allow the content to take up available space */
+}
+
+.join-btn {
+    padding: 5px 10px; /* Adjust padding for smaller size */
+    font-size: 14px; /* Slightly smaller font */
+    background-color: #007BFF; /* Match primary button color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.join-btn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
 }
 
 .event-item:hover {
