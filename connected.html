@@ -904,6 +904,7 @@
                         // Fetch participants for the event
                         database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
                             const participantUids = participantSnapshot.val() || [];
+                            console.log("Participant UIDs:", participantUids); // Log participant UIDs for debugging
                             participantList.innerHTML = ''; // Clear previous participants
                         
                             if (participantUids.length === 0) {
