@@ -937,9 +937,20 @@
                                 images.push(img); // Store image elements for navigation
                             });
         
-                            // Show the first image
+                            // Show the first image if there are any
                             if (images.length > 0) {
                                 images[0].style.display = 'block';
+                                // Only show buttons if there are more than one image
+                                if (images.length > 1) {
+                                    prevButton.style.display = 'block';
+                                    nextButton.style.display = 'block';
+                                } else {
+                                    prevButton.style.display = 'none';
+                                    nextButton.style.display = 'none';
+                                }
+                            } else {
+                                prevButton.style.display = 'none';
+                                nextButton.style.display = 'none'; // Hide buttons if no images
                             }
                         });
         
