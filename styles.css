@@ -172,20 +172,25 @@ button:hover {
 }
 
 .toggle-button {
-    position: absolute; /* Position the button absolutely */
+    position: absolute; /* Keep it in the top-left corner */
     top: 10px; /* Space from the top */
     left: 10px; /* Space from the left */
     background-color: #007BFF; /* Button color */
     color: white; /* Text color */
     border: none; /* No border */
     border-radius: 5px; /* Rounded corners */
-    padding: 10px; /* Padding for the button */
+    padding: 10px 15px; /* Padding for the button */
     font-size: 18px; /* Font size */
     cursor: pointer; /* Pointer cursor on hover */
     z-index: 1000; /* Ensure it is above other content */
 }
 
 .sidebar {
-    display: none; /* Hide the sidebar initially */
-    /* Other sidebar styles */
+    width: 250px; /* Set a fixed width */
+    padding: 20px;
+    text-align: left;
+    position: absolute; /* Position it absolutely */
+    top: 0; /* Align to the top */
+    left: -250px; /* Start off-screen to the left */
+    transition: left 0.3s; /* Smooth transition */
 }
