@@ -49,9 +49,14 @@ button:hover {
 }
 
 .event-item {
-    display: flex; /* Use flexbox to align content and button */
-    justify-content: space-between; /* Space out the content and button */
-    align-items: center; /* Vertically align items */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;    /* Center items horizontally */
+    padding: 15px;         /* Add padding as needed */
+    margin-bottom: 20px;   /* Space between event items */
+    border: 1px solid #ddd; /* Optional: border for better visibility */
+    border-radius: 5px;    /* Rounded corners */
+    background-color: #fff; /* Background color */
 }
 
 .event-content {
@@ -140,7 +145,14 @@ button:hover {
     background-color: #218838; /* Darker green on hover */
 }
 
+.event-pictures {
+    display: flex;          /* Use flexbox */
+    flex-direction: column; /* Stack images vertically */
+    align-items: center;    /* Center images */
+    margin-top: 10px;      /* Space above pictures */
+}
+
 .event-pictures img {
-    width: 100px; /* or any desired width */
-    margin: 5px;  /* space between images */
+    width: 100px; /* Set width as needed */
+    margin: 5px;  /* Space between images */
 }
