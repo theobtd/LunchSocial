@@ -912,8 +912,22 @@
                             };
                         });
         
+                        const photoButton = document.createElement('button');
+                        photoButton.classList.add('photo-btn');
+                        photoButton.textContent = 'Photo';
+                        photoButton.onclick = function () {
+                            openEventDetails(event);
+                        };
+        
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.style.display = 'flex';
+                        buttonContainer.style.flexDirection = 'column';
+                        buttonContainer.style.gap = '10px';
+                        buttonContainer.appendChild(joinButton);
+                        buttonContainer.appendChild(photoButton);
+        
                         eventItem.appendChild(eventContent);
-                        eventItem.appendChild(joinButton);
+                        eventItem.appendChild(buttonContainer);
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
