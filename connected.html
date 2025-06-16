@@ -1203,10 +1203,10 @@
         }
         
         // Add event listener to the toggle button
-        // document.getElementById('toggleMenuBtn').onclick = function() {
-            // const sidebar = document.getElementById('sidebar');
-            // sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
-        // };
+        document.getElementById('toggleMenuBtn').onclick = function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
+        };
 
                 // Initially hide the sidebar
         document.addEventListener('DOMContentLoaded', function() {
@@ -1233,6 +1233,7 @@
         document.getElementById('toggleMenuBtn').onclick = function() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('active'); // Toggle the active class
+            console.log("Toggle button clicked"); // Debugging line
         };
     </script>
 
