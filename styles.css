@@ -184,4 +184,5 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow effect */
     padding: 20px; /* Padding inside the modal */
     border-radius: 8px; /* Rounded corners */
+    overflow: auto; /* Allow scrolling if content is too long */
 }
