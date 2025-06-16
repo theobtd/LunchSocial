@@ -948,6 +948,9 @@
                         picturesButton.onclick = function () {
                             openEventDetails(event); // Open the event details modal
                         };
+
+                        // Hide the button
+                        picturesButton.style.display = 'none'; // This hides the button
         
                         buttonContainer.appendChild(picturesButton); // Add pictures button
                         eventItem.appendChild(eventContent);
