@@ -156,3 +156,17 @@ button:hover {
     width: 100px; /* Set width as needed */
     margin: 5px;  /* Space between images */
 }
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF; /* Primary button color */
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
