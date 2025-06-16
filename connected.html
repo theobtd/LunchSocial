@@ -892,7 +892,10 @@
                             eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Default to white if category not found
                             
                             const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
-                            eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}`;
+                            eventItem.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
+                                | Comment: ${event.comment || 'No comment'} 
+                                | Location: ${event.location || 'Not specified'} 
+                                | Category: ${event.category || 'Not specified'}`;
                             
                             // Create a details section
                             const detailsSection = document.createElement('div');
