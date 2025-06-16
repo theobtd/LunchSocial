@@ -208,3 +208,19 @@ button:hover {
 #toggleMenuBtn:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
+
+.sidebar {
+    position: fixed; /* Keep the sidebar fixed */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    width: 250px; /* Set desired width */
+    height: 100%; /* Full height */
+    background-color: #f9f9f9; /* Background color */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow */
+    transition: transform 0.3s ease; /* Smooth transition */
+    transform: translateX(-100%); /* Initially hide the sidebar off-screen */
+}
+
+.sidebar.active {
+    transform: translateX(0); /* Slide in when active */
+}
