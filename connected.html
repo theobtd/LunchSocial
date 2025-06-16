@@ -9,8 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body>    
     <button id="toggleMenuBtn">Toggle Menu</button>
@@ -112,13 +110,9 @@
             
             <!-- Picture Upload Section -->
             <h3>Upload a Picture</h3>
-            <input type="file" id="uploadPictureInput" accept="image/*" style="margin: 10px 0;">
-            <button id="uploadPictureBtn" class="hidden">Upload Picture</button>
-            <div id="uploadStatus"></div> <!-- Status message -->
-            <div>
-                <img id="imagePreview" style="display:none; width: 100%; max-width: 300px;"/>
-            </div>
-            <button id="cropButton" style="display:none;">Crop & Upload</button>
+            <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
+            <button id="eventUploadPictureBtn">Upload Picture</button>
+            <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
         
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
@@ -1114,67 +1108,6 @@
             sidebar.style.display = 'none'; // Start with the sidebar hidden
         });
     </script>
-
-        let cropper;
-
-        // Handle image selection
-        document.getElementById('uploadPictureInput').addEventListener('change', function (event) {
-            const files = event.target.files;
-            const done = (url) => {
-                document.getElementById('imagePreview').src = url;
-                document.getElementById('imagePreview').style.display = 'block';
-                document.getElementById('cropButton').style.display = 'block';
-            };
-    
-            if (files && files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    done(e.target.result);
-                };
-                reader.readAsDataURL(files[0]);
-    
-                // Initialize cropper
-                if (cropper) {
-                    cropper.destroy();
-                }
-                const image = document.getElementById('imagePreview');
-                cropper = new Cropper(image, {
-                    aspectRatio: 1, // Square aspect ratio
-                    viewMode: 1, // Restrict the crop box to not exceed the container
-                    autoCropArea: 1,
-                });
-            }
-        });
-    
-        // Handle cropping and uploading
-        document.getElementById('cropButton').addEventListener('click', function () {
-            const canvas = cropper.getCroppedCanvas({
-                width: 300, // Desired width for the cropped image
-                height: 300, // Desired height for the cropped image
-            });
-    
-            // Convert canvas to blob and upload
-            canvas.toBlob((blob) => {
-                const formData = new FormData();
-                formData.append('image', blob);
-    
-                // Upload the cropped image
-                uploadCroppedImage(formData);
-            }, 'image/jpeg');
-        });
-    
-        function uploadCroppedImage(formData) {
-            // Your existing upload logic here
-            // For example:
-            const userId = auth.currentUser.uid;
-            const storageRef = storage.ref(`user_pictures/${userId}/cropped_image.jpg`);
-            storageRef.put(formData.get('image')).then(() => {
-                document.getElementById('uploadStatus').textContent = "Picture uploaded successfully!";
-            }).catch((error) => {
-                console.error('Upload error:', error);
-                document.getElementById('uploadStatus').textContent = `Error: ${error.message}`;
-            });
-        }
 
 </body>
 </html>
