@@ -1205,7 +1205,12 @@
         // Add event listener to the toggle button
         document.getElementById('toggleMenuBtn').onclick = function() {
             const sidebar = document.getElementById('sidebar');
-            sidebar.style.display = sidebar.style.display === "none" || sidebar.style.display === "" ? "block" : "none"; // Toggle visibility
+            // Check current position and toggle
+            if (sidebar.style.left === "0px") {
+                sidebar.style.left = "-250px"; // Hide the sidebar
+            } else {
+                sidebar.style.left = "0px"; // Show the sidebar
+            }
         };
 
                 // Initially hide the sidebar
