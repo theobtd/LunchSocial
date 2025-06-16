@@ -912,7 +912,7 @@
                             };
                         });
         
-                        // Fetch and display pictures directly in the event item
+                        // Create the pictures container
                         const picturesContainer = document.createElement('div');
                         picturesContainer.classList.add('event-pictures'); // Optional class for styling
                         database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
@@ -944,7 +944,7 @@
         
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
-                        eventItem.appendChild(picturesContainer); // Append pictures directly to event item
+                        eventItem.appendChild(picturesContainer); // Append pictures container at the bottom
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
