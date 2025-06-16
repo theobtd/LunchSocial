@@ -1100,21 +1100,6 @@
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
-                
-                // Find the soonest upcoming event and scroll to it
-                const futureEvents = allEvents.filter(event => new Date(`${event.date}T${event.time}:00`) > currentDateTime);
-                if (futureEvents.length > 0) {
-                    const soonestEvent = futureEvents[0]; // Get the soonest event
-                    const eventItems = document.querySelectorAll('.event-item');
-                
-                    eventItems.forEach(item => {
-                        if (item.textContent.includes(soonestEvent.title)) {
-                            const eventBox = document.querySelector('.event-box');
-                            eventBox.scrollTop = item.offsetTop - eventBox.offsetTop - (eventBox.clientHeight / 2) + (item.clientHeight / 2);
-                        }
-                    });
-                }
-                
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
