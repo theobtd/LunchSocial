@@ -1047,67 +1047,6 @@
 
                         // Append the new button to the button container
                         buttonContainer.appendChild(singleUploadButton);
-                        
-                        uploadButton.onclick = function() {
-                            const file = uploadInput.files[0]; // Get the selected file
-                        
-                            if (!file) {
-                                alert("Please select a file to upload.");
-                                return;
-                            }
-                        
-                            const currentUser = auth.currentUser;
-                            if (currentUser) {
-                                const userId = currentUser.uid; // Get the logged-in user's UID
-                                const eventId = event.id; // Get the current event ID
-                        
-                                // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
-                                const storageRef = storage.ref(`event_pictures/${eventId}/${file.name}`);
-                        
-                                // Upload the file
-                                const uploadTask = storageRef.put(file);
-                        
-                                // Monitor the upload status
-                                uploadTask.on(
-                                    'state_changed',
-                                    (snapshot) => {
-                                        // Optional: Progress feedback
-                                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                        console.log(`Upload is ${progress.toFixed(0)}% done.`);
-                                    },
-                                    (error) => {
-                                        console.error("Error uploading file:", error);
-                                        alert(`Error: ${error.message}`);
-                                    },
-                                    () => {
-                                        // Handle successful upload
-                                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                                            // Save the download URL to the database under the event ID
-                                            database.ref(`events/${eventId}/pictures`).push({
-                                                url: downloadURL,
-                                                uploadedAt: new Date().toISOString()
-                                            }).then(() => {
-                                                alert("Picture uploaded successfully!");
-                                            }).catch((error) => {
-                                                console.error("Error saving picture URL to database:", error);
-                                                alert(`Error: ${error.message}`);
-                                            });
-                                        });
-                                    }
-                                );
-                            } else {
-                                alert("User not authenticated.");
-                            }
-                        };
-                        
-                        // Append the file input and upload button to the upload container
-                        uploadContainer.appendChild(uploadInput);
-                        uploadContainer.appendChild(uploadButton);
-                        
-                        // Append the upload container to the event item
-                        eventItem.appendChild(uploadContainer);
-                        // Append the upload button to the button container
-                        buttonContainer.appendChild(uploadButton);
         
                         // Create picture carousel container
                         const picturesContainer = document.createElement('div');
