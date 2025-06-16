@@ -903,10 +903,20 @@
                         picturesButton.onclick = function () {
                             openEventDetails(event); // Open the event details modal
                         };
+
+                        // Create the "Upload" button
+                        const uploadButton = document.createElement('button');
+                        uploadButton.textContent = 'Upload';
+                        // Currently, it does nothing when clicked
+                        uploadButton.onclick = function() {
+                            // Functionality to be added later
+                        };
         
                         buttonContainer.appendChild(picturesButton); // Add pictures button
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
+                        // Append the upload button to the button container
+                        buttonContainer.appendChild(uploadButton);
         
                         // Create picture carousel container
                         const picturesContainer = document.createElement('div');
