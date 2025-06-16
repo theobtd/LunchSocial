@@ -1023,10 +1023,10 @@
 
         // Create event button functionality
         document.getElementById('createEventBtn').onclick = createEvent;
-
+        
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
-        document.getElementsByClassName("close")[0].onclick = closeModal;
+        document.querySelector("#eventDetailsModal .close").onclick = closeEventDetailsModal;
 
         // Fetch users and requests when the page loads
         auth.onAuthStateChanged(user => {
