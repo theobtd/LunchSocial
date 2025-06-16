@@ -186,3 +186,25 @@ button:hover {
     border-radius: 8px; /* Rounded corners */
     overflow: auto; /* Allow scrolling if content is too long */
 }
+
+#toggleMenuBtn {
+    position: fixed; /* Fix position relative to the viewport */
+    top: 10px; /* Space from the top */
+    left: 10px; /* Space from the left */
+    width: 50px; /* Set width for a square */
+    height: 50px; /* Set height for a square */
+    background-color: #007BFF; /* Button color */
+    color: white; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-size: 16px; /* Font size */
+    display: flex; /* Use flexbox for centering the text */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    z-index: 1001; /* Ensure it is above other elements */
+}
+
+#toggleMenuBtn:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
