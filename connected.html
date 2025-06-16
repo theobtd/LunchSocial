@@ -903,19 +903,88 @@
                         picturesButton.onclick = function () {
                             openEventDetails(event); // Open the event details modal
                         };
-        
+
                         // Create the "Upload" button
                         const uploadButton = document.createElement('button');
                         uploadButton.textContent = 'Upload';
+                        // Currently, it does nothing when clicked
                         uploadButton.onclick = function() {
                             // Functionality to be added later
                         };
         
                         buttonContainer.appendChild(picturesButton); // Add pictures button
-                        buttonContainer.appendChild(uploadButton); // Add upload button
-        
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
+                        // Append the upload button to the button container
+                        buttonContainer.appendChild(uploadButton);
+        
+                        // Create picture carousel container
+                        const picturesContainer = document.createElement('div');
+                        const prevButton = document.createElement('button');
+                        const nextButton = document.createElement('button');
+                        let currentIndex = 0;
+                        let images = [];
+        
+                        picturesContainer.classList.add('event-pictures'); // Optional class for styling
+                        picturesContainer.style.display = 'flex';
+                        picturesContainer.style.flexDirection = 'column';
+                        picturesContainer.style.alignItems = 'center';
+        
+                        // Fetch pictures and set up the carousel
+                        database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
+                            snapshot.forEach(childSnapshot => {
+                                const pictureData = childSnapshot.val();
+                                const img = document.createElement('img');
+                                img.src = pictureData.url;
+                                img.alt = "Event Picture";
+                                img.style.display = 'none'; // Start with images hidden
+                                img.style.width = "100px"; // Set width as needed
+                                img.style.margin = "5px"; // Add margin
+                                picturesContainer.appendChild(img); // Add to the pictures container
+                                images.push(img); // Store image elements for navigation
+                            });
+        
+                            // Show the first image if there are any
+                            if (images.length > 0) {
+                                images[0].style.display = 'block';
+                                // Only show buttons if there are more than one image
+                                if (images.length > 1) {
+                                    prevButton.style.display = 'block';
+                                    nextButton.style.display = 'block';
+                                } else {
+                                    prevButton.style.display = 'none';
+                                    nextButton.style.display = 'none';
+                                }
+                            } else {
+                                prevButton.style.display = 'none';
+                                nextButton.style.display = 'none'; // Hide buttons if no images
+                            }
+                        });
+        
+                        // Previous button functionality
+                        prevButton.textContent = 'Previous';
+                        prevButton.onclick = function() {
+                            if (images.length > 0) {
+                                images[currentIndex].style.display = 'none'; // Hide current image
+                                currentIndex = (currentIndex - 1 + images.length) % images.length; // Move to previous image
+                                images[currentIndex].style.display = 'block'; // Show new current image
+                            }
+                        };
+        
+                        // Next button functionality
+                        nextButton.textContent = 'Next';
+                        nextButton.onclick = function() {
+                            if (images.length > 0) {
+                                images[currentIndex].style.display = 'none'; // Hide current image
+                                currentIndex = (currentIndex + 1) % images.length; // Move to next image
+                                images[currentIndex].style.display = 'block'; // Show new current image
+                            }
+                        };
+        
+                        // Append pictures container and navigation buttons
+                        eventItem.appendChild(picturesContainer); // Append pictures container
+                        eventItem.appendChild(prevButton); // Append previous button
+                        eventItem.appendChild(nextButton); // Append next button
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
