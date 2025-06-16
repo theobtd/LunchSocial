@@ -90,9 +90,15 @@
         <div class="modal-content">
             <span class="close" onclick="closeEventDetailsModal()">&times;</span>
             <h3>Event Details</h3>
-            
+            <p id="eventDetailTitle"></p>
+            <p id="eventDetailDate"></p>
+            <p id="eventDetailTime"></p>
+            <p id="eventDetailCreator"></p>
+            <p id="eventDetailCategory"></p>
             <h4>Participants</h4>
             <div id="participantList"></div>
+            <p id="eventDetailLocation"></p>
+            <p id="eventDetailComment"></p>
             
             <!-- Picture Carousel Section -->
             <h3>Event Pictures</h3>
@@ -102,6 +108,12 @@
                 <button id="nextBtn">Next</button>
             </div>
             
+            <!-- Picture Upload Section -->
+            <h3>Upload a Picture</h3>
+            <input type="file" id="eventUploadPictureInput" accept="image/*" style="margin: 10px 0;">
+            <button id="eventUploadPictureBtn">Upload Picture</button>
+            <div id="eventUploadStatus" class="message"></div> <!-- Status message for upload -->
+        
             <button id="joinEventBtn">Join!</button>
             <button id="deleteEventBtn" style="display: none;">Delete Event</button>
         </div>
@@ -624,10 +636,26 @@
             currentEventId = event.id; // Store the current event ID
             const currentUserId = auth.currentUser.uid; // Get the current user's UID
             const eventDetailsModal = document.getElementById('eventDetailsModal');
+            const eventTitle = document.getElementById('eventDetailTitle');
+            const eventDate = document.getElementById('eventDetailDate');
+            const eventTime = document.getElementById('eventDetailTime');
+            const eventCreator = document.getElementById('eventDetailCreator');
+            const eventCategory = document.getElementById('eventDetailCategory');
+            const eventLocation = document.getElementById('eventDetailLocation');
+            const eventComment = document.getElementById('eventDetailComment');
             const deleteEventBtn = document.getElementById('deleteEventBtn');
             const joinEventBtn = document.getElementById('joinEventBtn');
             const participantList = document.getElementById('participantList');
             const carouselImages = document.getElementById('carouselImages');
+        
+            // Set the event details
+            eventTitle.textContent = `Title: ${event.title}`;
+            eventDate.textContent = `Date: ${event.date}`;
+            eventTime.textContent = `Time: ${event.time}`;
+            eventCreator.textContent = `Created by: ${event.userId}`;
+            eventCategory.textContent = `Category: ${event.category}`;
+            eventLocation.textContent = `Location: ${event.location || 'Not specified'}`;
+            eventComment.textContent = `Comment: ${event.comment || 'No comment'}`;
         
             // Show or hide the delete button based on creator
             if (event.createdBy === currentUserId) {
