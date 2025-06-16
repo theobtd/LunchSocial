@@ -896,19 +896,29 @@
                             | Location: ${event.location || 'Not specified'} 
                             | Category: ${event.category || 'Not specified'}`;
         
-                        const joinButton = document.createElement('button');
-                        joinButton.classList.add('join-btn');
-                        joinButton.textContent = 'Join';
-                        joinButton.style.marginLeft = 'auto';
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.style.display = 'flex';
+                        buttonContainer.style.flexDirection = 'column';
+                        buttonContainer.style.gap = '10px';
         
-                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                            const participants = snapshot.val() || [];
-                            const isParticipant = participants.includes(currentUserId);
-                            joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-                            joinButton.onclick = function () {
-                                toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
-                            };
-                        });
+                        // Only show the "Join!" button if the current user is NOT the creator of the event
+                        if (event.createdBy !== currentUserId) {
+                            const joinButton = document.createElement('button');
+                            joinButton.classList.add('join-btn');
+                            joinButton.textContent = 'Join';
+                            joinButton.style.marginLeft = 'auto';
+        
+                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                const participants = snapshot.val() || [];
+                                const isParticipant = participants.includes(currentUserId);
+                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                                joinButton.onclick = function () {
+                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                };
+                            });
+        
+                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
+                        }
         
                         // Create the "Pictures" button
                         const picturesButton = document.createElement('button');
@@ -917,83 +927,9 @@
                             openEventDetails(event); // Open the event details modal
                         };
         
-                        // Create picture carousel container
-                        const carouselContainer = document.createElement('div');
-                        const picturesContainer = document.createElement('div');
-                        const prevButton = document.createElement('button');
-                        const nextButton = document.createElement('button');
-                        let currentIndex = 0;
-                        let images = [];
-        
-                        picturesContainer.classList.add('event-pictures'); // Optional class for styling
-                        picturesContainer.style.display = 'flex';
-                        picturesContainer.style.flexDirection = 'column';
-                        picturesContainer.style.alignItems = 'center';
-        
-                        // Fetch pictures and set up the carousel
-                        database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
-                            snapshot.forEach(childSnapshot => {
-                                const pictureData = childSnapshot.val();
-                                const img = document.createElement('img');
-                                img.src = pictureData.url;
-                                img.alt = "Event Picture";
-                                img.style.display = 'none'; // Start with images hidden
-                                img.style.width = "100px"; // Set width as needed
-                                img.style.margin = "5px"; // Add margin
-                                picturesContainer.appendChild(img); // Add to the pictures container
-                                images.push(img); // Store image elements for navigation
-                            });
-        
-                            // Show the first image if there are any
-                            if (images.length > 0) {
-                                images[0].style.display = 'block';
-                                // Only show buttons if there are more than one image
-                                if (images.length > 1) {
-                                    prevButton.style.display = 'block';
-                                    nextButton.style.display = 'block';
-                                } else {
-                                    prevButton.style.display = 'none';
-                                    nextButton.style.display = 'none';
-                                }
-                            } else {
-                                prevButton.style.display = 'none';
-                                nextButton.style.display = 'none'; // Hide buttons if no images
-                            }
-                        });
-        
-                        // Previous button functionality
-                        prevButton.textContent = 'Previous';
-                        prevButton.onclick = function() {
-                            if (images.length > 0) {
-                                images[currentIndex].style.display = 'none'; // Hide current image
-                                currentIndex = (currentIndex - 1 + images.length) % images.length; // Move to previous image
-                                images[currentIndex].style.display = 'block'; // Show new current image
-                            }
-                        };
-        
-                        // Next button functionality
-                        nextButton.textContent = 'Next';
-                        nextButton.onclick = function() {
-                            if (images.length > 0) {
-                                images[currentIndex].style.display = 'none'; // Hide current image
-                                currentIndex = (currentIndex + 1) % images.length; // Move to next image
-                                images[currentIndex].style.display = 'block'; // Show new current image
-                            }
-                        };
-        
-                        // Append everything to the event item
-                        const buttonContainer = document.createElement('div');
-                        buttonContainer.style.display = 'flex';
-                        buttonContainer.style.flexDirection = 'column';
-                        buttonContainer.style.gap = '10px';
-                        buttonContainer.appendChild(joinButton);
                         buttonContainer.appendChild(picturesButton); // Add pictures button
-                        buttonContainer.appendChild(prevButton); // Add previous button
-                        buttonContainer.appendChild(nextButton); // Add next button
-        
                         eventItem.appendChild(eventContent);
                         eventItem.appendChild(buttonContainer);
-                        eventItem.appendChild(picturesContainer); // Append pictures container at the bottom
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
