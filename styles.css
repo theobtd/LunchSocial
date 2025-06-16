@@ -139,3 +139,8 @@ button:hover {
 .photo-btn:hover {
     background-color: #218838; /* Darker green on hover */
 }
+
+.event-pictures img {
+    width: 100px; /* or any desired width */
+    margin: 5px;  /* space between images */
+}
