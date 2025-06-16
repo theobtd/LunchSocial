@@ -878,55 +878,108 @@
                         buttonContainer.style.flexDirection = 'column';
                         buttonContainer.style.gap = '10px';
         
-                        // Create a container for pictures
-                        const picturesContainer = document.createElement('div');
-                        picturesContainer.classList.add('pictures-container'); // Create a container for pictures
-                        picturesContainer.style.display = 'none'; // Start hidden
+                        // Only show the "Join!" button if the current user is NOT the creator of the event
+                        if (event.createdBy !== currentUserId) {
+                            const joinButton = document.createElement('button');
+                            joinButton.classList.add('join-btn');
+                            joinButton.textContent = 'Join';
+                            joinButton.style.marginLeft = 'auto';
+        
+                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                const participants = snapshot.val() || [];
+                                const isParticipant = participants.includes(currentUserId);
+                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                                joinButton.onclick = function () {
+                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                };
+                            });
+        
+                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
+                        }
         
                         // Create the "Pictures" button
                         const picturesButton = document.createElement('button');
                         picturesButton.textContent = 'Pictures';
                         picturesButton.onclick = function () {
-                            // Toggle visibility of the pictures container
-                            const isVisible = picturesContainer.style.display === 'block';
-                            picturesContainer.style.display = isVisible ? 'none' : 'block';
+                            openEventDetails(event); // Open the event details modal
+                        };
         
-                            // Fetch and display pictures if not already displayed
-                            if (!isVisible && picturesContainer.innerHTML === '') {
-                                fetchAndDisplayPictures(event.id, picturesContainer);
+                        buttonContainer.appendChild(picturesButton); // Add pictures button
+                        eventItem.appendChild(eventContent);
+                        eventItem.appendChild(buttonContainer);
+        
+                        // Create picture carousel container
+                        const picturesContainer = document.createElement('div');
+                        const prevButton = document.createElement('button');
+                        const nextButton = document.createElement('button');
+                        let currentIndex = 0;
+                        let images = [];
+        
+                        picturesContainer.classList.add('event-pictures'); // Optional class for styling
+                        picturesContainer.style.display = 'flex';
+                        picturesContainer.style.flexDirection = 'column';
+                        picturesContainer.style.alignItems = 'center';
+        
+                        // Fetch pictures and set up the carousel
+                        database.ref(`events/${event.id}/pictures`).once('value').then(snapshot => {
+                            snapshot.forEach(childSnapshot => {
+                                const pictureData = childSnapshot.val();
+                                const img = document.createElement('img');
+                                img.src = pictureData.url;
+                                img.alt = "Event Picture";
+                                img.style.display = 'none'; // Start with images hidden
+                                img.style.width = "100px"; // Set width as needed
+                                img.style.margin = "5px"; // Add margin
+                                picturesContainer.appendChild(img); // Add to the pictures container
+                                images.push(img); // Store image elements for navigation
+                            });
+        
+                            // Show the first image if there are any
+                            if (images.length > 0) {
+                                images[0].style.display = 'block';
+                                // Only show buttons if there are more than one image
+                                if (images.length > 1) {
+                                    prevButton.style.display = 'block';
+                                    nextButton.style.display = 'block';
+                                } else {
+                                    prevButton.style.display = 'none';
+                                    nextButton.style.display = 'none';
+                                }
+                            } else {
+                                prevButton.style.display = 'none';
+                                nextButton.style.display = 'none'; // Hide buttons if no images
+                            }
+                        });
+        
+                        // Previous button functionality
+                        prevButton.textContent = 'Previous';
+                        prevButton.onclick = function() {
+                            if (images.length > 0) {
+                                images[currentIndex].style.display = 'none'; // Hide current image
+                                currentIndex = (currentIndex - 1 + images.length) % images.length; // Move to previous image
+                                images[currentIndex].style.display = 'block'; // Show new current image
                             }
                         };
         
-                        // Append the pictures button to the button container
-                        buttonContainer.appendChild(picturesButton);
-                        eventItem.appendChild(eventContent);
-                        eventItem.appendChild(buttonContainer);
-                        eventItem.appendChild(picturesContainer); // Append pictures container to event item
+                        // Next button functionality
+                        nextButton.textContent = 'Next';
+                        nextButton.onclick = function() {
+                            if (images.length > 0) {
+                                images[currentIndex].style.display = 'none'; // Hide current image
+                                currentIndex = (currentIndex + 1) % images.length; // Move to next image
+                                images[currentIndex].style.display = 'block'; // Show new current image
+                            }
+                        };
         
-                        // Append the event item to the unified event list
+                        // Append pictures container and navigation buttons
+                        eventItem.appendChild(picturesContainer); // Append pictures container
+                        eventItem.appendChild(prevButton); // Append previous button
+                        eventItem.appendChild(nextButton); // Append next button
                         unifiedEventList.appendChild(eventItem);
                     }
                 });
             }).catch(error => {
                 console.error("Error fetching events:", error);
-            });
-        }
-
-
-        function fetchAndDisplayPictures(eventId, container) {
-            database.ref(`events/${eventId}/pictures`).once('value').then(snapshot => {
-                container.innerHTML = ''; // Clear previous images
-                snapshot.forEach(childSnapshot => {
-                    const pictureData = childSnapshot.val();
-                    const img = document.createElement('img');
-                    img.src = pictureData.url;
-                    img.alt = "Event Picture";
-                    img.style.width = "100px"; // Set width as needed
-                    img.style.margin = "5px"; // Add margin
-                    container.appendChild(img); // Add to the pictures container
-                });
-            }).catch(error => {
-                console.error("Error fetching event pictures:", error);
             });
         }
         
