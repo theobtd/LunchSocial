@@ -32,6 +32,10 @@
 
     <div class="main-content">
         <h3>All Events</h3>
+        <div>
+            <button id="showPastBtn">Past Events</button>
+            <button id="showFutureBtn">Future Events</button>
+        </div>
         <button id="createEventBtn">Create Event</button> <!-- Moved here -->
         <div class="event-box">
             <div class="event-list" id="eventList"></div>
@@ -775,6 +779,17 @@
             unifiedEventList.innerHTML = ''; // Clear the list to prevent duplicates
         
             let allEvents = []; // Array to hold all events (yours + friends')
+            let showFutureEvents = true; // Default to showing future events
+
+            document.getElementById('showPastBtn').onclick = function() {
+                showFutureEvents = false; // Set to show past events
+                displayAllEvents(); // Refresh the event list
+            };
+            
+            document.getElementById('showFutureBtn').onclick = function() {
+                showFutureEvents = true; // Set to show future events
+                displayAllEvents(); // Refresh the event list
+            };
         
             // Fetch your events
             const yourEventsPromise = database.ref('users/' + currentUserId + '/events').once('value').then(snapshot => {
@@ -857,8 +872,14 @@
                 allEvents.forEach(event => {
                     const isVisible = event.createdBy === currentUserId || 
                                       (event.visibleTo && event.visibleTo.includes(currentUserId));
+
+                        // Add this filtering logic
+                    const eventDateTime = new Date(`${event.date}T${event.time}:00`);
+                    const isFutureEvent = eventDateTime > new Date();
+                    const isPastEvent = eventDateTime <= new Date();
                     
-                    if (isVisible) {
+                    // Modify the visibility check to incorporate filtering
+                    if (isVisible && ((showFutureEvents && isFutureEvent) || (!showFutureEvents && isPastEvent))) {
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
                         eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF';
