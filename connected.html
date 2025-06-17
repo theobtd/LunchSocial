@@ -882,12 +882,16 @@
                         eventItem.classList.add('event-item');
                         eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Use category color
 
+                        // Create a flex container for stadiums
+                        const stadiumContainer = document.createElement('div');
+                        stadiumContainer.classList.add('stadium-container'); // Add a class for styling
+                        
                         // Create stadium element for event creator's userId
                         const stadium = document.createElement('div');
                         stadium.classList.add('stadium');
                         stadium.textContent = event.userId; // Set text to the event creator's userId
-                        eventItem.appendChild(stadium); // Append stadium to the event item
-
+                        stadiumContainer.appendChild(stadium); // Append stadium to the container
+                        
                         // Fetch participants for the event
                         database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
                             const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
@@ -902,9 +906,12 @@
                                     const participantStadium = document.createElement('div');
                                     participantStadium.classList.add('stadium');
                                     participantStadium.textContent = participantUserId; // Set text to participant's userId
-                                    eventItem.appendChild(participantStadium); // Append participant stadium to the event item
+                                    stadiumContainer.appendChild(participantStadium); // Append participant stadium to the container
                                 });
                             });
+                            
+                            // Append the stadium container to the event item after all stadiums are created
+                            eventItem.appendChild(stadiumContainer);
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
