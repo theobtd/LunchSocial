@@ -919,6 +919,12 @@
                             categoryStadium.textContent = event.category; // Set text to event category
                             categoryStadium.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Apply the color code
                             eventItem.appendChild(categoryStadium); // Append category stadium to the event item
+
+                            // Create a stadium for the event date
+                            const dateStadium = document.createElement('div');
+                            dateStadium.classList.add('stadium');
+                            dateStadium.textContent = formatDate(`${event.date}`); // Use the formatDate function
+                            eventItem.appendChild(dateStadium); // Append date stadium to the event item
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
@@ -1195,6 +1201,20 @@
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            const formattedDate = date.toLocaleDateString('en-US', options);
+            
+            // Add the ordinal suffix (st, nd, rd, th) to the day
+            const day = date.getDate();
+            const suffix = day % 10 === 1 && day !== 11 ? 'st' :
+                           day % 10 === 2 && day !== 12 ? 'nd' :
+                           day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+            
+            return formattedDate.replace(/(\d+)/, `${day}${suffix}`);
         }
         
         // Log out function
