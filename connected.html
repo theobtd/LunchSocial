@@ -1038,6 +1038,7 @@
                                         const canvas = cropper.getCroppedCanvas();
                                         canvas.toBlob(function(blob) {
                                             const croppedFile = new File([blob], file.name, { type: file.type });
+                                            console.log('Cropped file:', croppedFile); // Debug log
                                             uploadCroppedImage(croppedFile);
                                             document.body.removeChild(cropModal);
                                         }, file.type);
