@@ -1025,6 +1025,19 @@
                                         </div>
                                     `;
                                     document.body.appendChild(cropModal);
+
+                                    const cropButton = document.createElement('button');
+                                    cropButton.textContent = 'Crop and Upload';
+                                    cropModal.querySelector('.modal-content').appendChild(cropButton); // Append the button to the modal content
+
+                                    cropButton.onclick = function() {
+                                        const canvas = cropper.getCroppedCanvas();
+                                        canvas.toBlob(function(blob) {
+                                            const croppedFile = new File([blob], file.name, { type: file.type });
+                                            uploadCroppedImage(croppedFile); // Call the upload function with the cropped image
+                                            document.body.removeChild(cropModal); // Remove the modal after uploading
+                                        }, file.type);
+                                    };
                                     
                                     const cropperContainer = document.getElementById('cropperContainer');
                                     cropperContainer.appendChild(img);
@@ -1260,7 +1273,7 @@
                 const storageRef = storage.ref(`user_pictures/${userId}/${file.name}`);
                 
                 const uploadTask = storageRef.put(file);
-                
+        
                 uploadTask.on(
                     'state_changed',
                     (snapshot) => {
