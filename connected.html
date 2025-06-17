@@ -881,6 +881,12 @@
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
                         eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Use category color
+
+                        // Create stadium element for event creator's userId
+                        const stadium = document.createElement('div');
+                        stadium.classList.add('stadium');
+                        stadium.textContent = event.userId; // Set text to the event creator's userId
+                        eventItem.appendChild(stadium); // Append stadium to the event item
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
         
