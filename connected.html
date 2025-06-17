@@ -1040,8 +1040,8 @@
                                         const canvas = cropper.getCroppedCanvas();
                                         canvas.toBlob(function(blob) {
                                             const croppedFile = new File([blob], file.name, { type: file.type });
-                                            uploadCroppedImage(croppedFile); // Call the upload function with the cropped image
-                                            document.body.removeChild(cropModal); // Remove the modal after uploading
+                                            uploadCroppedImage(croppedFile); // Use the existing upload function
+                                            document.body.removeChild(cropModal); // Clean up the modal
                                         }, file.type);
                                     };
                         
