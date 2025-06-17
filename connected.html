@@ -787,11 +787,6 @@
             pastEventList.innerHTML = ''; // Clear past events list
         
             let allEvents = []; // Array to hold all events (yours + friends')
-
-            const futureEventList = document.getElementById('futureEventList'); // Reference to future events container
-            const pastEventList = document.getElementById('pastEventList'); // Reference to past events container
-            futureEventList.innerHTML = ''; // Clear future events list
-            pastEventList.innerHTML = ''; // Clear past events list
         
             // Fetch your events
             const yourEventsPromise = database.ref('users/' + currentUserId + '/events').once('value').then(snapshot => {
