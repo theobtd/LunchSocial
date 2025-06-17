@@ -1056,7 +1056,17 @@
                         // Create picture carousel container
                         const picturesContainer = document.createElement('div');
                         const prevButton = document.createElement('button');
+                        prevButton.textContent = 'Previous';
+                        prevButton.style.position = 'absolute';
+                        prevButton.style.left = '10px'; // Change this value to adjust
+                        prevButton.style.top = '50%'; // Center vertically
+                        prevButton.style.transform = 'translateY(-50%)'; // Adjust for centering
                         const nextButton = document.createElement('button');
+                        nextButton.textContent = 'Next';
+                        nextButton.style.position = 'absolute';
+                        nextButton.style.right = '10px'; // Change this value to adjust
+                        nextButton.style.top = '50%'; // Center vertically
+                        nextButton.style.transform = 'translateY(-50%)'; // Adjust for centering
                         let currentIndex = 0;
                         let images = [];
         
