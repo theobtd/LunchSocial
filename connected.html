@@ -1212,7 +1212,10 @@
         };
 
         // Create event button functionality
-        document.getElementById('createEventBtn').onclick = createEvent;
+        // Create event button functionality
+        document.getElementById('createEventBtn').onclick = function() {
+            createEvent(); // Call the createEvent function
+        };
 
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
