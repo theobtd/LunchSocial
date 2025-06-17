@@ -931,6 +931,12 @@
                             timeStadium.classList.add('stadium');
                             timeStadium.textContent = formatTime(event.time); // Use the formatTime function
                             eventItem.appendChild(timeStadium); // Append time stadium to the event item
+
+                            // Create a stadium for the event location
+                            const locationStadium = document.createElement('div');
+                            locationStadium.classList.add('stadium');
+                            locationStadium.textContent = event.location || 'Location not specified'; // Set text to event location
+                            eventItem.appendChild(locationStadium); // Append location stadium to the event item
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
