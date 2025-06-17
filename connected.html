@@ -925,6 +925,12 @@
                             dateStadium.classList.add('stadium');
                             dateStadium.textContent = formatDate(`${event.date}`); // Use the formatDate function
                             eventItem.appendChild(dateStadium); // Append date stadium to the event item
+
+                            // Create a stadium for the event time
+                            const timeStadium = document.createElement('div');
+                            timeStadium.classList.add('stadium');
+                            timeStadium.textContent = formatTime(event.time); // Use the formatTime function
+                            eventItem.appendChild(timeStadium); // Append time stadium to the event item
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
@@ -1215,6 +1221,13 @@
                            day % 10 === 3 && day !== 13 ? 'rd' : 'th';
             
             return formattedDate.replace(/(\d+)/, `${day}${suffix}`);
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':').map(Number);
+            const period = hours >= 12 ? 'p.m.' : 'a.m.';
+            const formattedHour = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+            return `${formattedHour}:${minutes.toString().padStart(2, '0')} ${period}`;
         }
         
         // Log out function
