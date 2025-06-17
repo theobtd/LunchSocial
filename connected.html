@@ -881,12 +881,6 @@
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
                         eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Use category color
-
-                        // Create the category tag
-                        const categoryTag = document.createElement('div');
-                        categoryTag.className = 'category-tag'; // Add a class for styling
-                        categoryTag.textContent = event.category; // Set the category name
-                        eventItem.appendChild(categoryTag); // Add the tag to the event item
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
         
@@ -894,7 +888,8 @@
                         eventContent.classList.add('event-content');
                         eventContent.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
                             | Comment: ${event.comment || 'No comment'} 
-                            | Location: ${event.location || 'Not specified'} ;
+                            | Location: ${event.location || 'Not specified'} 
+                            | Category: ${event.category || 'Not specified'}`;
 
                         // Append to the appropriate list
                         if (isFutureEvent) {
