@@ -677,7 +677,8 @@
                     const img = document.createElement('img');
                     img.src = pictureData.url;
                     img.alt = "Event Picture";
-                    img.style.width = "100px"; // Set width as needed
+                    img.style.width = "100%"; // Set width to 100% for full width
+                    img.style.height = "auto"; // Maintain aspect ratio
                     img.style.margin = "5px"; // Add margin
         
                     carouselImages.appendChild(img);
@@ -1072,7 +1073,8 @@
                                 img.src = pictureData.url;
                                 img.alt = "Event Picture";
                                 img.style.display = 'none'; // Start with images hidden
-                                img.style.width = "100px"; // Set width as needed
+                                img.style.width = "100%"; // Set width to 100% for full width
+                                img.style.height = "auto"; // Maintain aspect ratio
                                 img.style.margin = "5px"; // Add margin
                                 picturesContainer.appendChild(img); // Add to the pictures container
                                 images.push(img); // Store image elements for navigation
