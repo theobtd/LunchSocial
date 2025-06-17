@@ -1025,11 +1025,17 @@
                                         </div>
                                     `;
                                     document.body.appendChild(cropModal);
-
-                                    const cropButton = document.createElement('button');
-                                    cropButton.textContent = 'Crop and Upload';
-                                    cropModal.querySelector('.modal-content').appendChild(cropButton); // Append the button to the modal content
-
+                                    
+                                    const cropperContainer = document.getElementById('cropperContainer');
+                                    cropperContainer.appendChild(img); // Append the image to the cropper container
+                                    
+                                    const cropper = new Cropper(img, {
+                                        aspectRatio: 1,
+                                        viewMode: 1,
+                                    });
+                                    
+                                    // Set up the crop button's click handler
+                                    const cropButton = document.getElementById('cropButton');
                                     cropButton.onclick = function() {
                                         const canvas = cropper.getCroppedCanvas();
                                         canvas.toBlob(function(blob) {
@@ -1038,14 +1044,6 @@
                                             document.body.removeChild(cropModal); // Remove the modal after uploading
                                         }, file.type);
                                     };
-                                    
-                                    const cropperContainer = document.getElementById('cropperContainer');
-                                    cropperContainer.appendChild(img);
-                                    
-                                    const cropper = new Cropper(img, {
-                                        aspectRatio: 1,
-                                        viewMode: 1,
-                                    });
                         
                                     document.getElementById('cropButton').onclick = function() {
                                         const canvas = cropper.getCroppedCanvas();
