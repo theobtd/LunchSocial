@@ -881,18 +881,16 @@
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
                         eventItem.style.backgroundColor = '#FFFFFF'; // Set to white or desired neutral color
-                        
-                        // Create a container for the combined stadiums
-                        const meetingDetails = document.createElement('div');
-                        meetingDetails.classList.add('meeting-details'); // Optional: add a class for styling
+
+                        // Create a flex container for stadiums
+                        const stadiumContainer = document.createElement('div');
+                        stadiumContainer.classList.add('stadium-container'); // Add a class for styling
                         
                         // Create stadium element for event creator's userId
-                        const organizerStadium = document.createElement('div');
-                        organizerStadium.classList.add('stadium');
-                        organizerStadium.textContent = event.userId; // Set text to the event creator's userId
-                        
-                        // Append the organizer stadium to the meeting details
-                        meetingDetails.appendChild(organizerStadium);
+                        const stadium = document.createElement('div');
+                        stadium.classList.add('stadium');
+                        stadium.textContent = event.userId; // Set text to the event creator's userId
+                        stadiumContainer.appendChild(stadium); // Append stadium to the container
                         
                         // Fetch participants for the event
                         database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
@@ -908,33 +906,37 @@
                                     const participantStadium = document.createElement('div');
                                     participantStadium.classList.add('stadium');
                                     participantStadium.textContent = participantUserId; // Set text to participant's userId
-                                    meetingDetails.appendChild(participantStadium); // Append participant stadium to the meeting details
+                                    stadiumContainer.appendChild(participantStadium); // Append participant stadium to the container
                                 });
                             });
                             
-                            // Create a stadium for the event time
-                            const timeStadium = document.createElement('div');
-                            timeStadium.classList.add('stadium');
-                            timeStadium.textContent = formatTime(event.time); // Use the formatTime function
-                            meetingDetails.appendChild(timeStadium); // Append time stadium to the meeting details
-                        
+                            // Append the stadium container to the event item after all stadiums are created
+                            eventItem.appendChild(stadiumContainer);
+
+                            // Create a stadium for the event category
+                            const categoryStadium = document.createElement('div');
+                            categoryStadium.classList.add('stadium');
+                            categoryStadium.textContent = event.category; // Set text to event category
+                            categoryStadium.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Apply the color code
+                            eventItem.appendChild(categoryStadium); // Append category stadium to the event item
+
                             // Create a stadium for the event date
                             const dateStadium = document.createElement('div');
                             dateStadium.classList.add('stadium');
                             dateStadium.textContent = formatDate(`${event.date}`); // Use the formatDate function
-                            meetingDetails.appendChild(dateStadium); // Append date stadium to the meeting details
-                        
+                            eventItem.appendChild(dateStadium); // Append date stadium to the event item
+
+                            // Create a stadium for the event time
+                            const timeStadium = document.createElement('div');
+                            timeStadium.classList.add('stadium');
+                            timeStadium.textContent = formatTime(event.time); // Use the formatTime function
+                            eventItem.appendChild(timeStadium); // Append time stadium to the event item
+
                             // Create a stadium for the event location
                             const locationStadium = document.createElement('div');
                             locationStadium.classList.add('stadium');
                             locationStadium.textContent = event.location || 'Location not specified'; // Set text to event location
-                            meetingDetails.appendChild(locationStadium); // Append location stadium to the meeting details
-                        
-                            // Set the final text for the meeting details
-                            const finalText = `Meet ${meetingDetails.innerHTML} at ${timeStadium.textContent} on ${dateStadium.textContent} @ ${locationStadium.textContent}`;
-                            const meetingText = document.createElement('div');
-                            meetingText.innerHTML = finalText; // Set the HTML content to the final text
-                            eventItem.appendChild(meetingText); // Append the final text to the event item
+                            eventItem.appendChild(locationStadium); // Append location stadium to the event item
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
