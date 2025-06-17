@@ -197,3 +197,21 @@ button:hover {
     overflow-y: auto; /* Enable vertical scrolling */
     padding: 10px; /* Inner padding for content */
 }
+
+.carousel {
+    display: flex; /* Use flexbox for layout */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+}
+
+.carousel-images {
+    display: flex; /* Allow images to be in a row */
+    overflow: hidden; /* Hide overflow */
+    width: 100%; /* Full width for images */
+    justify-content: center; /* Center images */
+}
+
+.carousel img {
+    max-width: 100px; /* Set a max width for images */
+    margin: 5px; /* Space between images */
+}
