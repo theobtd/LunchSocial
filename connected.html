@@ -9,8 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 </head>
 <body>    
     <button id="toggleMenuBtn">My Account</button>
@@ -1004,58 +1002,48 @@
                                     return;
                                 }
                         
-                                const reader = new FileReader();
-                                reader.onload = function(event) {
-                                    const img = document.createElement('img');
-                                    img.src = event.target.result;
-                                    img.style.width = '100%'; // Set image width to 100% for cropping
-                                    
-                                    // Create a modal for cropping
-                                    const cropModal = document.createElement('div');
-                                    cropModal.style.display = 'block';
-                                    cropModal.innerHTML = `
-                                        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7);">
-                                            <div style="position: relative; margin: auto; top: 50%; transform: translateY(-50%);">
-                                                <div style="width: 400px; height: 400px;">
-                                                    <div id="cropperContainer"></div>
-                                                </div>
-                                                <button id="cropButton">Crop and Upload</button>
-                                                <button onclick="document.body.removeChild(cropModal)">Cancel</button>
-                                            </div>
-                                        </div>
-                                    `;
-                                    document.body.appendChild(cropModal);
-                                    
-                                    const cropperContainer = document.getElementById('cropperContainer');
-                                    cropperContainer.appendChild(img); // Append the image to the cropper container
-                                    
-                                    const cropper = new Cropper(img, {
-                                        aspectRatio: 1,
-                                        viewMode: 1,
-                                    });
-                                    
-                                    // Set up the crop button's click handler
-                                    const cropButton = document.getElementById('cropButton');
-                                    cropButton.onclick = function() {
-                                        const canvas = cropper.getCroppedCanvas();
-                                        canvas.toBlob(function(blob) {
-                                            const croppedFile = new File([blob], file.name, { type: file.type });
-                                            uploadCroppedImage(croppedFile); // Use the existing upload function
-                                            document.body.removeChild(cropModal); // Clean up the modal
-                                        }, file.type);
-                                    };
+                                const currentUser = auth.currentUser;
+                                if (currentUser) {
+                                    const userId = currentUser.uid; // Get the logged-in user's UID
+                                    const eventId = event.id; // Get the current event ID
                         
-                                    document.getElementById('cropButton').onclick = function() {
-                                        const canvas = cropper.getCroppedCanvas();
-                                        canvas.toBlob(function(blob) {
-                                            const croppedFile = new File([blob], file.name, { type: file.type });
-                                            console.log('Cropped file:', croppedFile); // Debug log
-                                            uploadCroppedImage(croppedFile);
-                                            document.body.removeChild(cropModal);
-                                        }, file.type);
-                                    };
-                                };
-                                reader.readAsDataURL(file);
+                                    // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
+                                    const storageRef = storage.ref(`event_pictures/${eventId}/${file.name}`);
+                        
+                                    // Upload the file
+                                    const uploadTask = storageRef.put(file);
+                        
+                                    // Monitor the upload status
+                                    uploadTask.on(
+                                        'state_changed',
+                                        (snapshot) => {
+                                            // Optional: Progress feedback
+                                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                            console.log(`Upload is ${progress.toFixed(0)}% done.`);
+                                        },
+                                        (error) => {
+                                            console.error("Error uploading file:", error);
+                                            alert(`Error: ${error.message}`);
+                                        },
+                                        () => {
+                                            // Handle successful upload
+                                            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                                                // Save the download URL to the database under the event ID
+                                                database.ref(`events/${eventId}/pictures`).push({
+                                                    url: downloadURL,
+                                                    uploadedAt: new Date().toISOString()
+                                                }).then(() => {
+                                                    alert("Picture uploaded successfully!");
+                                                }).catch((error) => {
+                                                    console.error("Error saving picture URL to database:", error);
+                                                    alert(`Error: ${error.message}`);
+                                                });
+                                            });
+                                        }
+                                    );
+                                } else {
+                                    alert("User not authenticated.");
+                                }
                             };
                         
                             fileInput.click(); // Trigger the file input dialog
@@ -1261,43 +1249,6 @@
                 content.style.display = "none"; // Hide the content
             } else {
                 content.style.display = "block"; // Show the content
-            }
-        }
-
-        function uploadCroppedImage(file) {
-            const currentUser = auth.currentUser;
-            if (currentUser) {
-                const userId = currentUser.uid; // Get the logged-in user's UID
-                const storageRef = storage.ref(`user_pictures/${userId}/${file.name}`);
-                
-                const uploadTask = storageRef.put(file);
-        
-                uploadTask.on(
-                    'state_changed',
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        document.getElementById('uploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
-                    },
-                    (error) => {
-                        console.error("Error uploading file:", error);
-                        document.getElementById('uploadStatus').textContent = `Error: ${error.message}`;
-                    },
-                    () => {
-                        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                            database.ref(`users/${userId}/pictures`).push({
-                                url: downloadURL,
-                                uploadedAt: new Date().toISOString()
-                            }).then(() => {
-                                document.getElementById('uploadStatus').textContent = "Picture uploaded successfully!";
-                            }).catch((error) => {
-                                console.error("Error saving picture URL to database:", error);
-                                document.getElementById('uploadStatus').textContent = `Error: ${error.message}`;
-                            });
-                        });
-                    }
-                );
-            } else {
-                document.getElementById('uploadStatus').textContent = "User not authenticated.";
             }
         }
         
