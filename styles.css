@@ -92,12 +92,6 @@ button:hover {
     color: #555; /* Subtle text color for details */
 }
 
-.modal-content {
-    background-color: #ffffff; /* Ensure modals have a white background */
-    border-radius: 10px; /* Rounded corners on modals */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
-}
-
 .welcome-message {
     font-size: 24px; /* Larger font size for welcome */
     font-weight: bold;
@@ -179,4 +173,26 @@ button:hover {
     border-radius: 5px; /* Optional: rounded corners */
     padding: 10px; /* Optional: padding inside the box */
     background-color: #fff; /* Background color */
+}
+
+.modal {
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    left: 50%; /* Center the modal */
+    top: 50%; /* Center the modal */
+    transform: translate(-50%, -50%); /* Adjust for the modal's size */
+    background-color: white; /* Background color */
+    padding: 20px; /* Inner spacing */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Shadow */
+    max-width: 500px; /* Max width */
+    width: 100%; /* Responsive width */
+    overflow-y: auto; /* Enable scrolling if needed */
+    display: none; /* Initially hidden */
+}
+
+.modal-content {
+    background-color: #ffffff; /* Ensure modals have a white background */
+    border-radius: 10px; /* Rounded corners on modals */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
