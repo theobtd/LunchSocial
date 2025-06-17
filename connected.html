@@ -1267,6 +1267,17 @@
                 eventDetailsModal.style.display = "none"; // Hide event details modal
         });
 
+        // Event listener for clicks outside the modal content
+        window.onclick = function(event) {
+            const modal = document.getElementById("eventModal");
+            const modalContent = document.querySelector('.modal-content');
+        
+            // Check if the click was outside the modal content
+            if (event.target === modal) {
+                closeModal(); // Close the modal if clicked outside
+            }
+        };
+
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
         document.getElementsByClassName("close")[0].onclick = closeModal;
