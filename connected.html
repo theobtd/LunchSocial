@@ -11,8 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
 </head>
 <body>   
-    <button id="createEventBtn">Create Event</button>
-    
     <button id="toggleMenuBtn">My Account</button>
     <div class="sidebar" id="sidebar">
         <h2 id="welcomeHeader">Welcome, [userId]!</h2>
@@ -38,6 +36,7 @@
                 <h3>Past Events</h3>
                 <div class="event-list" id="pastEventList"></div> <!-- Container for past events -->
             </div>
+            <button id="createEventBtn">Create Event</button>
             <div class="future-events">
                 <h3> -- Present -- </h3>
                 <div class="event-list" id="futureEventList"></div> <!-- Container for future events -->
