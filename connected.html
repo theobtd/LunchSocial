@@ -32,14 +32,18 @@
 
     <div class="main-content">
         <h3>All Events</h3>
-        <div>
-            <button id="showPastBtn">Past Events</button>
-            <button id="showFutureBtn">Future Events</button>
-        </div>
-        <button id="createEventBtn">Create Event</button> <!-- Moved here -->
         <div class="event-box">
-            <div class="event-list" id="eventList"></div>
+            <div class="future-events">
+                <h3>Future Events</h3>
+                <div class="event-list" id="futureEventList"></div> <!-- Container for future events -->
+            </div>
+            <div class="past-events">
+                <h3>Past Events</h3>
+                <div class="event-list" id="pastEventList"></div> <!-- Container for past events -->
+            </div>
         </div>
+
+        <button id="createEventBtn">Create Event</button> <!-- Moved here -->
         
         <!-- Picture Upload Section -->
         <!-- <h3>Upload a Picture</h3 -->
@@ -777,20 +781,17 @@
         // Function to fetch and display events
         function displayAllEvents() {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            const unifiedEventList = document.getElementById('eventList');
-            unifiedEventList.innerHTML = ''; // Clear the list to prevent duplicates
+            const futureEventList = document.getElementById('futureEventList'); // Reference to future events container
+            const pastEventList = document.getElementById('pastEventList'); // Reference to past events container
+            futureEventList.innerHTML = ''; // Clear future events list
+            pastEventList.innerHTML = ''; // Clear past events list
         
             let allEvents = []; // Array to hold all events (yours + friends')
 
-            document.getElementById('showPastBtn').onclick = function() {
-                showFutureEvents = false; // Set to show past events
-                displayAllEvents(); // Refresh the event list
-            };
-            
-            document.getElementById('showFutureBtn').onclick = function() {
-                showFutureEvents = true; // Set to show future events
-                displayAllEvents(); // Refresh the event list
-            };
+            const futureEventList = document.getElementById('futureEventList'); // Reference to future events container
+            const pastEventList = document.getElementById('pastEventList'); // Reference to past events container
+            futureEventList.innerHTML = ''; // Clear future events list
+            pastEventList.innerHTML = ''; // Clear past events list
         
             // Fetch your events
             const yourEventsPromise = database.ref('users/' + currentUserId + '/events').once('value').then(snapshot => {
@@ -876,14 +877,16 @@
 
                         // Add this filtering logic
                     const eventDateTime = new Date(`${event.date}T${event.time}:00`);
-                    const isFutureEvent = eventDateTime > new Date();
-                    const isPastEvent = eventDateTime <= new Date();
+                    const isFutureEvent = eventDateTime > new Date(); // Determine if it's a future event
+
+
                     
                     // Modify the visibility check to incorporate filtering
-                    if (isVisible && ((showFutureEvents && isFutureEvent) || (!showFutureEvents && isPastEvent))) {
+                    if (isVisible) {
+                    // Create the event DOM element
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
-                        eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF';
+                        eventItem.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Use category color
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
         
@@ -893,6 +896,13 @@
                             | Comment: ${event.comment || 'No comment'} 
                             | Location: ${event.location || 'Not specified'} 
                             | Category: ${event.category || 'Not specified'}`;
+
+                        // Append to the appropriate list
+                        if (isFutureEvent) {
+                            futureEventList.appendChild(eventItem); // Add to future events list
+                        } else {
+                            pastEventList.appendChild(eventItem); // Add to past events list
+                        }
 
                         // Add this code right after creating the eventContent
                         const participantList = document.createElement('div');
