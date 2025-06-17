@@ -888,15 +888,8 @@
                         eventContent.classList.add('event-content');
                         eventContent.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
                             | Comment: ${event.comment || 'No comment'} 
-                            | Location: ${event.location || 'Not specified'};
-
-                        const categoryDiv = document.createElement('div');
-                        categoryDiv.classList.add('event-category');
-                        categoryDiv.textContent = `Category: ${event.category || 'Not specified'}`;
-                        categoryDiv.style.position = 'absolute';
-                        categoryDiv.style.top = '10px';
-                        categoryDiv.style.right = '10px';
-                        eventItem.appendChild(categoryDiv);
+                            | Location: ${event.location || 'Not specified'} 
+                            | Category: ${event.category || 'Not specified'}`;
 
                         // Append to the appropriate list
                         if (isFutureEvent) {
