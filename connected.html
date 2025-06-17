@@ -912,6 +912,12 @@
                             
                             // Append the stadium container to the event item after all stadiums are created
                             eventItem.appendChild(stadiumContainer);
+
+                            // Create a stadium for the event category
+                            const categoryStadium = document.createElement('div');
+                            categoryStadium.classList.add('stadium');
+                            categoryStadium.textContent = event.category; // Set text to event category
+                            eventItem.appendChild(categoryStadium); // Append category stadium to the event item
                         });
         
                         const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
