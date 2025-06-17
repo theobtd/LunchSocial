@@ -55,36 +55,43 @@
 </body>
 
     <!-- Modal for Event Creation -->
-    <div id="eventCreationSection" style="display: none;">
-        <h3>Create Event</h3>
-        <label for="eventTitle">Event Title:</label>
-        <input type="text" id="eventTitle" required>
-        <br>
-        <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" required>
-        <br>
-        <label for="eventTime">Event Time:</label>
-        <input type="time" id="eventTime" required>
-        <br>
-        <label for="eventLocation">Event Location:</label>
-        <input type="text" id="eventLocation" required>
-        <br>
-        <label for="eventComment">Event Comment:</label>
-        <textarea id="eventComment" maxlength="200" rows="4" required></textarea>
-        <br>
-        <label for="eventCategory">Category:</label>
-        <select id="eventCategory" required>
-            <option value="" disabled selected>Select a category</option>
-            <option value="apero">Apero</option>
-            <option value="coffee">Coffee</option>
-            <option value="lunch">Lunch</option>
-            <option value="dinner">Dinner</option>
-            <option value="workout">Workout</option>
-            <option value="party">Party</option>
-            <option value="other">Other</option>
-        </select>
-        <br>
-        <button id="submitEventBtn">Create Event</button>
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Create Event</h3>
+            <label for="eventTitle">Event Title:</label>
+            <input type="text" id="eventTitle" required>
+            <br>
+            <label for="eventDate">Event Date:</label>
+            <input type="date" id="eventDate" required>
+            <br>
+            <label for="eventTime">Event Time:</label>
+            <input type="time" id="eventTime" required>
+            <br>
+            <label for="eventLocation">Event Location:</label>
+            <input type="text" id="eventLocation" required>
+            <br>
+            <label for="eventComment">Event Comment:</label>
+            <textarea id="eventComment" maxlength="200" rows="4" required></textarea>
+            <br>
+            <label for="eventCategory">Category:</label>
+            <select id="eventCategory" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="apero">Apero</option>
+                <option value="coffee">Coffee</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="workout">Workout</option>
+                <option value="party">Party</option>
+                <option value="other">Other</option>
+            </select>
+            <br>
+            <button id="submitEventBtn">Create Event</button>
+    
+            <h4>Your Friends:</h4>
+            <button id="selectAllBtn">Select All Friends</button> <!-- Super button -->
+            <div id="friendsList" class="friends-list"></div>
+        </div>
     </div>
 
     <!-- Modal for Event Details -->
@@ -517,8 +524,9 @@
 
         // Function to create an event
         function createEvent() {
-            const eventCreationSection = document.getElementById("eventCreationSection");
-            eventCreationSection.style.display = eventCreationSection.style.display === "none" ? "block" : "none"; // Toggle visibility
+            const modal = document.getElementById("eventModal");
+            modal.style.display = "block"; // Show the modal
+            displayFriends(); // Call the function to display friends
         }
         
         // Function to fetch and display friends
