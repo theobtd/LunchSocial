@@ -241,3 +241,9 @@ button:hover {
     margin: 5px;
     font-weight: bold; /* Optional: make the text bold */
 }
+
+.stadium-container {
+    display: flex; /* Use flexbox layout */
+    align-items: center; /* Center items vertically */
+    gap: 10px; /* Space between stadiums */
+}
