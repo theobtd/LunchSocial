@@ -231,3 +231,13 @@ button:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
     z-index: 1; /* Ensure it stays on top */
 }
+
+.stadium {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #f0f0f0; /* Change to your desired background color */
+    border-radius: 50px; /* Creates the stadium shape */
+    text-align: center;
+    margin: 5px;
+    font-weight: bold; /* Optional: make the text bold */
+}
