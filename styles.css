@@ -271,4 +271,5 @@ button:hover {
     display: flex;
     justify-content: center; /* Center buttons horizontally */
     margin-top: auto; /* Push button container to the bottom */
+    margin-bottom: 10px;
 }
