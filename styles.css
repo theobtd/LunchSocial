@@ -262,8 +262,9 @@ button:hover {
 .event-item {
     display: flex;
     flex-direction: column; /* Stack items vertically */
-    justify-content: space-between; /* Ensure space is distributed */
+    justify-content: flex-start; /* Align items to the top */
     height: 100%; /* Allow event item to take full height */
+    position: relative; /* Allow absolute positioning for children */
 }
 
 .button-container {
