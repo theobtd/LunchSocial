@@ -975,27 +975,6 @@
                             console.error("Error fetching participants:", error);
                             participantList.textContent = "Unable to load participants."; // Display error message
                         });
-
-                        // Create the Delete button
-                        const deleteButton = document.createElement('button');
-                        deleteButton.textContent = 'Delete Event';
-                        deleteButton.style.display = 'none'; // Initially hide the button
-                        
-                        // Check if the current user is the creator of the event
-                        if (event.createdBy === currentUserId) {
-                            deleteButton.style.display = 'block'; // Show the button if the user is the creator
-                            deleteButton.onclick = function() {
-                                deleteEvent(event.createdBy, event.id); // Call the deleteEvent function
-                            };
-                        }
-                        
-                        // Append the delete button to the event item
-                        eventItem.appendChild(deleteButton);
-        
-                        const buttonContainer = document.createElement('div');
-                        buttonContainer.style.display = 'flex';
-                        buttonContainer.style.flexDirection = 'column';
-                        buttonContainer.style.gap = '10px';
         
                         // Only show the "Join!" button if the current user is NOT the creator of the event
                         if (event.createdBy !== currentUserId) {
@@ -1027,7 +1006,7 @@
                         };
 
                         // Hide the button
-                        picturesButton.style.display = 'none'; // This hides the button
+                        // picturesButton.style.display = 'none'; // This hides the button
         
                         buttonContainer.appendChild(picturesButton); // Add pictures button
                         eventItem.appendChild(eventContent);
@@ -1205,6 +1184,28 @@
                         eventItem.appendChild(picturesContainer); // Append pictures container
                         eventItem.appendChild(prevButton); // Append previous button
                         eventItem.appendChild(nextButton); // Append next button
+
+
+                        // Create the Delete button
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete Event';
+                        deleteButton.style.display = 'none'; // Initially hide the button
+                        
+                        // Check if the current user is the creator of the event
+                        if (event.createdBy === currentUserId) {
+                            deleteButton.style.display = 'block'; // Show the button if the user is the creator
+                            deleteButton.onclick = function() {
+                                deleteEvent(event.createdBy, event.id); // Call the deleteEvent function
+                            };
+                        }
+                        
+                        // Append the delete button to the event item
+                        eventItem.appendChild(deleteButton);
+        
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.style.display = 'flex';
+                        buttonContainer.style.flexDirection = 'column';
+                        buttonContainer.style.gap = '10px';
                     }
                 });
 
