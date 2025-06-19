@@ -957,15 +957,15 @@
                             const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
                         
                             if (participantUids.length === 0) {
-                                participantList.textContent = "No participants yet."; // Message if no participants
+                                // participantList.textContent = "No participants yet."; // Message if no participants
                             } else {
                                 participantUids.forEach(uid => {
                                     database.ref(`users/${uid}`).once('value').then(userSnapshot => {
                                         const userData = userSnapshot.val();
                                         const userId = userData ? userData.userId : "Unknown User"; // Fallback
                                         const participantItem = document.createElement('div');
-                                        participantItem.textContent = userId; // Display the userId
-                                        participantList.appendChild(participantItem); // Add to the participant list
+                                        // participantItem.textContent = userId; // Display the userId
+                                        // participantList.appendChild(participantItem); // Add to the participant list
                                     }).catch(error => {
                                         console.error("Error fetching userId for UID:", uid, error);
                                     });
