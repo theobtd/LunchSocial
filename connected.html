@@ -956,7 +956,9 @@
                             locationStadium.textContent = event.location || 'Location not specified'; // Set text to event location
                             // eventItem.appendChild(locationStadium); // Append location stadium to the event item
 
-                            eventItem.appendChild(dateStadium) eventItem.appendChild(timeStadium) eventItem.appendChild(locationStadium);
+                            eventItem.appendChild(dateStadium);
+                            eventItem.appendChild(timeStadium);
+                            eventItem.appendChild(locationStadium);
                         });
 
                         // Existing button container setup
