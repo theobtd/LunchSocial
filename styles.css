@@ -286,3 +286,14 @@ button:hover {
     z-index: 1; /* Ensure it stays on top */
 }
 
+.event-details-container {
+    display: flex; /* Use flexbox for horizontal layout */
+    justify-content: space-between; /* Create space between items */
+    align-items: center; /* Center items vertically */
+    margin-top: 10px; /* Space above the container */
+}
+
+.date-stadium, .time-stadium, .location-stadium {
+    margin-right: 10px; /* Space between the items (optional) */
+}
+
