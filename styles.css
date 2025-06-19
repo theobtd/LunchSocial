@@ -262,4 +262,13 @@ button:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
     z-index: 1; /* Ensure it stays on top */
 
+.user-id-container {
+    position: absolute; /* Allow absolute positioning within the event item */
+    top: 10px; /* Distance from the top */
+    left: 10px; /* Distance from the left */
+    display: flex; /* Use flexbox to align items in a row */
+    gap: 5px; /* Space between stadiums */
+    z-index: 1; /* Ensure they stay on top */
+}
+
 
