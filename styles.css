@@ -274,7 +274,7 @@ button:hover {
 .location-tag {
     position: absolute; /* Position it absolutely within the event item */
     top: 10px; /* Distance from the top */
-    right: 10px; /* Distance from the right */
+    left: 10px; /* Distance from the right */
     background-color: #007BFF; /* Background color */
     color: white; /* Text color */
     padding: 5px 10px; /* Padding around the text */
