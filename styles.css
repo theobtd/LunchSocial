@@ -274,7 +274,7 @@ button:hover {
 .upload-container {
     position: absolute; /* Ensure the container is positioned relative */
     top: 10px;
-    left: 10px;
+    right: 10px;
     z-index: 1;
 }
 
