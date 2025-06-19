@@ -959,9 +959,7 @@
 
                         // Existing button container setup
                         const buttonContainer = document.createElement('div');
-                        buttonContainer.style.display = 'flex';
-                        buttonContainer.style.flexDirection = 'column';
-                        buttonContainer.style.gap = '10px';
+                        buttonContainer.classList.add('button-container'); // Add the button-container class
                         
                         // Create the Delete button
                         const deleteButton = document.createElement('button');
