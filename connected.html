@@ -190,15 +190,20 @@
         document.getElementById('eventUploadPictureBtn').onclick = function () {
             const fileInput = document.getElementById('eventUploadPictureInput');
             const file = fileInput.files[0]; // Get the selected file
+
+            console.log("Upload button clicked"); // Log when the upload button is clicked
             
             if (!file) {
                 document.getElementById('eventUploadStatus').textContent = "Please select a file.";
+                console.warn("No file selected"); // Log a warning if no file is selected
                 return;
             }
         
             const imageUrl = URL.createObjectURL(file);
             const cropImageElement = document.getElementById('cropperImage');
             cropImageElement.src = imageUrl; // Set the source for cropping
+
+            console.log("Image URL created:", imageUrl); // Log the image URL
         
             const modal = document.getElementById('cropModal');
             modal.style.display = 'block'; // Show the crop modal
@@ -209,11 +214,13 @@
             });
         
             document.getElementById('cropBtn').onclick = function () {
+                console.log("Crop button clicked"); // Log when the crop button is clicked
                 const canvas = cropper.getCroppedCanvas({
                     width: 1080,
                     height: 1080,
                 });
                 canvas.toBlob(function(blob) {
+                    console.log("Cropped image blob created:", blob); // Log the blob created
                     uploadCroppedImage(blob); // Call to upload function
                 });
         
@@ -221,6 +228,7 @@
             };
         
             document.getElementById('cancelBtn').onclick = function () {
+                console.log("Crop modal cancelled"); // Log when the crop modal is cancelled
                 modal.style.display = 'none'; // Hide the modal if cancelled
             };
         };
@@ -230,6 +238,8 @@
             if (currentUser) {
                 const userId = currentUser.uid; // Get the logged-in user's UID
                 const eventId = currentEventId; // You need to make sure this variable is set
+
+                console.log("Uploading image for user:", userId, "Event ID:", eventId); // Log user and event ID
         
                 // Create a storage reference (folder: "event_pictures", file: "UID/eventId/filename")
                 const storageRef = storage.ref(`event_pictures/${eventId}/cropped_${Date.now()}.jpg`);
@@ -240,6 +250,7 @@
                     'state_changed',
                     (snapshot) => {
                         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log(`Upload is ${progress.toFixed(0)}% done.`); // Log upload progress
                         document.getElementById('eventUploadStatus').textContent = `Upload is ${progress.toFixed(0)}% done.`;
                     },
                     (error) => {
@@ -248,11 +259,13 @@
                     },
                     () => {
                         uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                            console.log("Download URL obtained:", downloadURL); // Log the download URL
                             // Save the download URL to the database under the event ID
                             database.ref(`events/${eventId}/pictures`).push({
                                 url: downloadURL,
                                 uploadedAt: new Date().toISOString()
                             }).then(() => {
+                                console.log("Picture uploaded successfully!"); // Log success
                                 document.getElementById('eventUploadStatus').textContent = "Picture uploaded successfully!";
                                 fileInput.value = ''; // Clear the file input
                             }).catch((error) => {
@@ -263,6 +276,7 @@
                     }
                 );
             } else {
+                console.warn("User not authenticated"); // Log if user is not authenticated
                 document.getElementById('eventUploadStatus').textContent = "User not authenticated.";
             }
         }
