@@ -141,6 +141,7 @@
 
         // Upload picture functionality
         document.getElementById('uploadPictureBtn').onclick = function () {
+            console.log("Upload button clicked"); // Debug log
             const fileInput = document.getElementById('uploadPictureInput');
             const file = fileInput.files[0]; // Get the selected file
         
@@ -151,6 +152,7 @@
         
             const imageUrl = URL.createObjectURL(file);
             const modal = document.createElement('div');
+            console.log("Cropping modal created"); // Debug log
             modal.style.position = 'fixed';
             modal.style.top = '0';
             modal.style.left = '0';
@@ -173,11 +175,14 @@
             });
         
             document.getElementById('cropBtn').onclick = function () {
+                console.log("Crop button clicked"); // Debug log
                 const canvas = cropper.getCroppedCanvas({
                     width: 1080, // Desired width
                     height: 1080, // Desired height
                 });
+                console.log("Cropped canvas created"); // Debug log
                 canvas.toBlob(function(blob) {
+                    console.log("Blob created"); // Debug log
                     uploadCroppedImage(blob); // Call the function to upload the cropped image
                 });
         
@@ -190,12 +195,15 @@
         };
         
         function uploadCroppedImage(blob) {
+            console.log("Uploading cropped image..."); // Debug log
             const currentUser = auth.currentUser;
             if (currentUser) {
+                console.log("User is authenticated:", currentUser.uid); // Debug log
                 const userId = currentUser.uid; // Get the logged-in user's UID
                 const storageRef = storage.ref(`user_pictures/${userId}/cropped_${Date.now()}.jpg`); // Unique filename
         
                 const uploadTask = storageRef.put(blob);
+                console.log("Upload task started"); // Debug log
                 uploadTask.on(
                     'state_changed',
                     (snapshot) => {
