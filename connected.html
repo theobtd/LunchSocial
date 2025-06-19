@@ -786,18 +786,18 @@
                     const eventsArray = Object.keys(events);
                     eventsArray.forEach(eventId => {
                         const eventData = events[eventId];
-                        allEvents.push({
-                            title: eventData.title,
-                            date: eventData.date,
-                            time: eventData.time,
-                            location: eventData.location || 'Not specified',
-                            comment: eventData.comment || 'No comment',
-                            category: eventData.category || 'Not specified',
-                            createdBy: eventData.createdBy,
-                            userId: "You",
-                            visibleTo: eventData.visibleTo || [],
-                            id: eventId
-                        });
+                        // allEvents.push({
+                            // title: eventData.title,
+                            // date: eventData.date,
+                            // time: eventData.time,
+                            // location: eventData.location || 'Not specified',
+                            // comment: eventData.comment || 'No comment',
+                            // category: eventData.category || 'Not specified',
+                            // createdBy: eventData.createdBy,
+                            // userId: "You",
+                            // visibleTo: eventData.visibleTo || [],
+                            // id: eventId
+                        // });
                     });
                 }
             });
