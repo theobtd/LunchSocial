@@ -271,4 +271,15 @@ button:hover {
     z-index: 1; /* Ensure they stay on top */
 }
 
+.event-item {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: space-between; /* Ensure space is distributed */
+    height: 100%; /* Allow event item to take full height */
+}
 
+.button-container {
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    margin-top: auto; /* Push button container to the bottom */
+}
