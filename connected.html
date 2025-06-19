@@ -881,12 +881,6 @@
                         // Create a container for user ID stadiums
                         const userIdContainer = document.createElement('div');
                         userIdContainer.classList.add('user-id-container');
-                        
-                        // Create stadium element for event creator's userId
-                        const stadium = document.createElement('div');
-                        stadium.classList.add('stadium');
-                        stadium.textContent = event.userId; // Set text to the event creator's userId
-                        stadiumContainer.appendChild(stadium); // Append stadium to the container
 
                         // Create stadium for event creator's userId
                         const creatorStadium = document.createElement('div');
@@ -912,27 +906,27 @@
                                 });
                             });
 
-                            // Fetch participants for the event
-                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
-                                const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
+                        // Fetch participants for the event
+                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
+                            const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
                             
-                                // Create stadiums for each participant
-                                participantUids.forEach(uid => {
-                                    database.ref(`users/${uid}`).once('value').then(userSnapshot => {
-                                        const userData = userSnapshot.val();
-                                        const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
+                            // Create stadiums for each participant
+                            participantUids.forEach(uid => {
+                                database.ref(`users/${uid}`).once('value').then(userSnapshot => {
+                                    const userData = userSnapshot.val();
+                                    const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
                             
-                                        // Create stadium for the participant
-                                        const participantStadium = document.createElement('div');
-                                        participantStadium.classList.add('stadium');
-                                        participantStadium.textContent = participantUserId; // Set text to participant's userId
-                                        userIdContainer.appendChild(participantStadium); // Append to the user ID container
-                                    });
+                                    // Create stadium for the participant
+                                    const participantStadium = document.createElement('div');
+                                    participantStadium.classList.add('stadium');
+                                    participantStadium.textContent = participantUserId; // Set text to participant's userId
+                                    userIdContainer.appendChild(participantStadium); // Append to the user ID container
                                 });
-                            
-                                // Append the user ID container to the event item
-                                eventItem.appendChild(userIdContainer);
                             });
+                            
+                            // Append the user ID container to the event item
+                            eventItem.appendChild(userIdContainer);
+                        });
                             
                             // Append the stadium container to the event item after all stadiums are created
                             eventItem.appendChild(stadiumContainer);
