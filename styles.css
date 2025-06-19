@@ -48,18 +48,6 @@ button:hover {
     gap: 15px; /* Space between items */
 }
 
-.event-item {
-    position: relative; /* Allow absolute positioning of children */
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    align-items: center;    /* Center items horizontally */
-    padding: 15px;         /* Add padding as needed */
-    margin-bottom: 20px;   /* Space between event items */
-    border: 1px solid #ddd; /* Optional: border for better visibility */
-    border-radius: 5px;    /* Rounded corners */
-    background-color: #fff; /* Background color */
-}
-
 .event-content {
     flex-grow: 1; /* Allow the content to take up available space */
 }
