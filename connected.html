@@ -1077,10 +1077,12 @@
                         eventItem.appendChild(eventContent);
                         // Create a container for the upload section
                         const uploadContainer = document.createElement('div');
+                        uploadContainer.classList.add('upload-container'); // Add the class
 
                         // Create a single "Upload Picture" button
                         const singleUploadButton = document.createElement('button');
                         singleUploadButton.textContent = 'Choose and Upload Picture';
+                        singleUploadButton.classList.add('single-upload-button'); // Add the class
                         singleUploadButton.onclick = function() {
                             const fileInput = document.createElement('input');
                             fileInput.type = 'file';
@@ -1125,6 +1127,12 @@
                         
                             fileInput.click(); // Trigger the file input dialog
                         };
+
+                        // Append the new button to the upload container
+                        uploadContainer.appendChild(singleUploadButton);
+                        
+                        // Append the upload container to the event item
+                        eventItem.appendChild(uploadContainer);
                         
                         function uploadCroppedImage(blob) {
                             const currentUser = auth.currentUser;
