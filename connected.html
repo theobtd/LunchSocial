@@ -948,9 +948,9 @@
                         }
 
                         // Add this code right after creating the eventContent
-                        const participantList = document.createElement('div');
-                        participantList.classList.add('participant-list'); // Add a class for styling
-                        eventItem.appendChild(participantList); // Append the participant list to the event item
+                        // const participantList = document.createElement('div');
+                        // participantList.classList.add('participant-list'); // Add a class for styling
+                        // eventItem.appendChild(participantList); // Append the participant list to the event item
                         
                         // Fetch participants for the event
                         database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
