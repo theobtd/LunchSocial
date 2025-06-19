@@ -934,26 +934,6 @@
                         // const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
         
                         const eventContent = document.createElement('div');
-
-                                                // Only show the "Join!" button if the current user is NOT the creator of the event
-                        if (event.createdBy !== currentUserId) {
-                            const joinButton = document.createElement('button');
-                            joinButton.classList.add('join-btn');
-                            joinButton.textContent = 'Join';
-                            joinButton.style.marginLeft = 'auto';
-        
-                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                                const participants = snapshot.val() || [];
-                                const isParticipant = participants.includes(currentUserId);
-                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-                                joinButton.onclick = function () {
-                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
-                                };
-                            });
-        
-                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
-                        }
-                        
                         // eventContent.classList.add('event-content');
                         // eventContent.textContent = `${event.title} - ${event.date} at ${event.time} ${eventOwner}
                            //  | Comment: ${event.comment || 'No comment'} 
@@ -1016,6 +996,25 @@
                         buttonContainer.style.display = 'flex';
                         buttonContainer.style.flexDirection = 'column';
                         buttonContainer.style.gap = '10px';
+        
+                        // Only show the "Join!" button if the current user is NOT the creator of the event
+                        if (event.createdBy !== currentUserId) {
+                            const joinButton = document.createElement('button');
+                            joinButton.classList.add('join-btn');
+                            joinButton.textContent = 'Join';
+                            joinButton.style.marginLeft = 'auto';
+        
+                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                const participants = snapshot.val() || [];
+                                const isParticipant = participants.includes(currentUserId);
+                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                                joinButton.onclick = function () {
+                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                };
+                            });
+        
+                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
+                        }
 
                         participantList.classList.add('participant-list');
                         eventItem.appendChild(participantList); // Append the participant list to the event item
