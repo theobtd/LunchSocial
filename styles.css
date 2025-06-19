@@ -271,23 +271,11 @@ button:hover {
     z-index: 1; /* Ensure they stay on top */
 }
 
-.location-tag {
-    position: absolute; /* Position it absolutely within the event item */
-    top: 10px; /* Distance from the top */
-    left: 10px; /* Distance from the right */
-    background-color: #007BFF; /* Background color */
-    color: white; /* Text color */
-    padding: 5px 10px; /* Padding around the text */
-    border-radius: 12px; /* Rounded corners */
-    font-size: 12px; /* Font size */
-    font-weight: bold; /* Make text bold */
-    text-align: center; /* Center the text */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional shadow for depth */
-    z-index: 1; /* Ensure it stays on top */
-}
-
 .upload-container {
-    position: relative; /* Ensure the container is positioned relative */
+    position: absolute; /* Ensure the container is positioned relative */
+    top: 10px;
+    left: 10px;
+    z-index: 1;
 }
 
 .single-upload-button {
