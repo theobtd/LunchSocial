@@ -286,3 +286,14 @@ button:hover {
     z-index: 1; /* Ensure it stays on top */
 }
 
+.upload-container {
+    position: relative; /* Ensure the container is positioned relative */
+}
+
+.single-upload-button {
+    position: absolute; /* Absolute positioning */
+    bottom: 10px; /* Distance from the bottom */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for centering */
+}
+
