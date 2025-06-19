@@ -907,7 +907,7 @@
 
                             // Create a stadium for the event category
                             const categoryStadium = document.createElement('div');
-                            categoryStadium.classList.add('stadium');
+                            categoryStadium.classList.add('stadium', 'category-tag'); // Use your category class
                             categoryStadium.textContent = event.category; // Set text to event category
                             categoryStadium.style.backgroundColor = categoryColors[event.category] || '#FFFFFF'; // Apply the color code
                             eventItem.appendChild(categoryStadium); // Append category stadium to the event item
