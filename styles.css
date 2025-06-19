@@ -65,14 +65,14 @@ button:hover {
 }
 
 .join-btn {
-    padding: 5px 10px; /* Adjust padding for smaller size */
-    font-size: 14px; /* Slightly smaller font */
-    background-color: #007BFF; /* Match primary button color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    padding: 10px 15px; /* Match padding of delete button */
+    font-size: 16px; /* Match font size of delete button */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #dc3545; /* Change to red for delete button */
+    color: white; /* White text color */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background color transition */
 }
 
 .join-btn:hover {
@@ -295,16 +295,5 @@ button:hover {
     bottom: 10px; /* Distance from the bottom */
     left: 50%; /* Center horizontally */
     transform: translateX(-50%); /* Adjust for centering */
-}
-
-.join-btn {
-    padding: 10px 15px; /* Match padding of delete button */
-    font-size: 16px; /* Match font size of delete button */
-    border: none; /* No border */
-    border-radius: 5px; /* Rounded corners */
-    background-color: #dc3545; /* Change to red for delete button */
-    color: white; /* White text color */
-    cursor: pointer; /* Pointer cursor on hover */
-    transition: background-color 0.3s; /* Smooth background color transition */
 }
 
