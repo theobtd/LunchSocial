@@ -942,19 +942,21 @@
                             const dateStadium = document.createElement('div');
                             dateStadium.classList.add('stadium');
                             dateStadium.textContent = formatDate(`${event.date}`); // Use the formatDate function
-                            eventItem.appendChild(dateStadium); // Append date stadium to the event item
+                            // eventItem.appendChild(dateStadium); // Append date stadium to the event item
 
                             // Create a stadium for the event time
                             const timeStadium = document.createElement('div');
                             timeStadium.classList.add('stadium');
                             timeStadium.textContent = formatTime(event.time); // Use the formatTime function
-                            eventItem.appendChild(timeStadium); // Append time stadium to the event item
+                            // eventItem.appendChild(timeStadium); // Append time stadium to the event item
 
                             // Create a stadium for the event location
                             const locationStadium = document.createElement('div');
                             locationStadium.classList.add('stadium', 'location-tag'); // Add a new class
                             locationStadium.textContent = event.location || 'Location not specified'; // Set text to event location
-                            eventItem.appendChild(locationStadium); // Append location stadium to the event item
+                            // eventItem.appendChild(locationStadium); // Append location stadium to the event item
+
+                            eventItem.appendChild(dateStadium) eventItem.appendChild(timeStadium) eventItem.appendChild(locationStadium);
                         });
 
                         // Existing button container setup
