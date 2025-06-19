@@ -856,6 +856,40 @@
                     const dateTimeB = new Date(`${b.date}T${b.time}:00`);
                     return showFutureEvents ? dateTimeA - dateTimeB : dateTimeB - dateTimeA; // Reverse order for past events
                 });
+
+                // Find the soonest future event
+                let soonestFutureEventElement = null;
+                
+                allEvents.forEach(event => {
+                    // Existing visibility and future event checks...
+                
+                    if (isVisible && isFutureEvent) {
+                        // Create the event DOM element
+                        const eventItem = document.createElement('div');
+                        eventItem.classList.add('event-item');
+                        // Append event details...
+                
+                        // Append to the future events list
+                        futureEventList.appendChild(eventItem);
+                
+                        // Check if this is the soonest future event
+                        if (!soonestFutureEventElement || eventDateTime < new Date(soonestFutureEventElement.getAttribute('data-event-date'))) {
+                            soonestFutureEventElement = eventItem;
+                            soonestFutureEventElement.setAttribute('data-event-date', eventDateTime.toISOString());
+                        }
+                    }
+                });
+                
+                // Scroll to the soonest future event if it exists
+                if (soonestFutureEventElement) {
+                    const container = document.querySelector('.event-box'); // The container you want to scroll
+                    const eventBoxRect = soonestFutureEventElement.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                
+                    // Calculate the scroll position to center the event
+                    const scrollTo = eventBoxRect.top - containerRect.top + container.scrollTop - (containerRect.height / 2) + (eventBoxRect.height / 2);
+                    container.scrollTop = scrollTo;
+                }
         
                 allEvents.forEach(event => {
                     const isVisible = event.createdBy === currentUserId || 
@@ -1182,7 +1216,7 @@
                         });
         
                         // Previous button functionality
-                        prevButton.textContent = 'Previous';
+                        prevButton.textContent = '<';
                         prevButton.onclick = function() {
                             if (images.length > 0) {
                                 images[currentIndex].style.display = 'none'; // Hide current image
@@ -1192,7 +1226,7 @@
                         };
         
                         // Next button functionality
-                        nextButton.textContent = 'Next';
+                        nextButton.textContent = '>';
                         nextButton.onclick = function() {
                             if (images.length > 0) {
                                 images[currentIndex].style.display = 'none'; // Hide current image
@@ -1207,27 +1241,6 @@
                         eventItem.appendChild(nextButton); // Append next button
                     }
                 });
-
-                // Scroll to the soonest future event
-                const soonestFutureEvent = allEvents.find(event => {
-                    const eventDateTime = new Date(`${event.date}T${event.time}:00`);
-                    return eventDateTime > new Date(); // Find the first future event
-                });
-                
-                if (soonestFutureEvent) {
-                    const futureEventList = document.getElementById('futureEventList');
-                    const eventItems = futureEventList.getElementsByClassName('event-item');
-                    
-                    // Find the matching DOM element for the soonest future event
-                    for (let eventItem of eventItems) {
-                        if (eventItem.textContent.includes(soonestFutureEvent.title)) {
-                            // Scroll the event-box container to the soonest future event
-                            const eventBox = document.querySelector('.event-box');
-                            eventBox.scrollTop = eventItem.offsetTop - eventBox.offsetHeight / 2;
-                            break;
-                        }
-                    }
-                }
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
