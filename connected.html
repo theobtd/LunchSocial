@@ -930,6 +930,50 @@
                             locationStadium.textContent = event.location || 'Location not specified'; // Set text to event location
                             eventItem.appendChild(locationStadium); // Append location stadium to the event item
                         });
+
+                        // Existing button container setup
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.style.display = 'flex';
+                        buttonContainer.style.flexDirection = 'column';
+                        buttonContainer.style.gap = '10px';
+                        
+                        // Create the Delete button
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete Event';
+                        deleteButton.style.display = 'none'; // Initially hide the button
+                        
+                        // Check if the current user is the creator of the event
+                        if (event.createdBy === currentUserId) {
+                            deleteButton.style.display = 'block'; // Show the button if the user is the creator
+                            deleteButton.onclick = function() {
+                                deleteEvent(event.createdBy, event.id); // Call the deleteEvent function
+                            };
+                        }
+                        
+                        // Append the delete button to the button container
+                        buttonContainer.appendChild(deleteButton);
+                        
+                        // Add the join button if applicable
+                        if (event.createdBy !== currentUserId) {
+                            const joinButton = document.createElement('button');
+                            joinButton.classList.add('join-btn');
+                            joinButton.textContent = 'Join';
+                            joinButton.style.marginLeft = 'auto';
+                        
+                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
+                                const participants = snapshot.val() || [];
+                                const isParticipant = participants.includes(currentUserId);
+                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                                joinButton.onclick = function () {
+                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                };
+                            });
+                        
+                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
+                        }
+                        
+                        // Append the button container to the event item
+                        eventItem.appendChild(buttonContainer);
         
                         // const eventOwner = (event.createdBy === currentUserId) ? '(Your Event)' : `(Created by: ${event.userId})`;
         
@@ -976,45 +1020,7 @@
                             participantList.textContent = "Unable to load participants."; // Display error message
                         });
 
-                        // Create the Delete button
-                        const deleteButton = document.createElement('button');
-                        deleteButton.textContent = 'Delete Event';
-                        deleteButton.style.display = 'none'; // Initially hide the button
-                        
-                        // Check if the current user is the creator of the event
-                        if (event.createdBy === currentUserId) {
-                            deleteButton.style.display = 'block'; // Show the button if the user is the creator
-                            deleteButton.onclick = function() {
-                                deleteEvent(event.createdBy, event.id); // Call the deleteEvent function
-                            };
-                        }
-                        
-                        // Append the delete button to the event item
-                        eventItem.appendChild(deleteButton);
         
-                        const buttonContainer = document.createElement('div');
-                        buttonContainer.style.display = 'flex';
-                        buttonContainer.style.flexDirection = 'column';
-                        buttonContainer.style.gap = '10px';
-        
-                        // Only show the "Join!" button if the current user is NOT the creator of the event
-                        if (event.createdBy !== currentUserId) {
-                            const joinButton = document.createElement('button');
-                            joinButton.classList.add('join-btn');
-                            joinButton.textContent = 'Join';
-                            joinButton.style.marginLeft = 'auto';
-        
-                            database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(snapshot => {
-                                const participants = snapshot.val() || [];
-                                const isParticipant = participants.includes(currentUserId);
-                                joinButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-                                joinButton.onclick = function () {
-                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
-                                };
-                            });
-        
-                            buttonContainer.appendChild(joinButton); // Add the join button if applicable
-                        }
 
                         participantList.classList.add('participant-list');
                         eventItem.appendChild(participantList); // Append the participant list to the event item
@@ -1031,7 +1037,6 @@
         
                         buttonContainer.appendChild(picturesButton); // Add pictures button
                         eventItem.appendChild(eventContent);
-                        eventItem.appendChild(buttonContainer);
                         // Create a container for the upload section
                         const uploadContainer = document.createElement('div');
 
