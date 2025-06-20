@@ -1437,7 +1437,12 @@
         // Event modal functionality
         document.getElementById("submitEventBtn").onclick = submitEvent;
         document.getElementsByClassName("close")[0].onclick = closeModal;
-        
+
+
+        document.getElementById('toggleMessageBtn').onclick = function() {
+            const messageDiv = document.getElementById('toggleMessage');
+            messageDiv.style.display = messageDiv.style.display === 'none' ? 'block' : 'none'; // Toggle display
+        };
     </script>
 
 </body>
