@@ -734,7 +734,7 @@
                 participantsRef.set(participants)
                     .then(() => {
                         console.log(`Participation toggled for user ${userId} in event ${eventId}`);
-                        displayAllEvents(); // Refresh the event list
+                        // displayAllEvents(); // Refresh the event list
                     })
                     .catch(error => {
                         console.error('Error updating participants:', error);
