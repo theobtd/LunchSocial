@@ -1077,16 +1077,18 @@
                         const uploadContainer = document.createElement('div');
                         uploadContainer.classList.add('upload-container'); // Add the class
 
-                        // Create a single "Upload Picture" button
-                        const singleUploadButton = document.createElement('button');
-                        singleUploadButton.textContent = 'Add Picture';
-                        singleUploadButton.classList.add('single-upload-button'); // Add the class
-
-                        // Append the new button to the upload container
-                        uploadContainer.appendChild(singleUploadButton);
+                        // Create a single "Upload Picture" button only for past events
+                        if (!isFutureEvent) { // Only add button if it's a past event
+                            const singleUploadButton = document.createElement('button');
+                            singleUploadButton.textContent = 'Add Picture';
+                            singleUploadButton.classList.add('single-upload-button'); // Add the class
+                
+                            // Append the button to the upload container
+                            uploadContainer.appendChild(singleUploadButton);
+                        }
                         
                         // Append the upload container to the event item
-                        // eventItem.appendChild(uploadContainer);
+                        eventItem.appendChild(uploadContainer);
 
                         
                         singleUploadButton.onclick = function() {
