@@ -294,3 +294,10 @@ button:hover {
     color: #555; /* Optional: Change text color for less emphasis */
 }
 
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80%; /* Adjust width for mobile */
+        left: -100%; /* Initially hidden off-screen */
+    }
+}
+
