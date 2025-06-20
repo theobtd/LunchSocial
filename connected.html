@@ -465,6 +465,7 @@
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
+                
                 // Also update the sender's request status to accepted
                 database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).set({
                     requestingUserId: currentUserId,
@@ -488,7 +489,26 @@
                     }).catch(error => {
                         console.error("Error fetching requester's events:", error);
                     });
-            
+        
+                    // Fetch current user's events
+                    database.ref('users/' + currentUserId + '/events').once('value').then(snapshot => {
+                        const events = snapshot.val();
+                        if (events) {
+                            const eventIds = Object.keys(events);
+                            
+                            // Add requesterId to the visibleTo field of each event
+                            eventIds.forEach(eventId => {
+                                database.ref(`users/${currentUserId}/events/${eventId}`).update({
+                                    visibleTo: firebase.database.ServerValue.arrayUnion(requesterId) // Add requesterId to the list
+                                }).catch(error => {
+                                    console.error("Error updating event viewers:", error);
+                                });
+                            });
+                        }
+                    }).catch(error => {
+                        console.error("Error fetching user's events:", error);
+                    });
+        
                     displayPendingRequests(); // Refresh the pending requests display
                     displayAcceptedFriends(); // Refresh the accepted friends display
                     displayAllEvents(); // Refresh friends' events display
