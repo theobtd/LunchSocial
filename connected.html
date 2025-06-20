@@ -725,12 +725,14 @@
                     participants = participants.filter(participant => participant !== userId);
                     button.textContent = 'Join!'; // Update button text
                     button.style.backgroundColor = 'green'; // Set to green
+                    
                     removeParticipantFromDOM(userId); // Remove from DOM
                 } else {
                     // User is not a participant, add them
                     participants.push(userId);
                     button.textContent = 'Leave Event'; // Update button text
                     button.style.backgroundColor = 'red'; // Set to red
+                    
                     addParticipantToDOM(userId); // Add to DOM
                 }
         
