@@ -43,6 +43,11 @@
                 <button id="toggleMenuBtn" style="width: 125px; height: 50px;">My Account</button>
             </div>
             <button id="toggleEventsBtn">Show Future Events</button>
+
+            <div id="noEventsMessage" style="display: none; text-align: center; margin: 20px;">
+                No events yet. Add friends in your account to organize your first Apero :)
+            </div>
+            
             <div class="past-events">
                 <div class="event-list" id="pastEventList"></div> <!-- Container for past events -->
             </div>
@@ -801,6 +806,7 @@
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
             const futureEventList = document.getElementById('futureEventList'); // Reference to future events container
             const pastEventList = document.getElementById('pastEventList'); // Reference to past events container
+            const noEventsMessage = document.getElementById('noEventsMessage'); // Reference to the no events message
             futureEventList.innerHTML = ''; // Clear future events list
             pastEventList.innerHTML = ''; // Clear past events list
         
