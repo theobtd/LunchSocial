@@ -18,6 +18,7 @@ body {
     text-align: left;
     width: 250px;
     transition: all 0.3s;
+    z-index: 2000; /* Set a high z-index value */
 }
 
 .main-content {
