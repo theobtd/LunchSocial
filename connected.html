@@ -1367,8 +1367,6 @@
             sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
         };
 
-        let showFutureEvents = true; // Track the current state
-
         document.getElementById('toggleEventsBtn').onclick = function() {
             showFutureEvents = !showFutureEvents; // Toggle the state
             this.textContent = showFutureEvents ? 'Show Past Events' : 'Show Future Events'; // Update button text
