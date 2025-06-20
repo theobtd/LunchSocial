@@ -34,6 +34,8 @@
         <div class="accepted-list" id="acceptedList"></div>
     
         <button id="logoutBtn">Log Out</button>
+
+        <button id="closeMenuBtn">Close</button> <!-- Close button -->
     </div>
 
     <div class="main-content">
@@ -1447,6 +1449,11 @@
             const messageDiv = document.getElementById('toggleMessage');
             messageDiv.style.display = messageDiv.style.display === 'none' ? 'block' : 'none'; // Toggle display
         };
+
+        document.getElementById('closeMenuBtn').addEventListener('click', function() {
+            const menu = document.getElementById('myAccountMenu');
+            menu.style.display = 'none'; // Hide the menu
+        });
     </script>
 
 </body>
