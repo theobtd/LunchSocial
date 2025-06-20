@@ -1087,14 +1087,14 @@
                             participantList.textContent = "Unable to load participants."; // Display error message
                         });
 
+                        participantList.classList.add('participant-list');
+                        eventItem.appendChild(participantList); // Append the participant list to the event item
+
                         // Create a stadium for the event comment
                         const commentStadium = document.createElement('div');
                         commentStadium.classList.add('stadium'); // Add class for styling
                         commentStadium.textContent = event.comment; // Set text to the event comment
                         eventItem.appendChild(commentStadium); // Append the comment stadium to the event item
-
-                        participantList.classList.add('participant-list');
-                        eventItem.appendChild(participantList); // Append the participant list to the event item
         
                         // Create the "Pictures" button
                         const picturesButton = document.createElement('button');
