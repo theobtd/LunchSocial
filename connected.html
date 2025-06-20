@@ -154,43 +154,45 @@
         const storage = firebase.storage(); // Initialize Firebase Storage
 
         // Upload picture functionality
-        document.getElementById('uploadPictureBtn').onclick = function () {
-            const fileInput = document.getElementById('uploadPictureInput');
-            const file = fileInput.files[0]; // Get the selected file
-        
-            if (!file) {
-                document.getElementById('uploadStatus').textContent = "Please select a file.";
-                return;
-            }
-        
-            const imageUrl = URL.createObjectURL(file);
-            const cropImageElement = document.getElementById('cropperImage');
-            cropImageElement.src = imageUrl; // Set the source for cropping
-        
-            const modal = document.getElementById('cropModal');
-            modal.style.display = 'block'; // Show the modal
-
-            const cropper = new Cropper(cropImageElement, {
-                aspectRatio: 1,
-                viewMode: 1,
-            });
-        
-            document.getElementById('cropBtn').onclick = function () {
-                const canvas = cropper.getCroppedCanvas({
-                    width: 1080,
-                    height: 1080,
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('uploadPictureBtn').onclick = function () {
+                const fileInput = document.getElementById('uploadPictureInput');
+                const file = fileInput.files[0]; // Get the selected file
+            
+                if (!file) {
+                    document.getElementById('uploadStatus').textContent = "Please select a file.";
+                    return;
+                }
+            
+                const imageUrl = URL.createObjectURL(file);
+                const cropImageElement = document.getElementById('cropperImage');
+                cropImageElement.src = imageUrl; // Set the source for cropping
+            
+                const modal = document.getElementById('cropModal');
+                modal.style.display = 'block'; // Show the modal
+    
+                const cropper = new Cropper(cropImageElement, {
+                    aspectRatio: 1,
+                    viewMode: 1,
                 });
-                canvas.toBlob(function(blob) {
-                    uploadCroppedImage(blob); // Call to upload function
-                });
-        
-                modal.style.display = 'none'; // Hide the modal after cropping
+            
+                document.getElementById('cropBtn').onclick = function () {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 1080,
+                        height: 1080,
+                    });
+                    canvas.toBlob(function(blob) {
+                        uploadCroppedImage(blob); // Call to upload function
+                    });
+            
+                    modal.style.display = 'none'; // Hide the modal after cropping
+                };
+            
+                document.getElementById('cancelBtn').onclick = function () {
+                    modal.style.display = 'none'; // Hide the modal if cancelled
+                };
             };
-        
-            document.getElementById('cancelBtn').onclick = function () {
-                modal.style.display = 'none'; // Hide the modal if cancelled
-            };
-        };
+        });
 
         // Upload picture functionality for event details modal
         document.getElementById('eventUploadPictureBtn').onclick = function () {
