@@ -9,6 +9,10 @@ body {
 }
 
 .sidebar {
+    position: fixed;
+    width: 250px; /* Set a width */
+    height: 100%; /* Full height */
+    overflow-y: auto; /* Allow scrolling if content overflows */
     flex: 1;
     padding: 20px;
     text-align: left;
