@@ -42,11 +42,7 @@
                 <button id="createEventBtn" style="width: 125px; height: 50px;">Create Event</button>
                 <button id="toggleMenuBtn" style="width: 125px; height: 50px;">My Account</button>
             </div>
-            <div class="toggle-container">
-                <button id="toggleEventsBtn" class="toggle-option active">Show Future Events</button>
-                <button id="toggleEventsBtn" class="toggle-option">Show Past Events</button>
-                <div class="indicator"></div>
-            </div>
+            <button id="toggleEventsBtn">Show Future Events</button>
             <div class="past-events">
                 <div class="event-list" id="pastEventList"></div> <!-- Container for past events -->
             </div>
@@ -1451,26 +1447,6 @@
             const messageDiv = document.getElementById('toggleMessage');
             messageDiv.style.display = messageDiv.style.display === 'none' ? 'block' : 'none'; // Toggle display
         };
-
-        const toggleButtons = document.querySelectorAll('.toggle-option');
-        const indicator = document.querySelector('.indicator');
-        
-        toggleButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all buttons
-                toggleButtons.forEach(btn => btn.classList.remove('active'));
-        
-                // Add active class to the clicked button
-                button.classList.add('active');
-        
-                // Update the indicator position
-                if (button.textContent.includes('Future')) {
-                    indicator.style.left = '0'; // Move indicator to the left
-                } else {
-                    indicator.style.left = '50%'; // Move indicator to the right
-                }
-            });
-        });
     </script>
 
 </body>
