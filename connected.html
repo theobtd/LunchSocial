@@ -891,22 +891,25 @@
                         userIdContainer.appendChild(creatorStadium); // Append to the user ID container
                         
                         // Fetch participants for the event
-                        // database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
-                           //  const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
+                        database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
+                            const participantUids = participantSnapshot.val() || []; // Get the list of UIDs
+
+                            // Clear the participant list before adding new entries
+                            participantList.innerHTML = ''; // Ensure this is cleared beforehand
                         
                             // Create stadiums for each participant
-                            // participantUids.forEach(uid => {
-                               //  database.ref(`users/${uid}`).once('value').then(userSnapshot => {
-                                  //   const userData = userSnapshot.val();
-                                   //  const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
+                            participantUids.forEach(uid => {
+                                database.ref(`users/${uid}`).once('value').then(userSnapshot => {
+                                    const userData = userSnapshot.val();
+                                    const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
                                     
-                                    // Create stadium for the participant
-                                //     const participantStadium = document.createElement('div');
-                                   //  participantStadium.classList.add('stadium');
-                              //       participantStadium.textContent = participantUserId; // Set text to participant's userId
-                                 //    stadiumContainer.appendChild(participantStadium); // Append participant stadium to the container
-                                // });
-                            // });
+                                   // Create stadium for the participant
+                                   const participantStadium = document.createElement('div');
+                                   participantStadium.classList.add('stadium');
+                                   participantStadium.textContent = participantUserId; // Set text to participant's userId
+                                    stadiumContainer.appendChild(participantStadium); // Append participant stadium to the container
+                                });
+                            });
 
                         // Fetch participants for the event
                         database.ref(`users/${event.createdBy}/events/${event.id}/participants`).once('value').then(participantSnapshot => {
