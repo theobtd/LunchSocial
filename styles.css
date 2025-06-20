@@ -19,6 +19,7 @@ body {
     width: 250px;
     transition: all 0.3s;
     z-index: 2000; /* Set a high z-index value */
+    background-color: #f9f9f9;
 }
 
 .main-content {
