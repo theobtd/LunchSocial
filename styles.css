@@ -311,42 +311,4 @@ button:hover {
     margin-bottom: 20px; /* Optional: space below the controls */
 }
 
-.toggle-container {
-    display: flex;
-    position: relative;
-    width: 250px; /* Set a fixed width for the toggle */
-    height: 50px; /* Set height */
-    border-radius: 25px; /* Stadium shape */
-    background-color: #e0e0e0; /* Background color for the toggle */
-    overflow: hidden; /* Hide overflow for the indicator */
-}
-
-.toggle-option {
-    flex: 1; /* Each button takes equal space */
-    border: none; /* No border */
-    background: transparent; /* Transparent background */
-    color: #555; /* Default text color */
-    font-size: 16px; /* Font size */
-    cursor: pointer; /* Pointer cursor */
-    transition: color 0.3s; /* Smooth text color transition */
-}
-
-.toggle-option.active {
-    color: white; /* Active button text color */
-}
-
-.indicator {
-    position: absolute;
-    top: 0;
-    left: 0; /* Start at the left */
-    width: 50%; /* Half the width for the indicator */
-    height: 100%; /* Full height */
-    background-color: #007BFF; /* Indicator color */
-    transition: left 0.3s; /* Smooth transition */
-}
-
-/* Styles for active button */
-.toggle-option.active + .indicator {
-    left: 50%; /* Move to the right for active button */
-}
 
