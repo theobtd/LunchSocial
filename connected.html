@@ -746,6 +746,25 @@
             });
         }
 
+        function addParticipantToDOM(userId) {
+            const participantList = document.getElementById('participantList'); // Assumes you have a way to get this element
+            const participantItem = document.createElement('div');
+            participantItem.textContent = userId; // Display the userId
+            participantList.appendChild(participantItem); // Add to the participant list
+        }
+        
+        function removeParticipantFromDOM(userId) {
+            const participantList = document.getElementById('participantList'); // Assumes you have a way to get this element
+            const participants = participantList.getElementsByTagName('div');
+            
+            for (let i = 0; i < participants.length; i++) {
+                if (participants[i].textContent === userId) {
+                    participantList.removeChild(participants[i]);
+                    break; // Exit loop after removing the participant
+                }
+            }
+        }
+
         function deleteEvent(creatorId, eventId) {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
         
