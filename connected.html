@@ -38,6 +38,7 @@
 
     <div class="main-content">
         <div class="event-box">
+            <button id="toggleEventsBtn">Show Future Events</button>
             <div class="past-events">
                 <h3>Past Events</h3>
                 <div class="event-list" id="pastEventList"></div> <!-- Container for past events -->
@@ -857,7 +858,7 @@
                 allEvents.sort((a, b) => {
                     const dateTimeA = new Date(`${a.date}T${a.time}:00`);
                     const dateTimeB = new Date(`${b.date}T${b.time}:00`);
-                    return showFutureEvents ? dateTimeA - dateTimeB : dateTimeB - dateTimeA; // Reverse order for past events
+                    return showFutureEvents ? dateTimeA - dateTimeB : dateTimeB - dateTimeA; // Sort correctly based on state
                 });
         
                 allEvents.forEach(event => {
@@ -871,7 +872,7 @@
 
                     
                     // Modify the visibility check to incorporate filtering
-                    if (isVisible) {
+                    if (isVisible && (showFutureEvents ? isFutureEvent : !isFutureEvent)) {
                     // Create the event DOM element
                         const eventItem = document.createElement('div');
                         eventItem.classList.add('event-item');
@@ -1366,7 +1367,15 @@
             sidebar.style.display = sidebar.style.display === "none" ? "block" : "none"; // Toggle sidebar visibility
         };
 
-                // Initially hide the sidebar
+        let showFutureEvents = true; // Track the current state
+
+        document.getElementById('toggleEventsBtn').onclick = function() {
+            showFutureEvents = !showFutureEvents; // Toggle the state
+            this.textContent = showFutureEvents ? 'Show Past Events' : 'Show Future Events'; // Update button text
+            displayAllEvents(); // Refresh the events display
+        };
+
+        // Initially hide the sidebar
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             sidebar.style.display = 'none'; // Start with the sidebar hidden
