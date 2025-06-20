@@ -882,10 +882,6 @@
         
                 return Promise.all(friendEventPromises);
             });
-
-            if (allEvents.length === 0) {
-                noEventsMessage.style.display = 'block';
-            }
         
             Promise.all([yourEventsPromise, acceptedFriendsPromise]).then(() => {
                 allEvents.sort((a, b) => {
