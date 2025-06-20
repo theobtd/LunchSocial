@@ -1450,9 +1450,12 @@
             messageDiv.style.display = messageDiv.style.display === 'none' ? 'block' : 'none'; // Toggle display
         };
 
-        document.getElementById('closeMenuBtn').addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            menu.style.display = 'none'; // Hide the menu
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close button functionality
+            document.getElementById('closeMenuBtn').onclick = function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.style.display = 'none'; // Hide the menu
+            };
         });
     </script>
 
