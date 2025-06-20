@@ -985,12 +985,6 @@
                         
                         });
 
-                        // Create a stadium for the event comment
-                        const commentStadium = document.createElement('div');
-                        commentStadium.classList.add('stadium'); // Add class for styling
-                        commentStadium.textContent = event.comment; // Set text to the event comment
-                        eventItem.appendChild(commentStadium); // Append the comment stadium to the event item
-
                         // Existing button container setup
                         const buttonContainer = document.createElement('div');
                         buttonContainer.style.display = 'flex';
@@ -1173,6 +1167,12 @@
                                     modal.style.display = 'none'; // Hide the modal if cancelled
                                 };
                             };
+
+                        // Create a stadium for the event comment
+                        const commentStadium = document.createElement('div');
+                        commentStadium.classList.add('stadium'); // Add class for styling
+                        commentStadium.textContent = event.comment; // Set text to the event comment
+                        eventItem.appendChild(commentStadium); // Append the comment stadium to the event item
                         
                             fileInput.click(); // Trigger the file input dialog
                         };
