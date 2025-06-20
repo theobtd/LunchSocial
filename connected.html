@@ -1003,6 +1003,19 @@
                                 joinButton.onclick = function () {
                                     toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
                                 };
+
+                                // Set button color based on text
+                                joinButton.style.backgroundColor = isParticipant ? 'red' : 'green'; // Red if leaving, green if joining
+                                joinButton.onclick = function() {
+                                    toggleParticipation(event.createdBy, event.id, currentUserId, joinButton);
+                                    
+                                    // Update the button color based on action
+                                    if (joinButton.textContent === 'Join!') {
+                                        joinButton.style.backgroundColor = 'green'; // Green when joining
+                                    } else {
+                                        joinButton.style.backgroundColor = 'red'; // Red when leaving
+                                    }
+                                };
                             });
                         
                             buttonContainer.appendChild(joinButton); // Add the join button if applicable
