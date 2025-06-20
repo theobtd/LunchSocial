@@ -747,7 +747,7 @@
         }
 
         function refreshParticipants(creatorId, eventId) {
-            const userIdContainer = document.getElementById('userIdContainer'); // Reference to the participants container
+            const userIdContainer = document.getElementById('user-id-container'); // Reference to the participants container
             userIdContainer.innerHTML = ''; // Clear existing participants
         
             const participantsRef = database.ref(`users/${creatorId}/events/${eventId}/participants`);
