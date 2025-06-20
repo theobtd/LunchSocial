@@ -716,7 +716,7 @@
 
         function toggleParticipation(creatorId, eventId, userId, button) {
             const participantsRef = database.ref(`users/${creatorId}/events/${eventId}/participants`);
-        
+            
             participantsRef.once('value').then(snapshot => {
                 let participants = snapshot.val() || []; // Get the current list of participants
         
@@ -725,22 +725,20 @@
                     participants = participants.filter(participant => participant !== userId);
                     button.textContent = 'Join!'; // Update button text
                     button.style.backgroundColor = 'green'; // Set to green
-                    
-                    removeParticipantFromDOM(userId); // Remove from DOM
                 } else {
                     // User is not a participant, add them
                     participants.push(userId);
                     button.textContent = 'Leave Event'; // Update button text
                     button.style.backgroundColor = 'red'; // Set to red
-                    
-                    addParticipantToDOM(userId); // Add to DOM
                 }
         
                 // Update the participants list in the database
                 participantsRef.set(participants)
                     .then(() => {
                         console.log(`Participation toggled for user ${userId} in event ${eventId}`);
-                        // displayAllEvents(); // Refresh the event list
+                        
+                        // Refresh the participant list in the UI
+                        refreshParticipants(creatorId, eventId);
                     })
                     .catch(error => {
                         console.error('Error updating participants:', error);
@@ -748,23 +746,30 @@
             });
         }
 
-        function addParticipantToDOM(userId) {
-            const participantList = document.getElementById('participantList'); // Assumes you have a way to get this element
-            const participantItem = document.createElement('div');
-            participantItem.textContent = userId; // Display the userId
-            participantList.appendChild(participantItem); // Add to the participant list
-        }
+        function refreshParticipants(creatorId, eventId) {
+            const userIdContainer = document.getElementById('userIdContainer'); // Reference to the participants container
+            userIdContainer.innerHTML = ''; // Clear existing participants
         
-        function removeParticipantFromDOM(userId) {
-            const participantList = document.getElementById('participantList'); // Assumes you have a way to get this element
-            const participants = participantList.getElementsByTagName('div');
-            
-            for (let i = 0; i < participants.length; i++) {
-                if (participants[i].textContent === userId) {
-                    participantList.removeChild(participants[i]);
-                    break; // Exit loop after removing the participant
-                }
-            }
+            const participantsRef = database.ref(`users/${creatorId}/events/${eventId}/participants`);
+            participantsRef.once('value').then(snapshot => {
+                const participantUids = snapshot.val() || []; // Get the list of UIDs
+                
+                // Fetch and display each participant
+                participantUids.forEach(uid => {
+                    database.ref(`users/${uid}`).once('value').then(userSnapshot => {
+                        const userData = userSnapshot.val();
+                        const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
+        
+                        // Create stadium for the participant
+                        const participantStadium = document.createElement('div');
+                        participantStadium.classList.add('stadium');
+                        participantStadium.textContent = participantUserId; // Set text to participant's userId
+                        userIdContainer.appendChild(participantStadium); // Append to the user ID container
+                    });
+                });
+            }).catch(error => {
+                console.error("Error fetching participants:", error);
+            });
         }
 
         function deleteEvent(creatorId, eventId) {
