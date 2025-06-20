@@ -466,12 +466,12 @@
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
                 
-                // Also update the sender's request status to accepted
+                // Update the sender's request status to accepted
                 database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).set({
                     requestingUserId: currentUserId,
                     status: 'accepted'
                 }).then(() => {
-                    // Fetch the requester's events
+                    // Fetch requester's events
                     database.ref('users/' + requesterId + '/events').once('value').then(snapshot => {
                         const events = snapshot.val();
                         if (events) {
@@ -480,11 +480,15 @@
                             // Add currentUserId to the visibleTo field of each event
                             eventIds.forEach(eventId => {
                                 database.ref(`users/${requesterId}/events/${eventId}`).update({
-                                    visibleTo: firebase.database.ServerValue.arrayUnion(currentUserId) // Add currentUserId to the list
+                                    visibleTo: firebase.database.ServerValue.arrayUnion(currentUserId)
+                                }).then(() => {
+                                    console.log(`Added ${currentUserId} to visibleTo for event ${eventId}`);
                                 }).catch(error => {
                                     console.error("Error updating event viewers:", error);
                                 });
                             });
+                        } else {
+                            console.log("No events found for requester.");
                         }
                     }).catch(error => {
                         console.error("Error fetching requester's events:", error);
@@ -499,11 +503,15 @@
                             // Add requesterId to the visibleTo field of each event
                             eventIds.forEach(eventId => {
                                 database.ref(`users/${currentUserId}/events/${eventId}`).update({
-                                    visibleTo: firebase.database.ServerValue.arrayUnion(requesterId) // Add requesterId to the list
+                                    visibleTo: firebase.database.ServerValue.arrayUnion(requesterId)
+                                }).then(() => {
+                                    console.log(`Added ${requesterId} to visibleTo for event ${eventId}`);
                                 }).catch(error => {
                                     console.error("Error updating event viewers:", error);
                                 });
                             });
+                        } else {
+                            console.log("No events found for current user.");
                         }
                     }).catch(error => {
                         console.error("Error fetching user's events:", error);
