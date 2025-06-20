@@ -868,8 +868,6 @@
                         // Add this filtering logic
                     const eventDateTime = new Date(`${event.date}T${event.time}:00`);
                     const isFutureEvent = eventDateTime > new Date(); // Determine if it's a future event
-
-
                     
                     // Modify the visibility check to incorporate filtering
                     if (isVisible && (showFutureEvents ? isFutureEvent : !isFutureEvent)) {
@@ -884,6 +882,7 @@
 
                         // Create a container for user ID stadiums
                         const userIdContainer = document.createElement('div');
+                        const participantList = document.createElement('div'); // Create participant list container
                         userIdContainer.classList.add('user-id-container');
 
                         // Create stadium for event creator's userId
