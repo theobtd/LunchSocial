@@ -459,13 +459,13 @@
         // Function to accept a friend request
         function acceptFriendRequest(requesterId) {
             const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            
+        
             // Update the database to change the status of the friend request
             database.ref('users/' + currentUserId + '/friendRequests/' + requesterId).update({
                 status: 'accepted'
             }).then(() => {
                 console.log("Friend request from " + requesterId + " accepted.");
-                
+        
                 // Update the sender's request status to accepted
                 database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).set({
                     requestingUserId: currentUserId,
@@ -476,15 +476,20 @@
                         const events = snapshot.val();
                         if (events) {
                             const eventIds = Object.keys(events);
-                            
+        
                             // Add currentUserId to the visibleTo field of each event
                             eventIds.forEach(eventId => {
-                                database.ref(`users/${requesterId}/events/${eventId}`).update({
-                                    visibleTo: firebase.database.ServerValue.arrayUnion(currentUserId)
-                                }).then(() => {
-                                    console.log(`Added ${currentUserId} to visibleTo for event ${eventId}`);
-                                }).catch(error => {
-                                    console.error("Error updating event viewers:", error);
+                                database.ref(`users/${requesterId}/events/${eventId}/visibleTo`).once('value').then(visibleToSnapshot => {
+                                    const visibleTo = visibleToSnapshot.val() || [];
+                                    if (!visibleTo.includes(currentUserId)) {
+                                        database.ref(`users/${requesterId}/events/${eventId}`).update({
+                                            visibleTo: [...visibleTo, currentUserId]
+                                        }).then(() => {
+                                            console.log(`Added ${currentUserId} to visibleTo for event ${eventId}`);
+                                        }).catch(error => {
+                                            console.error("Error updating event viewers:", error);
+                                        });
+                                    }
                                 });
                             });
                         } else {
@@ -499,15 +504,20 @@
                         const events = snapshot.val();
                         if (events) {
                             const eventIds = Object.keys(events);
-                            
+        
                             // Add requesterId to the visibleTo field of each event
                             eventIds.forEach(eventId => {
-                                database.ref(`users/${currentUserId}/events/${eventId}`).update({
-                                    visibleTo: firebase.database.ServerValue.arrayUnion(requesterId)
-                                }).then(() => {
-                                    console.log(`Added ${requesterId} to visibleTo for event ${eventId}`);
-                                }).catch(error => {
-                                    console.error("Error updating event viewers:", error);
+                                database.ref(`users/${currentUserId}/events/${eventId}/visibleTo`).once('value').then(visibleToSnapshot => {
+                                    const visibleTo = visibleToSnapshot.val() || [];
+                                    if (!visibleTo.includes(requesterId)) {
+                                        database.ref(`users/${currentUserId}/events/${eventId}`).update({
+                                            visibleTo: [...visibleTo, requesterId]
+                                        }).then(() => {
+                                            console.log(`Added ${requesterId} to visibleTo for event ${eventId}`);
+                                        }).catch(error => {
+                                            console.error("Error updating event viewers:", error);
+                                        });
+                                    }
                                 });
                             });
                         } else {
