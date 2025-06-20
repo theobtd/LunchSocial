@@ -18,6 +18,24 @@
 </head>
 <body>   
 
+    <div class="sidebar" id="sidebar">
+        <h2 id="welcomeHeader">Welcome, [userId]!</h2>
+        
+        <!-- Directly include the search bar and lists -->
+        <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()">
+    
+        <!-- User list for search results -->
+        <div class="user-list" id="userList"></div> <!-- Ensure this is still included -->
+            
+        <h3>Pending Friend Requests</h3>
+        <div class="request-list" id="requestList"></div>
+        
+        <h3>Accepted Friends</h3>
+        <div class="accepted-list" id="acceptedList"></div>
+    
+        <button id="logoutBtn">Log Out</button>
+    </div>
+
     <div class="main-content">
         <div class="event-box">
             <button id="toggleMenuBtn" style="width: 200px; height: 50px;">My Account</button>
@@ -29,24 +47,6 @@
             <div class="future-events">
                 <div class="event-list" id="futureEventList"></div> <!-- Container for future events -->
             </div>
-        </div>
-
-        <div class="sidebar" id="sidebar">
-            <h2 id="welcomeHeader">Welcome, [userId]!</h2>
-        
-            <!-- Directly include the search bar and lists -->
-            <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()">
-    
-            <!-- User list for search results -->
-            <div class="user-list" id="userList"></div> <!-- Ensure this is still included -->
-            
-            <h3>Pending Friend Requests</h3>
-            <div class="request-list" id="requestList"></div>
-        
-            <h3>Accepted Friends</h3>
-            <div class="accepted-list" id="acceptedList"></div>
-    
-            <button id="logoutBtn">Log Out</button>
         </div>
         
         <!-- Picture Upload Section -->
