@@ -290,7 +290,7 @@ button:hover {
 }
 
 .comment-stadium {
-    font-size: 0.9em; /* Make the font smaller */
+    font-size: 0.1em; /* Make the font smaller */
     font-weight: normal; /* Remove bold formatting */
     color: #555; /* Optional: Change text color for less emphasis */
 }
