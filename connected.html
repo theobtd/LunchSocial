@@ -242,6 +242,9 @@
 
         let showFutureEvents = true; // Default to showing future events
 
+        // Add this line to set the button text based on the initial state
+        document.getElementById('toggleEventsBtn').textContent = showFutureEvents ? 'Show Past Events' : 'Show Future Events';
+
         document.getElementById('prevBtn').onclick = function () {
             const images = document.querySelectorAll('#carouselImages img');
             if (images.length > 0) {
