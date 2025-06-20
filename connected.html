@@ -738,37 +738,11 @@
                         console.log(`Participation toggled for user ${userId} in event ${eventId}`);
                         
                         // Refresh the participant list in the UI
-                        refreshParticipants(creatorId, eventId);
+                        // refreshParticipants(creatorId, eventId);
                     })
                     .catch(error => {
                         console.error('Error updating participants:', error);
                     });
-            });
-        }
-
-        function refreshParticipants(creatorId, eventId) {
-            const userIdContainer = document.getElementById('user-id-container'); // Reference to the participants container
-            userIdContainer.innerHTML = ''; // Clear existing participants
-        
-            const participantsRef = database.ref(`users/${creatorId}/events/${eventId}/participants`);
-            participantsRef.once('value').then(snapshot => {
-                const participantUids = snapshot.val() || []; // Get the list of UIDs
-                
-                // Fetch and display each participant
-                participantUids.forEach(uid => {
-                    database.ref(`users/${uid}`).once('value').then(userSnapshot => {
-                        const userData = userSnapshot.val();
-                        const participantUserId = userData ? userData.userId : "Unknown User"; // Fallback if userId is not found
-        
-                        // Create stadium for the participant
-                        const participantStadium = document.createElement('div');
-                        participantStadium.classList.add('stadium');
-                        participantStadium.textContent = participantUserId; // Set text to participant's userId
-                        userIdContainer.appendChild(participantStadium); // Append to the user ID container
-                    });
-                });
-            }).catch(error => {
-                console.error("Error fetching participants:", error);
             });
         }
 
