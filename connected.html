@@ -884,6 +884,12 @@
                         titleStadium.textContent = event.title; // Set text to the event title
                         eventItem.appendChild(titleStadium); // Append the title stadium to the event item
 
+                        // Create a stadium for the event comment
+                        const commentStadium = document.createElement('div');
+                        commentStadium.classList.add('stadium'); // Add class for styling
+                        commentStadium.textContent = event.comment; // Set text to the event comment
+                        eventItem.appendChild(commentStadium); // Append the comment stadium to the event item
+
                         // Create a flex container for stadiums
                         const stadiumContainer = document.createElement('div');
                         stadiumContainer.classList.add('stadium-container'); // Add a class for styling
@@ -1089,12 +1095,6 @@
 
                         participantList.classList.add('participant-list');
                         eventItem.appendChild(participantList); // Append the participant list to the event item
-
-                        // Create a stadium for the event comment
-                        const commentStadium = document.createElement('div');
-                        commentStadium.classList.add('stadium'); // Add class for styling
-                        commentStadium.textContent = event.comment; // Set text to the event comment
-                        eventItem.appendChild(commentStadium); // Append the comment stadium to the event item
         
                         // Create the "Pictures" button
                         const picturesButton = document.createElement('button');
