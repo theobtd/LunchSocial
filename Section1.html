@@ -159,6 +159,11 @@
             const userList = document.getElementById('userList');
             userList.innerHTML = ''; // Clear the user list
 
+            // If the search bar is empty, don't display any users
+            if (searchValue === '') {
+                return; // Exit the function
+            }
+
             // Filter and display users based on the search
             allUsers.forEach(user => {
                 if (user.userId.toLowerCase().includes(searchValue)) {
