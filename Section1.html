@@ -50,6 +50,19 @@
         .add-button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
+        .logout-button {
+            background-color: #FF6F61; /* Light pastel red */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px; /* Add space above button */
+        }
+        .logout-button:hover {
+            background-color: #FF4C4C; /* Darker red on hover */
+        }
     </style>
 </head>
 <body>
@@ -63,6 +76,8 @@
 
     <h3>Current Friends</h3>
     <div class="friend-list" id="friendList"></div> <!-- Current friends container -->
+
+    <button class="logout-button" id="logoutBtn">Log Out</button> <!-- Log Out button -->
 
     <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
         <a href="Section1.html" style="color: white;">Section 1</a>
@@ -289,6 +304,15 @@
                 console.error("Error accepting friend request:", error);
             });
         }
+
+        // Log out functionality
+        document.getElementById('logoutBtn').onclick = function() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html'; // Redirect to the login page
+            }).catch((error) => {
+                console.error("Error logging out:", error);
+            });
+        };
     </script>
 </body>
 </html>
