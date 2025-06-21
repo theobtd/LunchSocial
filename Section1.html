@@ -212,20 +212,26 @@
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'pending') {
                         const requesterId = childSnapshot.key; // Get UID of requester
-                        const requestItem = document.createElement('div');
-                        requestItem.classList.add('request-item');
-                        requestItem.textContent = `Friend request from ${requesterId}`; // Display requester ID
+                        // Fetch the userId of the requester
+                        database.ref('users/' + requesterId).once('value').then(userSnapshot => {
+                            const requesterData = userSnapshot.val();
+                            if (requesterData) {
+                                const requestItem = document.createElement('div');
+                                requestItem.classList.add('request-item');
+                                requestItem.textContent = `Friend request from ${requesterData.userId}`; // Display requester userId
 
-                        // Create accept button
-                        const acceptButton = document.createElement('button');
-                        acceptButton.textContent = '✓'; // Accept button text
-                        acceptButton.onclick = function() {
-                            acceptFriendRequest(requesterId); // Accept the request
-                        };
+                                // Create accept button
+                                const acceptButton = document.createElement('button');
+                                acceptButton.textContent = '✓'; // Accept button text
+                                acceptButton.onclick = function() {
+                                    acceptFriendRequest(requesterId); // Accept the request
+                                };
 
-                        // Append accept button to the request item
-                        requestItem.appendChild(acceptButton);
-                        requestList.appendChild(requestItem); // Add to the requests list
+                                // Append accept button to the request item
+                                requestItem.appendChild(acceptButton);
+                                requestList.appendChild(requestItem); // Add to the requests list
+                            }
+                        });
                     }
                 });
             }).catch(error => {
