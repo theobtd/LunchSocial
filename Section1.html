@@ -167,27 +167,27 @@
         function filterUsers() {
             const searchValue = document.getElementById('userSearchBar').value.toLowerCase();
             const userList = document.getElementById('userList');
+
+            // Reset user list
             userList.innerHTML = ''; // Clear the user list
 
-            // If the search bar is empty, don't display any users
-            if (searchValue === '') {
-                return; // Exit the function
-            }
-
             // Filter and display users based on the search
-            allUsers.forEach(user => {
-                if (user.userId.toLowerCase().includes(searchValue)) {
-                    // Create and display the user item
-                    const userItem = document.createElement('div');
-                    userItem.classList.add('user-item');
-                    userItem.textContent = user.userId;
+            const filteredUsers = allUsers.filter(user => user.userId.toLowerCase().includes(searchValue));
 
-                    // Check friend status for filtered user
-                    checkFriendStatus(user.uid, userItem);
+            // Show up to 5 users
+            const usersToShow = filteredUsers.slice(0, 5);
 
-                    // Append the user item to the list
-                    userList.appendChild(userItem);
-                }
+            usersToShow.forEach(user => {
+                // Create and display the user item
+                const userItem = document.createElement('div');
+                userItem.classList.add('user-item');
+                userItem.textContent = user.userId;
+
+                // Check friend status for filtered user
+                checkFriendStatus(user.uid, userItem);
+
+                // Append the user item to the list
+                userList.appendChild(userItem);
             });
         }
 
