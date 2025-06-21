@@ -18,9 +18,37 @@
         .user-item {
             padding: 5px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
         .user-item:hover {
             background-color: #f0f0f0;
+        }
+        .stadium {
+            border-radius: 15px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            display: inline-block;
+            color: white;
+        }
+        .friend {
+            background-color: #90EE90; /* Light pastel green */
+        }
+        .pending {
+            background-color: #FFD700; /* Light yellow pastel */
+        }
+        .add-button {
+            background-color: #007BFF; /* Modern blue color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
         }
     </style>
 </head>
@@ -109,12 +137,14 @@
             database.ref(`users/${currentUserId}/friendRequests/${targetUserId}`).once('value').then(snapshot => {
                 if (snapshot.exists()) {
                     const status = snapshot.val().status;
-                    const actionButton = document.createElement('span');
-                    actionButton.textContent = status === 'pending' ? 'Pending' : 'Friend';
-                    userItem.appendChild(actionButton);
+                    const actionLabel = document.createElement('span');
+                    actionLabel.className = status === 'pending' ? 'stadium pending' : 'stadium friend';
+                    actionLabel.textContent = status === 'pending' ? 'Pending' : 'Friend';
+                    userItem.appendChild(actionLabel);
                 } else {
                     // If no request exists, create an add button
                     const actionButton = document.createElement('button');
+                    actionButton.className = 'add-button';
                     actionButton.textContent = '+'; // Add button text
                     actionButton.onclick = function() {
                         sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
