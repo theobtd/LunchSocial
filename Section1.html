@@ -9,20 +9,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
     <style>
-        .user-list {
+        .user-list, .request-list {
             border: 1px solid #ccc;
             max-height: 200px;
             overflow-y: auto;
             margin-top: 10px;
         }
-        .user-item {
+        .user-item, .request-item {
             padding: 5px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .user-item:hover {
+        .user-item:hover, .request-item:hover {
             background-color: #f0f0f0;
         }
         .stadium {
@@ -57,6 +57,9 @@
     
     <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()" />
     <div class="user-list" id="userList"></div> <!-- User list container -->
+
+    <h3>Pending Friend Requests</h3>
+    <div class="request-list" id="requestList"></div> <!-- Pending requests container -->
 
     <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
         <a href="Section1.html" style="color: white;">Section 1</a>
@@ -96,6 +99,7 @@
                     if (userData && userData.userId) {
                         document.getElementById('welcomeHeader').textContent = `Welcome, ${userData.userId}!`; // Display userId
                         displayUsers(); // Fetch users after setting welcome message
+                        displayPendingRequests(); // Fetch pending friend requests
                     } else {
                         document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
                     }
@@ -195,6 +199,56 @@
                 button.disabled = true; // Disable the button
             }).catch(error => {
                 console.error("Error sending friend request:", error);
+            });
+        }
+
+        // Function to fetch and display pending friend requests
+        function displayPendingRequests() {
+            const requestList = document.getElementById('requestList');
+            requestList.innerHTML = ''; // Clear previous requests
+
+            database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const requestData = childSnapshot.val();
+                    if (requestData.status === 'pending') {
+                        const requesterId = childSnapshot.key; // Get UID of requester
+                        const requestItem = document.createElement('div');
+                        requestItem.classList.add('request-item');
+                        requestItem.textContent = `Friend request from ${requesterId}`; // Display requester ID
+
+                        // Create accept button
+                        const acceptButton = document.createElement('button');
+                        acceptButton.textContent = '✓'; // Accept button text
+                        acceptButton.onclick = function() {
+                            acceptFriendRequest(requesterId); // Accept the request
+                        };
+
+                        // Append accept button to the request item
+                        requestItem.appendChild(acceptButton);
+                        requestList.appendChild(requestItem); // Add to the requests list
+                    }
+                });
+            }).catch(error => {
+                console.error("Error fetching pending requests:", error);
+            });
+        }
+
+        // Function to accept a friend request
+        function acceptFriendRequest(requesterId) {
+            // Update the database to change the status of the friend request
+            database.ref('users/' + currentUserId + '/friendRequests/' + requesterId).update({
+                status: 'accepted'
+            }).then(() => {
+                console.log("Friend request from " + requesterId + " accepted.");
+                // Update the sender's request status to accepted
+                database.ref('users/' + requesterId + '/friendRequests/' + currentUserId).set({
+                    requestingUserId: currentUserId,
+                    status: 'accepted'
+                }).then(() => {
+                    displayPendingRequests(); // Refresh the pending requests display
+                });
+            }).catch(error => {
+                console.error("Error accepting friend request:", error);
             });
         }
     </script>
