@@ -85,6 +85,9 @@
 
         // Check if the user is logged in
         auth.onAuthStateChanged(user => {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = ''; // Clear the user list on page load
+
             if (user) {
                 currentUserId = user.uid; // Get the user's UID
                 // Fetch userId from the database
@@ -104,11 +107,9 @@
 
         // Function to fetch and display users
         function displayUsers() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = ''; // Clear previous list
-
             database.ref('users').once('value').then(snapshot => {
-                allUsers = []; // Reset the allUsers array
+                const userList = document.getElementById('userList');
+                userList.innerHTML = ''; // Clear previous list
 
                 snapshot.forEach(childSnapshot => {
                     const userData = childSnapshot.val();
