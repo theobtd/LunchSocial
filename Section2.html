@@ -131,7 +131,7 @@
                                             actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
 
                                             actionButton.onclick = function() {
-                                                toggleParticipation(eventId, actionButton, isParticipant); // Call toggle participation function
+                                                toggleParticipation(eventId, targetUserId, actionButton, isParticipant); // Call toggle participation function
                                             };
 
                                             // Append the action button to the event item
@@ -150,8 +150,8 @@
         }
 
         // Function to toggle participation in an event
-        function toggleParticipation(eventId, button, isParticipant) {
-            const participantsRef = database.ref(`users/${button.dataset.creatorId}/events/${eventId}/participants`);
+        function toggleParticipation(eventId, targetUserId, button, isParticipant) {
+            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
 
             if (isParticipant) {
                 // User is already a participant, remove them
