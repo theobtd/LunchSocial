@@ -132,12 +132,9 @@
                     let participants = snapshot.val() || [];
                     participants = participants.filter(participant => participant !== currentUserId);
 
-                    // Update the participants list
                     participantsRef.set(participants).then(() => {
-                        button.textContent = 'Join!'; // Update button text
-                        console.log(`User ${currentUserId} left the event ${eventId}`);
-                    }).catch(error => {
-                        console.error('Error updating participants:', error);
+                        button.textContent = 'Join!';
+                        refreshButtonState(eventId, targetUserId, button); // Refresh button state
                     });
                 });
             } else {
@@ -145,21 +142,26 @@
                     let participants = snapshot.val() || [];
                     participants.push(currentUserId);
 
-                    // Update the participants list
                     participantsRef.set(participants).then(() => {
-                        button.textContent = 'Leave Event'; // Update button text
-                        console.log(`User ${currentUserId} joined the event ${eventId}`);
-                    }).catch(error => {
-                        console.error('Error updating participants:', error);
+                        button.textContent = 'Leave Event';
+                        refreshButtonState(eventId, targetUserId, button); // Refresh button state
                     });
                 });
             }
         }
 
+        function refreshButtonState(eventId, targetUserId, button) {
+            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
+            participantsRef.once('value').then(snapshot => {
+                const participants = snapshot.val() || [];
+                const isParticipant = participants.includes(currentUserId);
+                button.textContent = isParticipant ? 'Leave Event' : 'Join!';
+            });
+        }
+
         function deleteEvent(eventId) {
             const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
             eventRef.remove().then(() => {
-                console.log("Event deleted successfully.");
                 displayFutureEvents(); // Refresh the events display
             }).catch(error => {
                 console.error("Error deleting event:", error);
