@@ -33,12 +33,21 @@
 
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+        const database = firebase.database();
 
         // Check if the user is logged in
         auth.onAuthStateChanged(user => {
             if (user) {
-                const userId = user.uid; // Get the user's ID
-                document.getElementById('welcomeHeader').textContent = `Welcome, ${userId}!`; // Display the welcome message
+                const userId = user.uid; // Get the user's UID
+                // Fetch userId from the database
+                database.ref('users/' + userId).once('value').then(snapshot => {
+                    const userData = snapshot.val();
+                    if (userData && userData.userId) {
+                        document.getElementById('welcomeHeader').textContent = `Welcome, ${userData.userId}!`; // Display userId
+                    } else {
+                        document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
+                    }
+                });
             } else {
                 document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
             }
