@@ -113,7 +113,6 @@
                                     // Create Join/Leave or Delete button
                                     const actionButton = document.createElement('button');
                                     actionButton.classList.add('join-button');
-                                    actionButton.textContent = 'Join!'; // Default text
 
                                     // Check if the current user is the creator
                                     if (eventData.createdBy === currentUserId) {
@@ -129,7 +128,7 @@
                                         const isParticipant = participants.includes(currentUserId);
                                         actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
                                         actionButton.onclick = function() {
-                                            toggleParticipation(eventId, actionButton); // Call toggle participation function
+                                            toggleParticipation(eventId, actionButton, isParticipant); // Call toggle participation function
                                         };
                                     }
 
@@ -147,31 +146,42 @@
         }
 
         // Function to toggle participation in an event
-        function toggleParticipation(eventId, button) {
+        function toggleParticipation(eventId, button, isParticipant) {
             const participantsRef = database.ref(`users/${currentUserId}/events/${eventId}/participants`);
 
-            participantsRef.once('value').then(snapshot => {
-                let participants = snapshot.val() || []; // Get the current list of participants
-
-                if (participants.includes(currentUserId)) {
-                    // User is already a participant, remove them
+            if (isParticipant) {
+                // User is already a participant, remove them
+                participantsRef.once('value').then(snapshot => {
+                    let participants = snapshot.val() || [];
                     participants = participants.filter(participant => participant !== currentUserId);
-                    button.textContent = 'Join!'; // Update button text
-                } else {
-                    // User is not a participant, add them
-                    participants.push(currentUserId);
-                    button.textContent = 'Leave Event'; // Update button text
-                }
 
-                // Update the participants list in the database
-                participantsRef.set(participants)
-                    .then(() => {
-                        console.log(`Participation toggled for user ${currentUserId} in event ${eventId}`);
-                    })
-                    .catch(error => {
-                        console.error('Error updating participants:', error);
-                    });
-            });
+                    // Update the participants list in the database
+                    participantsRef.set(participants)
+                        .then(() => {
+                            button.textContent = 'Join!'; // Update button text
+                            console.log(`User ${currentUserId} left the event ${eventId}`);
+                        })
+                        .catch(error => {
+                            console.error('Error updating participants:', error);
+                        });
+                });
+            } else {
+                // User is not a participant, add them
+                participantsRef.once('value').then(snapshot => {
+                    let participants = snapshot.val() || [];
+                    participants.push(currentUserId);
+
+                    // Update the participants list in the database
+                    participantsRef.set(participants)
+                        .then(() => {
+                            button.textContent = 'Leave Event'; // Update button text
+                            console.log(`User ${currentUserId} joined the event ${eventId}`);
+                        })
+                        .catch(error => {
+                            console.error('Error updating participants:', error);
+                        });
+                });
+            }
         }
 
         // Function to delete an event
