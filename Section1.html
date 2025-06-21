@@ -53,13 +53,14 @@
         const auth = firebase.auth();
         const database = firebase.database();
         let allUsers = [];
+        let currentUserId;
 
         // Check if the user is logged in
         auth.onAuthStateChanged(user => {
             if (user) {
-                const userId = user.uid; // Get the user's UID
+                currentUserId = user.uid; // Get the user's UID
                 // Fetch userId from the database
-                database.ref('users/' + userId).once('value').then(snapshot => {
+                database.ref('users/' + currentUserId).once('value').then(snapshot => {
                     const userData = snapshot.val();
                     if (userData && userData.userId) {
                         document.getElementById('welcomeHeader').textContent = `Welcome, ${userData.userId}!`; // Display userId
@@ -90,20 +91,36 @@
                     userItem.classList.add('user-item');
                     userItem.textContent = userId;
 
-                    // Create the action button
-                    const actionButton = document.createElement('button');
-                    actionButton.textContent = '+'; // Add button text
-                    actionButton.onclick = function() {
-                        sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
-                    };
+                    // Check for friend requests
+                    checkFriendStatus(targetUserId, userItem);
 
-                    // Append the action button to the user item
-                    userItem.appendChild(actionButton);
+                    // Append the user item to the list
                     userList.appendChild(userItem);
                     allUsers.push({ userId, uid: targetUserId }); // Store user data for filtering
                 });
             }).catch(error => {
                 console.error("Error fetching users:", error);
+            });
+        }
+
+        // Function to check friend status and update user item
+        function checkFriendStatus(targetUserId, userItem) {
+            // Check for pending or accepted friend requests
+            database.ref(`users/${currentUserId}/friendRequests/${targetUserId}`).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const status = snapshot.val().status;
+                    const actionButton = document.createElement('span');
+                    actionButton.textContent = status === 'pending' ? 'Pending' : 'Friend';
+                    userItem.appendChild(actionButton);
+                } else {
+                    // If no request exists, create an add button
+                    const actionButton = document.createElement('button');
+                    actionButton.textContent = '+'; // Add button text
+                    actionButton.onclick = function() {
+                        sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
+                    };
+                    userItem.appendChild(actionButton);
+                }
             });
         }
 
@@ -120,15 +137,10 @@
                     userItem.classList.add('user-item');
                     userItem.textContent = user.userId;
 
-                    // Create the action button
-                    const actionButton = document.createElement('button');
-                    actionButton.textContent = '+'; // Add button text
-                    actionButton.onclick = function() {
-                        sendFriendRequest(user.uid, actionButton); // Pass the UID and button
-                    };
+                    // Check friend status for filtered user
+                    checkFriendStatus(user.uid, userItem);
 
-                    // Append the action button to the user item
-                    userItem.appendChild(actionButton);
+                    // Append the user item to the list
                     userList.appendChild(userItem);
                 }
             });
@@ -136,8 +148,6 @@
 
         // Function to send a friend request
         function sendFriendRequest(targetUserId, button) {
-            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
-            
             // Update the database to add the friend request under the target user's record
             database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).set({
                 requestingUserId: currentUserId,
