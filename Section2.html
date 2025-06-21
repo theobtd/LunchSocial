@@ -11,7 +11,7 @@
     <style>
         .event-list {
             border: 1px solid #ccc;
-            max-height: 300px; /* Adjust height for events */
+            max-height: 300px;
             overflow-y: auto;
             margin-top: 10px;
         }
@@ -26,34 +26,22 @@
             background-color: #f0f0f0;
         }
         .join-button, .delete-button {
-            background-color: #007BFF; /* Modern blue color */
+            background-color: #007BFF;
             color: white;
             border: none;
             border-radius: 5px;
             padding: 5px 10px;
             cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .join-button:hover, .delete-button:hover {
-            background-color: #0056b3; /* Darker blue on hover */
         }
         .delete-button {
-            background-color: #FF6F61; /* Light pastel red */
+            background-color: #FF6F61;
         }
     </style>
 </head>
 <body>
-    <h1 id="welcomeHeader">Welcome, Guest!</h1> <!-- Placeholder text -->
-
+    <h1 id="welcomeHeader">Welcome, Guest!</h1>
     <h3>Future Events</h3>
-    <div class="event-list" id="eventList"></div> <!-- Future events container -->
-
-    <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
-        <a href="Section1.html" style="color: white;">Section 1</a>
-        <a href="Section2.html" style="color: white;">Section 2</a>
-        <a href="Section3.html" style="color: white;">Section 3</a>
-        <a href="Section4.html" style="color: white;">Section 4</a>
-    </div>
+    <div class="event-list" id="eventList"></div>
 
     <script>
         // Initialize Firebase
@@ -72,36 +60,30 @@
         const database = firebase.database();
         let currentUserId;
 
-        // Check if the user is logged in
         auth.onAuthStateChanged(user => {
             if (user) {
-                currentUserId = user.uid; // Get the user's UID
-                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`; // Display UID
-                displayFutureEvents(); // Fetch future events
+                currentUserId = user.uid;
+                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`;
+                displayFutureEvents();
             } else {
                 document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
             }
         });
 
-        // Function to fetch and display future events
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            eventList.innerHTML = ''; // Clear previous events
+            eventList.innerHTML = '';
 
-            // Fetch all users to check their events
             database.ref('users').once('value').then(snapshot => {
                 snapshot.forEach(childSnapshot => {
-                    const userData = childSnapshot.val();
-                    const targetUserId = childSnapshot.key; // Get the UID of the user
+                    const targetUserId = childSnapshot.key;
 
-                    // Fetch events for each user
-                    database.ref('users/' + targetUserId + '/events').once('value').then(eventSnapshot => {
+                    database.ref(`users/${targetUserId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
-                            const eventId = eventChildSnapshot.key; // Get the event ID
-
-                            // Check if the event is a future event
+                            const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+
                             if (eventDateTime > new Date()) {
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
 
@@ -110,33 +92,27 @@
                                     eventItem.classList.add('event-item');
                                     eventItem.innerHTML = `<strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}`;
 
-                                    // Create Join/Leave or Delete button
                                     const actionButton = document.createElement('button');
                                     actionButton.classList.add('join-button');
 
-                                    // Check if the current user is the creator
                                     if (eventData.createdBy === currentUserId) {
-                                        actionButton.textContent = 'Delete Event'; // Change text for creator
+                                        actionButton.textContent = 'Delete Event';
                                         actionButton.classList.remove('join-button');
                                         actionButton.classList.add('delete-button');
-                                        actionButton.onclick = function() {
-                                            deleteEvent(eventId); // Call delete function
-                                        };
+                                        actionButton.onclick = () => deleteEvent(eventId);
                                     } else {
-                                        // Check if the user is a participant in the participants path
                                         const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
                                         participantsRef.once('value').then(participantSnapshot => {
                                             const participants = participantSnapshot.val() || [];
                                             const isParticipant = participants.includes(currentUserId);
-                                            actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
+                                            actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
 
-                                            actionButton.onclick = function() {
-                                                toggleParticipation(eventId, targetUserId, actionButton, isParticipant); // Call toggle participation function
+                                            actionButton.onclick = () => {
+                                                toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
                                             };
 
-                                            // Append the action button to the event item
                                             eventItem.appendChild(actionButton);
-                                            eventList.appendChild(eventItem); // Add to the events list
+                                            eventList.appendChild(eventItem);
                                         });
                                     }
                                 }
@@ -149,49 +125,32 @@
             });
         }
 
-        // Function to toggle participation in an event
         function toggleParticipation(eventId, targetUserId, button, isParticipant) {
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
 
             if (isParticipant) {
-                // User is already a participant, remove them
                 participantsRef.once('value').then(snapshot => {
                     let participants = snapshot.val() || [];
                     participants = participants.filter(participant => participant !== currentUserId);
-
-                    // Update the participants list in the database
-                    participantsRef.set(participants)
-                        .then(() => {
-                            button.textContent = 'Join!'; // Update button text
-                            console.log(`User ${currentUserId} left the event ${eventId}`);
-                        })
-                        .catch(error => {
-                            console.error('Error updating participants:', error);
-                        });
+                    participantsRef.set(participants).then(() => {
+                        button.textContent = 'Join!';
+                    });
+                });
             } else {
-                // User is not a participant, add them
                 participantsRef.once('value').then(snapshot => {
                     let participants = snapshot.val() || [];
                     participants.push(currentUserId);
-
-                    // Update the participants list in the database
-                    participantsRef.set(participants)
-                        .then(() => {
-                            button.textContent = 'Leave Event'; // Update button text
-                            console.log(`User ${currentUserId} joined the event ${eventId}`);
-                        })
-                        .catch(error => {
-                            console.error('Error updating participants:', error);
-                        });
+                    participantsRef.set(participants).then(() => {
+                        button.textContent = 'Leave Event';
+                    });
+                });
             }
         }
 
-        // Function to delete an event
         function deleteEvent(eventId) {
-            const eventRef = database.ref('users/' + currentUserId + '/events/' + eventId);
+            const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
             eventRef.remove().then(() => {
-                console.log("Event deleted successfully.");
-                displayFutureEvents(); // Refresh the events display
+                displayFutureEvents();
             }).catch(error => {
                 console.error("Error deleting event:", error);
             });
