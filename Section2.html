@@ -4,9 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Section 2</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
+    <style>
+        .event-list {
+            border: 1px solid #ccc;
+            max-height: 300px; /* Adjust height for events */
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .event-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .event-item:hover {
+            background-color: #f0f0f0;
+        }
+        .join-button, .delete-button {
+            background-color: #007BFF; /* Modern blue color */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .join-button:hover, .delete-button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .delete-button {
+            background-color: #FF6F61; /* Light pastel red */
+        }
+    </style>
 </head>
 <body>
-    <h1>Section 2</h1>
+    <h1 id="welcomeHeader">Welcome, Guest!</h1> <!-- Placeholder text -->
+
+    <h3>Future Events</h3>
+    <div class="event-list" id="eventList"></div> <!-- Future events container -->
 
     <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
         <a href="Section1.html" style="color: white;">Section 1</a>
@@ -14,5 +54,123 @@
         <a href="Section3.html" style="color: white;">Section 3</a>
         <a href="Section4.html" style="color: white;">Section 4</a>
     </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.firebasestorage.app",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+        let currentUserId;
+
+        // Check if the user is logged in
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid; // Get the user's UID
+                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`; // Display UID
+                displayFutureEvents(); // Fetch future events
+            } else {
+                document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
+            }
+        });
+
+        // Function to fetch and display future events
+        function displayFutureEvents() {
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = ''; // Clear previous events
+
+            database.ref('users/' + currentUserId + '/events').once('value').then(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const eventData = childSnapshot.val();
+                    const eventId = childSnapshot.key; // Get the event ID
+
+                    // Check if the event is a future event
+                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+                    if (eventDateTime > new Date()) {
+                        const eventItem = document.createElement('div');
+                        eventItem.classList.add('event-item');
+                        eventItem.innerHTML = `<strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}`;
+
+                        // Create Join/Leave or Delete button
+                        const actionButton = document.createElement('button');
+                        actionButton.classList.add('join-button');
+                        actionButton.textContent = 'Join!'; // Default text
+
+                        // Check if the current user is the creator
+                        if (eventData.createdBy === currentUserId) {
+                            actionButton.textContent = 'Delete Event'; // Change text for creator
+                            actionButton.classList.remove('join-button');
+                            actionButton.classList.add('delete-button');
+                            actionButton.onclick = function() {
+                                deleteEvent(eventId); // Call delete function
+                            };
+                        } else {
+                            // Check if the user is a participant
+                            const participants = eventData.visibleTo || [];
+                            const isParticipant = participants.includes(currentUserId);
+                            actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
+                            actionButton.onclick = function() {
+                                toggleParticipation(eventId, actionButton); // Call toggle participation function
+                            };
+                        }
+
+                        // Append the action button to the event item
+                        eventItem.appendChild(actionButton);
+                        eventList.appendChild(eventItem); // Add to the events list
+                    }
+                });
+            }).catch(error => {
+                console.error("Error fetching events:", error);
+            });
+        }
+
+        // Function to toggle participation in an event
+        function toggleParticipation(eventId, button) {
+            const participantsRef = database.ref(`users/${currentUserId}/events/${eventId}/participants`);
+
+            participantsRef.once('value').then(snapshot => {
+                let participants = snapshot.val() || []; // Get the current list of participants
+
+                if (participants.includes(currentUserId)) {
+                    // User is already a participant, remove them
+                    participants = participants.filter(participant => participant !== currentUserId);
+                    button.textContent = 'Join!'; // Update button text
+                } else {
+                    // User is not a participant, add them
+                    participants.push(currentUserId);
+                    button.textContent = 'Leave Event'; // Update button text
+                }
+
+                // Update the participants list in the database
+                participantsRef.set(participants)
+                    .then(() => {
+                        console.log(`Participation toggled for user ${currentUserId} in event ${eventId}`);
+                    })
+                    .catch(error => {
+                        console.error('Error updating participants:', error);
+                    });
+            });
+        }
+
+        // Function to delete an event
+        function deleteEvent(eventId) {
+            const eventRef = database.ref('users/' + currentUserId + '/events/' + eventId);
+            eventRef.remove().then(() => {
+                console.log("Event deleted successfully.");
+                displayFutureEvents(); // Refresh the events display
+            }).catch(error => {
+                console.error("Error deleting event:", error);
+            });
+        }
+    </script>
 </body>
 </html>
