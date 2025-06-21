@@ -168,7 +168,6 @@
                         .catch(error => {
                             console.error('Error updating participants:', error);
                         });
-                });
             } else {
                 // User is not a participant, add them
                 participantsRef.once('value').then(snapshot => {
@@ -184,7 +183,6 @@
                         .catch(error => {
                             console.error('Error updating participants:', error);
                         });
-                });
             }
         }
 
