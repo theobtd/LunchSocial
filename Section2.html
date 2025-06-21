@@ -123,19 +123,22 @@
                                             deleteEvent(eventId); // Call delete function
                                         };
                                     } else {
-                                        // Check if the user is a participant
-                                        const participants = eventData.visibleTo || [];
-                                        const isParticipant = participants.includes(currentUserId);
-                                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
+                                        // Check if the user is a participant in the participants path
+                                        const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
+                                        participantsRef.once('value').then(participantSnapshot => {
+                                            const participants = participantSnapshot.val() || [];
+                                            const isParticipant = participants.includes(currentUserId);
+                                            actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
 
-                                        actionButton.onclick = function() {
-                                            toggleParticipation(eventId, actionButton, isParticipant); // Call toggle participation function
-                                        };
+                                            actionButton.onclick = function() {
+                                                toggleParticipation(eventId, actionButton, isParticipant); // Call toggle participation function
+                                            };
+
+                                            // Append the action button to the event item
+                                            eventItem.appendChild(actionButton);
+                                            eventList.appendChild(eventItem); // Add to the events list
+                                        });
                                     }
-
-                                    // Append the action button to the event item
-                                    eventItem.appendChild(actionButton);
-                                    eventList.appendChild(eventItem); // Add to the events list
                                 }
                             }
                         });
@@ -148,7 +151,7 @@
 
         // Function to toggle participation in an event
         function toggleParticipation(eventId, button, isParticipant) {
-            const participantsRef = database.ref(`users/${currentUserId}/events/${eventId}/participants`);
+            const participantsRef = database.ref(`users/${button.dataset.creatorId}/events/${eventId}/participants`);
 
             if (isParticipant) {
                 // User is already a participant, remove them
