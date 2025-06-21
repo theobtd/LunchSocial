@@ -9,20 +9,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
     <style>
-        .user-list, .request-list {
+        .user-list, .request-list, .friend-list {
             border: 1px solid #ccc;
             max-height: 150px; /* Adjusted for 5 users */
             overflow-y: auto;
             margin-top: 10px;
         }
-        .user-item, .request-item {
+        .user-item, .request-item, .friend-item {
             padding: 5px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .user-item:hover, .request-item:hover {
+        .user-item:hover, .request-item:hover, .friend-item:hover {
             background-color: #f0f0f0;
         }
         .stadium {
@@ -60,6 +60,9 @@
 
     <h3>Pending Friend Requests</h3>
     <div class="request-list" id="requestList"></div> <!-- Pending requests container -->
+
+    <h3>Current Friends</h3>
+    <div class="friend-list" id="friendList"></div> <!-- Current friends container -->
 
     <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
         <a href="Section1.html" style="color: white;">Section 1</a>
@@ -100,6 +103,7 @@
                         document.getElementById('welcomeHeader').textContent = `Welcome, ${userData.userId}!`; // Display userId
                         displayUsers(); // Fetch users after setting welcome message
                         displayPendingRequests(); // Fetch pending friend requests
+                        displayFriends(); // Fetch current friends
                     } else {
                         document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
                     }
@@ -239,6 +243,33 @@
             });
         }
 
+        // Function to fetch and display current friends
+        function displayFriends() {
+            const friendList = document.getElementById('friendList');
+            friendList.innerHTML = ''; // Clear previous friends
+
+            database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
+                snapshot.forEach(childSnapshot => {
+                    const requestData = childSnapshot.val();
+                    if (requestData.status === 'accepted') {
+                        const friendId = childSnapshot.key; // Get UID of friend
+                        // Fetch the userId of the friend
+                        database.ref('users/' + friendId).once('value').then(userSnapshot => {
+                            const friendData = userSnapshot.val();
+                            if (friendData) {
+                                const friendItem = document.createElement('div');
+                                friendItem.classList.add('friend-item');
+                                friendItem.textContent = friendData.userId; // Display friend's userId
+                                friendList.appendChild(friendItem); // Add to the friends list
+                            }
+                        });
+                    }
+                });
+            }).catch(error => {
+                console.error("Error fetching friends:", error);
+            });
+        }
+
         // Function to accept a friend request
         function acceptFriendRequest(requesterId) {
             // Update the database to change the status of the friend request
@@ -252,6 +283,7 @@
                     status: 'accepted'
                 }).then(() => {
                     displayPendingRequests(); // Refresh the pending requests display
+                    displayFriends(); // Refresh the friends display
                 });
             }).catch(error => {
                 console.error("Error accepting friend request:", error);
