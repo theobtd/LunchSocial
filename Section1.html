@@ -104,9 +104,10 @@
 
         // Function to fetch and display users
         function displayUsers() {
+            const userList = document.getElementById('userList');
+            userList.innerHTML = ''; // Clear previous list
+
             database.ref('users').once('value').then(snapshot => {
-                const userList = document.getElementById('userList');
-                userList.innerHTML = ''; // Clear previous list
                 allUsers = []; // Reset the allUsers array
 
                 snapshot.forEach(childSnapshot => {
