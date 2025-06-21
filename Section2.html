@@ -127,6 +127,7 @@
                                         const participants = eventData.visibleTo || [];
                                         const isParticipant = participants.includes(currentUserId);
                                         actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!'; // Update text based on participation
+
                                         actionButton.onclick = function() {
                                             toggleParticipation(eventId, actionButton, isParticipant); // Call toggle participation function
                                         };
