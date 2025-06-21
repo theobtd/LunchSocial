@@ -50,19 +50,6 @@
         .add-button:hover {
             background-color: #0056b3; /* Darker blue on hover */
         }
-        .logout-button {
-            background-color: #FF6F61; /* Light pastel red */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px; /* Add space above button */
-        }
-        .logout-button:hover {
-            background-color: #FF4C4C; /* Darker red on hover */
-        }
     </style>
 </head>
 <body>
@@ -192,18 +179,27 @@
             // Show up to 5 users
             const usersToShow = filteredUsers.slice(0, 5);
 
-            usersToShow.forEach(user => {
-                // Create and display the user item
-                const userItem = document.createElement('div');
-                userItem.classList.add('user-item');
-                userItem.textContent = user.userId;
+            // Populate the list with matched users or empty placeholders
+            for (let i = 0; i < 5; i++) {
+                if (i < usersToShow.length) {
+                    // Create and display the user item
+                    const userItem = document.createElement('div');
+                    userItem.classList.add('user-item');
+                    userItem.textContent = usersToShow[i].userId;
 
-                // Check friend status for filtered user
-                checkFriendStatus(user.uid, userItem);
+                    // Check friend status for filtered user
+                    checkFriendStatus(usersToShow[i].uid, userItem);
 
-                // Append the user item to the list
-                userList.appendChild(userItem);
-            });
+                    // Append the user item to the list
+                    userList.appendChild(userItem);
+                } else {
+                    // Create empty item if less than 5 matched
+                    const emptyItem = document.createElement('div');
+                    emptyItem.classList.add('user-item');
+                    emptyItem.textContent = ''; // Empty text for placeholder
+                    userList.appendChild(emptyItem);
+                }
+            }
         }
 
         // Function to send a friend request
