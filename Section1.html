@@ -8,9 +8,27 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
+    <style>
+        .user-list {
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .user-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+        .user-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
     <h1 id="welcomeHeader">Welcome, Guest!</h1> <!-- Placeholder text -->
+    
+    <input type="text" id="userSearchBar" placeholder="Search by User ID" oninput="filterUsers()" />
+    <div class="user-list" id="userList"></div> <!-- User list container -->
 
     <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
         <a href="Section1.html" style="color: white;">Section 1</a>
@@ -34,6 +52,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
+        let allUsers = [];
 
         // Check if the user is logged in
         auth.onAuthStateChanged(user => {
@@ -44,6 +63,7 @@
                     const userData = snapshot.val();
                     if (userData && userData.userId) {
                         document.getElementById('welcomeHeader').textContent = `Welcome, ${userData.userId}!`; // Display userId
+                        displayUsers(); // Fetch users after setting welcome message
                     } else {
                         document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
                     }
@@ -52,6 +72,84 @@
                 document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
             }
         });
+
+        // Function to fetch and display users
+        function displayUsers() {
+            database.ref('users').once('value').then(snapshot => {
+                const userList = document.getElementById('userList');
+                userList.innerHTML = ''; // Clear previous list
+                allUsers = []; // Reset the allUsers array
+
+                snapshot.forEach(childSnapshot => {
+                    const userData = childSnapshot.val();
+                    const userId = userData.userId;
+                    const targetUserId = childSnapshot.key; // Get the UID of the user
+
+                    // Create a user item
+                    const userItem = document.createElement('div');
+                    userItem.classList.add('user-item');
+                    userItem.textContent = userId;
+
+                    // Create the action button
+                    const actionButton = document.createElement('button');
+                    actionButton.textContent = '+'; // Add button text
+                    actionButton.onclick = function() {
+                        sendFriendRequest(targetUserId, actionButton); // Pass the UID and button
+                    };
+
+                    // Append the action button to the user item
+                    userItem.appendChild(actionButton);
+                    userList.appendChild(userItem);
+                    allUsers.push({ userId, uid: targetUserId }); // Store user data for filtering
+                });
+            }).catch(error => {
+                console.error("Error fetching users:", error);
+            });
+        }
+
+        function filterUsers() {
+            const searchValue = document.getElementById('userSearchBar').value.toLowerCase();
+            const userList = document.getElementById('userList');
+            userList.innerHTML = ''; // Clear the user list
+
+            // Filter and display users based on the search
+            allUsers.forEach(user => {
+                if (user.userId.toLowerCase().includes(searchValue)) {
+                    // Create and display the user item
+                    const userItem = document.createElement('div');
+                    userItem.classList.add('user-item');
+                    userItem.textContent = user.userId;
+
+                    // Create the action button
+                    const actionButton = document.createElement('button');
+                    actionButton.textContent = '+'; // Add button text
+                    actionButton.onclick = function() {
+                        sendFriendRequest(user.uid, actionButton); // Pass the UID and button
+                    };
+
+                    // Append the action button to the user item
+                    userItem.appendChild(actionButton);
+                    userList.appendChild(userItem);
+                }
+            });
+        }
+
+        // Function to send a friend request
+        function sendFriendRequest(targetUserId, button) {
+            const currentUserId = auth.currentUser.uid; // Get current user's Firebase UID
+            
+            // Update the database to add the friend request under the target user's record
+            database.ref('users/' + targetUserId + '/friendRequests/' + currentUserId).set({
+                requestingUserId: currentUserId,
+                status: 'pending'
+            }).then(() => {
+                console.log("Friend request sent to " + targetUserId);
+                button.textContent = 'Pending'; // Change button text to "Pending"
+                button.disabled = true; // Disable the button
+            }).catch(error => {
+                console.error("Error sending friend request:", error);
+            });
+        }
     </script>
 </body>
 </html>
