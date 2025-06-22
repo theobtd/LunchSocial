@@ -9,10 +9,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
     <style>
+        html, body {
+            height: 100%; /* Set height to 100% for the body and html */
+            margin: 0; /* Remove default margin */
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+        }
+        
+        h3 {
+            margin: 10px; /* Add some margin to the header */
+        }
+        
         .event-list {
             border: 1px solid #ccc;
-            max-height: 300px;
-            overflow-y: auto;
+            overflow-y: auto; /* Enable vertical scrolling */
+            flex-grow: 1; /* Allow the event list to grow and fill available space */
             margin-top: 10px;
         }
         .event-item {
