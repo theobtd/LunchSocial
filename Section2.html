@@ -73,47 +73,25 @@
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
-
+        
+            // First, fetch all events from other users
             database.ref('users').once('value').then(snapshot => {
                 snapshot.forEach(childSnapshot => {
                     const targetUserId = childSnapshot.key;
-
+        
                     database.ref(`users/${targetUserId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-
+        
+                            // Check if the event is in the future
                             if (eventDateTime > new Date()) {
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
+        
+                                // Display event if user has access or created it
                                 if (isVisible || eventData.createdBy === currentUserId) {
-                                    const eventItem = document.createElement('div');
-                                    eventItem.classList.add('event-item');
-                                    eventItem.innerHTML = `<strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}`;
-
-                                    const actionButton = document.createElement('button');
-                                    actionButton.classList.add('join-button');
-
-                                    if (eventData.createdBy === currentUserId) {
-                                        actionButton.textContent = 'Delete Event';
-                                        actionButton.classList.remove('join-button');
-                                        actionButton.classList.add('delete-button');
-                                        actionButton.onclick = () => deleteEvent(eventId);
-                                    } else {
-                                        const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-                                        participantsRef.once('value').then(participantSnapshot => {
-                                            const participants = participantSnapshot.val() || [];
-                                            const isParticipant = participants.includes(currentUserId);
-                                            actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-
-                                            actionButton.onclick = () => {
-                                                toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
-                                            };
-
-                                            eventItem.appendChild(actionButton);
-                                            eventList.appendChild(eventItem);
-                                        });
-                                    }
+                                    addEventToList(eventData, eventId, targetUserId);
                                 }
                             }
                         });
@@ -122,6 +100,53 @@
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
+        
+            // Then, fetch the user's own events
+            database.ref(`users/${currentUserId}/events`).once('value').then(eventSnapshot => {
+                eventSnapshot.forEach(eventChildSnapshot => {
+                    const eventData = eventChildSnapshot.val();
+                    const eventId = eventChildSnapshot.key;
+                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+        
+                    // Check if the event is in the future
+                    if (eventDateTime > new Date()) {
+                        addEventToList(eventData, eventId, currentUserId);
+                    }
+                });
+            }).catch(error => {
+                console.error("Error fetching user's own events:", error);
+            });
+        }
+        
+        function addEventToList(eventData, eventId, targetUserId) {
+            const eventList = document.getElementById('eventList');
+            const eventItem = document.createElement('div');
+            eventItem.classList.add('event-item');
+            eventItem.innerHTML = `<strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}`;
+        
+            const actionButton = document.createElement('button');
+            actionButton.classList.add('join-button');
+        
+            if (eventData.createdBy === currentUserId) {
+                actionButton.textContent = 'Delete Event';
+                actionButton.classList.remove('join-button');
+                actionButton.classList.add('delete-button');
+                actionButton.onclick = () => deleteEvent(eventId);
+            } else {
+                const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
+                participantsRef.once('value').then(participantSnapshot => {
+                    const participants = participantSnapshot.val() || [];
+                    const isParticipant = participants.includes(currentUserId);
+                    actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        
+                    actionButton.onclick = () => {
+                        toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
+                    };
+                });
+            }
+        
+            eventItem.appendChild(actionButton);
+            eventList.appendChild(eventItem);
         }
 
         function toggleParticipation(eventId, targetUserId, button, isParticipant) {
