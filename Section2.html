@@ -151,41 +151,50 @@
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item');
             
-            // Create event details HTML
+            // Fetch participants for display
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
             
-            // Fetch participants for display
             participantsRef.once('value').then(participantSnapshot => {
-                const participants = participantSnapshot.val() || [];
-                const participantList = participants.join(', ');
+                const participantsUids = participantSnapshot.val() || [];
+                
+                // Get user IDs based on UIDs
+                const userPromises = participantsUids.map(uid => {
+                    return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
+                        return userIdSnapshot.val(); // Get the user ID
+                    });
+                });
         
-                eventItem.innerHTML = `
-                    <strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}<br>
-                    <em>Location:</em> ${eventData.location || "N/A"}<br>
-                    <em>Comment:</em> ${eventData.comment || "N/A"}<br>
-                    <em>Category:</em> ${eventData.category || "N/A"}<br>
-                    <em>Participants:</em> ${participantList || "None"}
-                `;
+                return Promise.all(userPromises).then(userIds => {
+                    const participantList = userIds.filter(id => id).join(', '); // Filter out any null values
+                    
+                    eventItem.innerHTML = `
+                        <strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}<br>
+                        <em>Location:</em> ${eventData.location || "N/A"}<br>
+                        <em>Comment:</em> ${eventData.comment || "N/A"}<br>
+                        <em>Category:</em> ${eventData.category || "N/A"}<br>
+                        <em>Participants:</em> ${participantList || "None"}
+                    `;
         
-                const actionButton = document.createElement('button');
-                actionButton.classList.add('join-button');
+                    const actionButton = document.createElement('button');
+                    actionButton.classList.add('join-button');
         
-                if (eventData.createdBy === currentUserId) {
-                    actionButton.textContent = 'Delete Event';
-                    actionButton.classList.remove('join-button');
-                    actionButton.classList.add('delete-button');
-                    actionButton.onclick = () => deleteEvent(eventId);
-                } else {
-                    const isParticipant = participants.includes(currentUserId);
-                    actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                    if (eventData.createdBy === currentUserId) {
+                        actionButton.textContent = 'Delete Event';
+                        actionButton.classList.remove('join-button');
+                        actionButton.classList.add('delete-button');
+                        actionButton.onclick = () => deleteEvent(eventId);
+                    } else {
+                        const isParticipant = participantsUids.includes(currentUserId);
+                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
         
-                    actionButton.onclick = () => {
-                        toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
-                    };
-                }
+                        actionButton.onclick = () => {
+                            toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
+                        };
+                    }
         
-                eventItem.appendChild(actionButton);
-                eventList.appendChild(eventItem);
+                    eventItem.appendChild(actionButton);
+                    eventList.appendChild(eventItem);
+                });
             });
         }
 
