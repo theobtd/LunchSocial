@@ -59,6 +59,16 @@
         const database = firebase.database();
         let currentUserId;
 
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`;
+                displayFutureEvents();
+            } else {
+                document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
+            }
+        });
+
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
