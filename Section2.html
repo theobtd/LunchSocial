@@ -74,6 +74,8 @@
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
+            const addedEventIds = new Set(); // To track added event IDs
+        
             // First, fetch all events from other users
             database.ref('users').once('value').then(snapshot => {
                 snapshot.forEach(childSnapshot => {
@@ -89,9 +91,10 @@
                             if (eventDateTime > new Date()) {
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
         
-                                // Display event if user has access or created it
-                                if (isVisible || eventData.createdBy === currentUserId) {
+                                // Display event if user has access
+                                if (isVisible) {
                                     addEventToList(eventData, eventId, targetUserId);
+                                    addedEventIds.add(eventId); // Track added event ID
                                 }
                             }
                         });
@@ -108,8 +111,8 @@
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    // Check if the event is in the future
-                    if (eventDateTime > new Date()) {
+                    // Check if the event is in the future and not already added
+                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addEventToList(eventData, eventId, currentUserId);
                     }
                 });
