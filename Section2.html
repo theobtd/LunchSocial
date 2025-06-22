@@ -39,7 +39,6 @@
     </style>
 </head>
 <body>
-    <h1 id="welcomeHeader">Welcome, Guest!</h1>
     <h3>Future Events</h3>
     <div class="event-list" id="eventList"></div>
 
@@ -63,10 +62,9 @@
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
-                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`;
                 displayFutureEvents();
             } else {
-                document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
+                // Also remove the line that sets the welcome message for guests
             }
         });
 
