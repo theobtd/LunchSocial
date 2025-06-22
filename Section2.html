@@ -39,7 +39,6 @@
     </style>
 </head>
 <body>
-    <h1 id="welcomeHeader">Welcome, Guest!</h1>
     <h3>Future Events</h3>
     <div class="event-list" id="eventList"></div>
 
@@ -59,16 +58,6 @@
         const auth = firebase.auth();
         const database = firebase.database();
         let currentUserId;
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                document.getElementById('welcomeHeader').textContent = `Welcome, ${user.uid}!`;
-                displayFutureEvents();
-            } else {
-                document.getElementById('welcomeHeader').textContent = "Welcome, Guest!";
-            }
-        });
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
