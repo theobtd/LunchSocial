@@ -150,31 +150,43 @@
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item');
-            eventItem.innerHTML = `<strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}`;
+            
+            // Create event details HTML
+            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
+            
+            // Fetch participants for display
+            participantsRef.once('value').then(participantSnapshot => {
+                const participants = participantSnapshot.val() || [];
+                const participantList = participants.join(', ');
         
-            const actionButton = document.createElement('button');
-            actionButton.classList.add('join-button');
+                eventItem.innerHTML = `
+                    <strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}<br>
+                    <em>Location:</em> ${eventData.location || "N/A"}<br>
+                    <em>Comment:</em> ${eventData.comment || "N/A"}<br>
+                    <em>Category:</em> ${eventData.category || "N/A"}<br>
+                    <em>Participants:</em> ${participantList || "None"}
+                `;
         
-            if (eventData.createdBy === currentUserId) {
-                actionButton.textContent = 'Delete Event';
-                actionButton.classList.remove('join-button');
-                actionButton.classList.add('delete-button');
-                actionButton.onclick = () => deleteEvent(eventId);
-            } else {
-                const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-                participantsRef.once('value').then(participantSnapshot => {
-                    const participants = participantSnapshot.val() || [];
+                const actionButton = document.createElement('button');
+                actionButton.classList.add('join-button');
+        
+                if (eventData.createdBy === currentUserId) {
+                    actionButton.textContent = 'Delete Event';
+                    actionButton.classList.remove('join-button');
+                    actionButton.classList.add('delete-button');
+                    actionButton.onclick = () => deleteEvent(eventId);
+                } else {
                     const isParticipant = participants.includes(currentUserId);
                     actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
         
                     actionButton.onclick = () => {
                         toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
                     };
-                });
-            }
+                }
         
-            eventItem.appendChild(actionButton);
-            eventList.appendChild(eventItem);
+                eventItem.appendChild(actionButton);
+                eventList.appendChild(eventItem);
+            });
         }
 
         function toggleParticipation(eventId, targetUserId, button, isParticipant) {
