@@ -281,7 +281,7 @@
                     participants = participants.filter(participant => participant !== currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants, eventData.createdBy); // Pass event creator ID
+                        updateParticipantList(participantListContainer, participants, eventData.createdBy, currentUserId); // Pass currentUserId
                         console.log(`User ${currentUserId} left the event ${eventId}`);
                     });
                 } else {
@@ -289,7 +289,7 @@
                     participants.push(currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants, eventData.createdBy); // Pass event creator ID
+                        updateParticipantList(participantListContainer, participants, eventData.createdBy, currentUserId); // Pass currentUserId
                         console.log(`User ${currentUserId} joined the event ${eventId}`);
                     });
                 }
@@ -298,7 +298,7 @@
             });
         }
         
-        function updateParticipantList(participantListContainer, participants, creatorId) {
+        function updateParticipantList(participantListContainer, participants, creatorId, currentUserId) {
             // Create an array of promises to fetch user IDs for all participants
             const userIdPromises = participants.map(uid => {
                 return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
@@ -310,6 +310,9 @@
             userIdPromises.push(database.ref(`users/${creatorId}/userId`).once('value').then(snapshot => {
                 return snapshot.val(); // Get the organizer's user ID
             }));
+        
+            // Always include the current user
+            userIdPromises.push(Promise.resolve(currentUserId)); // Add current user ID directly
         
             // Wait for all promises to resolve
             Promise.all(userIdPromises).then(userIds => {
