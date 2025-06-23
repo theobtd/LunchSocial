@@ -1,91 +1,148 @@
-<script>
-    // Your Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
-        authDomain: "aperosocial-d53c7.firebaseapp.com",
-        databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
-        projectId: "aperosocial-d53c7",
-        storageBucket: "aperosocial-d53c7.firebasestorage.app",
-        messagingSenderId: "954205055992",
-        appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
-    };
-
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
-
-    // Check if user is authenticated
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            currentUserId = user.uid; // Set currentUserId to the authenticated user's ID
-            loadFriends(); // Load friends only after user is authenticated
-        } else {
-            console.log('No user is signed in.');
-            // Optionally, redirect to login page or show a message
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section 4</title>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
-    });
+        .menu-bar {
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: #333; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px; 
+            color: white;
+        }
+        .event-form {
+            margin-bottom: 20px;
+        }
+        .friends-list {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Section 4 - Create Event</h1>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('createEventButton').addEventListener('click', createEvent);
-    });
+    <div class="event-form">
+        <input type="text" id="eventTitle" placeholder="Event Title" required>
+        <input type="date" id="eventDate" required>
+        <input type="time" id="eventTime" required>
+        <textarea id="eventDescription" placeholder="Event Description"></textarea>
+        <div class="friends-list" id="friendsList"></div>
+        <button id="createEventButton">Create Event</button>
+    </div>
 
-    function loadFriends() {
-        const friendsRef = database.ref(`users/${currentUserId}/friends`);
-        friendsRef.once('value').then(snapshot => {
-            const friendsList = document.getElementById('friendsList');
-            friendsList.innerHTML = ''; // Clear existing friends list
+    <div id="statusMessage"></div>
 
-            snapshot.forEach(childSnapshot => {
-                const friendId = childSnapshot.key;
-                const friendName = childSnapshot.val(); // Assuming friend's name is stored
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = friendId;
-                checkbox.value = friendId;
-
-                const label = document.createElement('label');
-                label.htmlFor = friendId;
-                label.innerText = friendName;
-
-                const div = document.createElement('div');
-                div.appendChild(checkbox);
-                div.appendChild(label);
-                friendsList.appendChild(div);
-            });
-        });
-    }
-
-    function createEvent() {
-        const eventTitle = document.getElementById('eventTitle').value;
-        const eventDate = document.getElementById('eventDate').value;
-        const eventTime = document.getElementById('eventTime').value;
-        const eventDescription = document.getElementById('eventDescription').value;
-
-        const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
-
-        const eventData = {
-            title: eventTitle,
-            date: eventDate,
-            time: eventTime,
-            description: eventDescription,
-            createdBy: currentUserId, // Ensure this is set correctly
+    <div class="menu-bar">
+        <a href="Section1.html" style="color: white;">Section 1</a>
+        <a href="Section2.html" style="color: white;">Section 2</a>
+        <a href="Section3.html" style="color: white;">Section 3</a>
+        <a href="Section4.html" style="color: white;">Section 4</a>
+    </div>
+    
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.firebasestorage.app",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
-
-        const newEventRef = database.ref('events').push(); // Create a new event
-        const eventId = newEventRef.key;
-
-        // Save event data
-        newEventRef.set(eventData).then(() => {
-            // Update each authorized user’s path
-            visibleUserIds.forEach(userId => {
-                const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                userRef.set(true); // Mark the event as visible for this user
-            });
-            document.getElementById('statusMessage').innerText = 'Event created successfully!';
-        }).catch(error => {
-            console.error("Error creating event:", error);
-            document.getElementById('statusMessage').innerText = 'Error creating event.';
+    
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+    
+        // Check if user is authenticated
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid; // Set currentUserId to the authenticated user's ID
+                loadFriends(); // Load friends only after user is authenticated
+            } else {
+                console.log('No user is signed in.');
+                // Optionally, redirect to login page or show a message
+            }
         });
-    }
-</script>
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('createEventButton').addEventListener('click', createEvent);
+        });
+    
+        function loadFriends() {
+            const friendsRef = database.ref(`users/${currentUserId}/friends`);
+            friendsRef.once('value').then(snapshot => {
+                const friendsList = document.getElementById('friendsList');
+                friendsList.innerHTML = ''; // Clear existing friends list
+    
+                snapshot.forEach(childSnapshot => {
+                    const friendId = childSnapshot.key;
+                    const friendName = childSnapshot.val(); // Assuming friend's name is stored
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = friendId;
+                    checkbox.value = friendId;
+    
+                    const label = document.createElement('label');
+                    label.htmlFor = friendId;
+                    label.innerText = friendName;
+    
+                    const div = document.createElement('div');
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    friendsList.appendChild(div);
+                });
+            });
+        }
+    
+        function createEvent() {
+            const eventTitle = document.getElementById('eventTitle').value;
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const eventDescription = document.getElementById('eventDescription').value;
+    
+            const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
+    
+            const eventData = {
+                title: eventTitle,
+                date: eventDate,
+                time: eventTime,
+                description: eventDescription,
+                createdBy: currentUserId, // Ensure this is set correctly
+            };
+    
+            const newEventRef = database.ref('events').push(); // Create a new event
+            const eventId = newEventRef.key;
+    
+            // Save event data
+            newEventRef.set(eventData).then(() => {
+                // Update each authorized user’s path
+                visibleUserIds.forEach(userId => {
+                    const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
+                    userRef.set(true); // Mark the event as visible for this user
+                });
+                document.getElementById('statusMessage').innerText = 'Event created successfully!';
+            }).catch(error => {
+                console.error("Error creating event:", error);
+                document.getElementById('statusMessage').innerText = 'Error creating event.';
+            });
+        }
+    </script>
+</body>
+</html>
