@@ -182,7 +182,9 @@
                     visibleUserIds.forEach(userId => {
                         const userVisibleEventsRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
                         userVisibleEventsRef.set({
-                            title: eventTitle // Store the title with the event ID
+                            title: eventTitle, // Store the title
+                            date: eventDate,   // Store the date
+                            time: eventTime    // Store the time
                         }).catch(error => {
                             console.error("Error setting visibleEvents:", error);
                         });
