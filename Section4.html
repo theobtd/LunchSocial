@@ -70,14 +70,14 @@
         const auth = firebase.auth();
         const database = firebase.database();
     
-        // Check if user is authenticated
+        let currentUserId;
+    
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid; // Set currentUserId to the authenticated user's ID
-                loadFriends(); // Load friends only after user is authenticated
+                loadFriends();
             } else {
                 console.log('No user is signed in.');
-                // Optionally, redirect to login page or show a message
             }
         });
     
@@ -124,10 +124,11 @@
                 date: eventDate,
                 time: eventTime,
                 description: eventDescription,
-                createdBy: currentUserId, // Ensure this is set correctly
+                createdBy: currentUserId, // Use the actual current user's ID
             };
     
-            const newEventRef = database.ref('events').push(); // Create a new event
+            // Create a new event under the user's events path
+            const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Adjusted path
             const eventId = newEventRef.key;
     
             // Save event data
