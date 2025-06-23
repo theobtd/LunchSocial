@@ -142,6 +142,10 @@
                     if (index < allEvents.length) {
                         const { eventData, eventId } = allEvents[index];
                         addEventToList(eventData, eventId, eventData.createdBy); // Use createdBy as the targetUserId
+        
+                        setTimeout(() => {
+                            displayNextEvent(index + 1); // Fetch next event after a delay
+                        }, 100); // Adjust delay as needed
                     }
                 };
         
