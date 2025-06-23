@@ -98,53 +98,53 @@
             document.getElementById('createEventButton').addEventListener('click', createEvent);
         });
 
-        function loadFriends() {
-            const friendRequestsRef = database.ref(`users/${currentUserId}/friendRequests`);
-            friendRequestsRef.once('value').then(snapshot => {
-                const friendsList = document.getElementById('friendsList');
-                friendsList.innerHTML = ''; // Clear existing friends list
-    
-                // Create an array to hold promises for fetching friend names
-                const friendPromises = [];
-    
-                snapshot.forEach(childSnapshot => {
-                    const friendId = childSnapshot.key; // The friend's UID
-                    const status = childSnapshot.val().status; // Get the status
-    
-                    // Check if the friend request status is "Accepted"
-                    if (status === 'Accepted') {
-                        // Fetch the friend's name from the users path
-                        const friendNameRef = database.ref(`users/${friendId}/name`);
-                        friendPromises.push(
-                            friendNameRef.once('value').then(nameSnapshot => {
-                                const friendName = nameSnapshot.val(); // Get the friend's name
-                                if (friendName) {
-                                    const div = document.createElement('div');
-    
-                                    const checkbox = document.createElement('input');
-                                    checkbox.type = 'checkbox';
-                                    checkbox.id = friendId;
-                                    checkbox.value = friendId;
-    
-                                    const label = document.createElement('label');
-                                    label.htmlFor = friendId;
-                                    label.innerText = friendName;
-    
-                                    div.appendChild(checkbox);
-                                    div.appendChild(label);
-                                    friendsList.appendChild(div);
-                                }
-                            })
-                        );
-                    }
+            function loadFriends() {
+                const friendRequestsRef = database.ref(`users/${currentUserId}/friendRequests`);
+                friendRequestsRef.once('value').then(snapshot => {
+                    const friendsList = document.getElementById('friendsList');
+                    friendsList.innerHTML = ''; // Clear existing friends list
+        
+                    // Create an array to hold promises for fetching friend names
+                    const friendPromises = [];
+        
+                    snapshot.forEach(childSnapshot => {
+                        const friendId = childSnapshot.key; // The friend's UID
+                        const status = childSnapshot.val().status; // Get the status
+        
+                        // Check if the friend request status is "Accepted"
+                        if (status === 'accepted') {
+                            // Fetch the friend's name from the users path
+                            const friendNameRef = database.ref(`users/${friendId}/userId`); // Assuming userId is the name
+                            friendPromises.push(
+                                friendNameRef.once('value').then(nameSnapshot => {
+                                    const friendName = nameSnapshot.val(); // Get the friend's name
+                                    if (friendName) {
+                                        const div = document.createElement('div');
+        
+                                        const checkbox = document.createElement('input');
+                                        checkbox.type = 'checkbox';
+                                        checkbox.id = friendId;
+                                        checkbox.value = friendId;
+        
+                                        const label = document.createElement('label');
+                                        label.htmlFor = friendId;
+                                        label.innerText = friendName;
+        
+                                        div.appendChild(checkbox);
+                                        div.appendChild(label);
+                                        friendsList.appendChild(div);
+                                    }
+                                })
+                            );
+                        }
+                    });
+        
+                    // Wait for all friend name fetches to complete
+                    return Promise.all(friendPromises);
+                }).catch(error => {
+                    console.error("Error loading friends:", error);
                 });
-    
-                // Wait for all friend name fetches to complete
-                return Promise.all(friendPromises);
-            }).catch(error => {
-                console.error("Error loading friends:", error);
-            });
-        }
+            }
 
         function createEvent() {
             const eventTitle = document.getElementById('eventTitle').value.trim();
