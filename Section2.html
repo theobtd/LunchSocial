@@ -274,10 +274,9 @@
             // First, get the event data to find out who has access
             eventRef.once('value').then(snapshot => {
                 const eventData = snapshot.val();
-                console.log("Event Data:", eventData); // Log event data for debugging
-                
+                console.log("Event Data Retrieved for Deletion:", eventData); // Log event data
+    
                 if (eventData) {
-                    // Ensure visibleTo is an array
                     const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
                     console.log("Visible To Users:", visibleTo); // Log visibleTo array
     
@@ -287,9 +286,13 @@
     
                     // Now delete from each user's visibleEvents
                     const deletePromises = nonCreatorUsers.map(userId => {
-                        console.log(`Deleting event ${eventId} from user ${userId}'s visibleEvents`);
+                        console.log(`Attempting to delete event ${eventId} from user ${userId}'s visibleEvents`);
                         const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                        return userVisibleEventRef.remove(); // Remove the event from visibleEvents
+                        return userVisibleEventRef.remove().then(() => {
+                            console.log(`Event ${eventId} deleted from ${userId}'s visibleEvents`);
+                        }).catch(error => {
+                            console.error(`Error deleting event ${eventId} from ${userId}'s visibleEvents:`, error);
+                        });
                     });
     
                     // Wait for all deletions to complete, then delete the event from the creator's path
@@ -298,6 +301,7 @@
                         return eventRef.remove(); // Remove the event from the event creator's path
                     });
                 } else {
+                    console.error('Event data not found for deletion.');
                     throw new Error('Event data not found.');
                 }
             }).then(() => {
