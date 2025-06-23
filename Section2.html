@@ -69,25 +69,6 @@
             text-align: center; /* Center the text */
             margin-right: 5px; /* Space between badges */
         }
-        .button-container {
-            display: flex; /* Align buttons in a row */
-            margin-top: 10px; /* Space above the buttons */
-        }
-        
-        .join-button, .leave-button {
-            background-color: #007BFF; /* Default background color */
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-            margin-right: 5px; /* Space between buttons */
-        }
-        
-        .join-button.active, .leave-button.active {
-            background-color: #ccc; /* Active button background color */
-            color: black; /* Active button text color */
-        }
     </style>
 </head>
 <body>
@@ -223,14 +204,26 @@
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <div class="button-container">
-                            <button class="join-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
-                                onclick="toggleParticipation('${eventId}', '${targetUserId}', this, false)">Join!</button>
-                            <button class="leave-button ${participantsUids.includes(currentUserId) ? '' : 'active'}" 
-                                onclick="toggleParticipation('${eventId}', '${targetUserId}', this, true)">Leave Event</button>
-                        </div>
                     `;
         
+                    const actionButton = document.createElement('button');
+                    actionButton.classList.add('join-button');
+        
+                    if (eventData.createdBy === currentUserId) {
+                        actionButton.textContent = 'Delete Event';
+                        actionButton.classList.remove('join-button');
+                        actionButton.classList.add('delete-button');
+                        actionButton.onclick = () => deleteEvent(eventId);
+                    } else {
+                        const isParticipant = participantsUids.includes(currentUserId);
+                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        
+                        actionButton.onclick = () => {
+                            toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
+                        };
+                    }
+        
+                    eventItem.appendChild(actionButton);
                     eventList.appendChild(eventItem);
                 });
             });
