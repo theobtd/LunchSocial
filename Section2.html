@@ -247,7 +247,9 @@
                 // Add participant
                 participantsRef.once('value').then(snapshot => {
                     let participants = snapshot.val() || [];
-                    participants.push(currentUserId);
+                    if (!participants.includes(currentUserId)) {
+                        participants.push(currentUserId);
+                    }
                     return participantsRef.set(participants);
                 }).then(() => {
                     button.textContent = 'Leave Event'; // Update button text
@@ -258,13 +260,15 @@
                 });
             }
         }
-
+        
         function refreshButtonState(eventId, targetUserId, button) {
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
             participantsRef.once('value').then(snapshot => {
                 const participants = snapshot.val() || [];
                 const isParticipant = participants.includes(currentUserId);
                 button.textContent = isParticipant ? 'Leave Event' : 'Join!';
+            }).catch(error => {
+                console.error('Error refreshing button state:', error);
             });
         }
 
