@@ -223,7 +223,7 @@
             
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-        
+                
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
@@ -239,8 +239,6 @@
                 return Promise.all(userPromises).then(userIds => {
                     // Filter out any null values and ensure the organizer is included
                     const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                    
-                    // Create badges for each participant, including the organizer
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
@@ -281,7 +279,7 @@
                     participants = participants.filter(participant => participant !== currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants, eventData.createdBy, currentUserId); // Pass currentUserId
+                        updateParticipantList(participantListContainer, participants); // Update the UI
                         console.log(`User ${currentUserId} left the event ${eventId}`);
                     });
                 } else {
@@ -289,7 +287,7 @@
                     participants.push(currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants, eventData.createdBy, currentUserId); // Pass currentUserId
+                        updateParticipantList(participantListContainer, participants); // Update the UI
                         console.log(`User ${currentUserId} joined the event ${eventId}`);
                     });
                 }
@@ -298,21 +296,13 @@
             });
         }
         
-        function updateParticipantList(participantListContainer, participants, creatorId, currentUserId) {
+        function updateParticipantList(participantListContainer, participants) {
             // Create an array of promises to fetch user IDs for all participants
             const userIdPromises = participants.map(uid => {
                 return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
                     return snapshot.val(); // Get the user ID
                 });
             });
-        
-            // Always include the organizer
-            userIdPromises.push(database.ref(`users/${creatorId}/userId`).once('value').then(snapshot => {
-                return snapshot.val(); // Get the organizer's user ID
-            }));
-        
-            // Always include the current user
-            userIdPromises.push(Promise.resolve(currentUserId)); // Add current user ID directly
         
             // Wait for all promises to resolve
             Promise.all(userIdPromises).then(userIds => {
