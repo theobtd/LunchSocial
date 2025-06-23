@@ -191,6 +191,7 @@
                     // Insert participant list at the top of the event card
                     eventItem.innerHTML = `
                         <div><em>Participants:</em> ${participantList || "None"}</div>
+                        <div class="separator"></div> <!-- Separator line -->
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
