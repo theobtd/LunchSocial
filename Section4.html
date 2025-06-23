@@ -179,10 +179,6 @@
             // Save event data
             newEventRef.set(eventData).then(() => {
                 // Update each authorized user’s path
-                visibleUserIds.forEach(userId => {
-                    const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                    userRef.set(true); // Mark the event as visible for this user
-                });
                 document.getElementById('statusMessage').innerText = 'Event created successfully!';
             }).catch(error => {
                 console.error("Error creating event:", error);
