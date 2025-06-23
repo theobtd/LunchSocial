@@ -183,13 +183,15 @@
                         const userVisibleEventsRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
                         userVisibleEventsRef.set({
                             title: eventTitle // Store the title with the event ID
+                        }).catch(error => {
+                            console.error("Error setting visibleEvents:", error);
                         });
                     });
         
                     // Update each authorized user’s path for visibleTo
                     visibleUserIds.forEach(userId => {
-                        const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                        userRef.set(true); // Mark the event as visible for this user
+                        const userRef = database.ref(`users/${currentUserId}/events/${eventId}/visibleTo`);
+                        userRef.child(userId).set(true); // Mark the event as visible for this user
                     });
         
                     document.getElementById('statusMessage').innerText = 'Event created successfully!';
