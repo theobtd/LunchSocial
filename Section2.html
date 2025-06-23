@@ -188,13 +188,14 @@
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
                     
+                    // Insert participant list at the top of the event card
                     eventItem.innerHTML = `
+                        <div><em>Participants:</em> ${participantList || "None"}</div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <em>Participants:</em> ${participantList || "None"}<br>
                     `;
         
                     const actionButton = document.createElement('button');
