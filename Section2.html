@@ -231,11 +231,6 @@
                     });
                 });
         
-                // Always include the organizer
-                userPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(userIdSnapshot => {
-                    return userIdSnapshot.val(); // Get the organizer's user ID
-                }));
-        
                 return Promise.all(userPromises).then(userIds => {
                     // Filter out any null values and ensure the organizer is included
                     const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
