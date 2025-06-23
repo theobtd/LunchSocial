@@ -106,49 +106,56 @@
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = ''; // Clear existing events
-        
-            // Fetch all users to prepare for event fetching
-            database.ref('users').once('value').then(snapshot => {
-                const userPromises = [];
-                snapshot.forEach(childSnapshot => {
-                    const targetUserId = childSnapshot.key;
-                    const promise = database.ref(`users/${targetUserId}/events`).once('value');
-                    userPromises.push(promise);
-                });
-        
-                return Promise.all(userPromises); // Wait for all user events to be fetched
-            }).then(eventSnapshots => {
+    
+            // Fetch the user's own events
+            const userEventsRef = database.ref(`users/${currentUserId}/events`);
+            const visibleEventsRef = database.ref(`users/${currentUserId}/visibleEvents`);
+    
+            Promise.all([
+                userEventsRef.once('value'),
+                visibleEventsRef.once('value'),
+            ]).then(([userEventSnapshot, visibleEventSnapshot]) => {
                 const allEvents = [];
-        
-                // Gather all future events
-                eventSnapshots.forEach(eventSnapshot => {
-                    eventSnapshot.forEach(eventChildSnapshot => {
-                        const eventData = eventChildSnapshot.val();
-                        const eventId = eventChildSnapshot.key;
-                        const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-        
-                        // Check if the event is in the future
-                        if (eventDateTime > new Date()) {
-                            allEvents.push({ eventData, eventId, eventDateTime });
-                        }
-                    });
+    
+                // Gather user's own events
+                userEventSnapshot.forEach(eventChildSnapshot => {
+                    const eventData = eventChildSnapshot.val();
+                    const eventId = eventChildSnapshot.key;
+                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+    
+                    // Check if the event is in the future
+                    if (eventDateTime > new Date()) {
+                        allEvents.push({ eventData, eventId, eventDateTime });
+                    }
                 });
-        
+    
+                // Gather visible events
+                visibleEventSnapshot.forEach(eventChildSnapshot => {
+                    const eventData = eventChildSnapshot.val();
+                    const eventId = eventChildSnapshot.key;
+                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+    
+                    // Check if the event is in the future
+                    if (eventDateTime > new Date()) {
+                        allEvents.push({ eventData, eventId, eventDateTime });
+                    }
+                });
+    
                 // Sort events by date and time
                 allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-        
+    
                 // Function to display events one by one
                 const displayNextEvent = (index) => {
                     if (index < allEvents.length) {
                         const { eventData, eventId } = allEvents[index];
                         addEventToList(eventData, eventId, eventData.createdBy); // Use createdBy as the targetUserId
-        
+    
                         setTimeout(() => {
                             displayNextEvent(index + 1); // Fetch next event after a delay
                         }, 100); // Adjust delay as needed
                     }
                 };
-        
+    
                 // Start displaying events
                 displayNextEvent(0);
             }).catch(error => {
