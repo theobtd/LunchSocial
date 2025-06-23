@@ -52,12 +52,6 @@
         .delete-button {
             background-color: #FF6F61;
         }
-        .participant-row {
-            border-bottom: 1px solid #ccc; /* Thin line below the participant badges */
-            padding: 10px 0; /* Padding for the row */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping of badges */
-        }
         .participant-badge {
             display: inline-block; /* Allows badges to sit next to each other */
             background-color: #007BFF; /* Badge background color */
@@ -67,9 +61,6 @@
             margin: 5px; /* Space between badges */
             font-size: 14px; /* Font size */
             text-align: center; /* Center the text */
-        }
-        .participant-list {
-            margin-bottom: 10px; /* Space between the badges and the event details */
         }
     </style>
 </head>
@@ -105,59 +96,63 @@
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            eventList.innerHTML = ''; // Clear existing events
-    
-            // Fetch the user's own events
-            const userEventsRef = database.ref(`users/${currentUserId}/events`);
-            const visibleEventsRef = database.ref(`users/${currentUserId}/visibleEvents`);
-    
-            Promise.all([
-                userEventsRef.once('value'),
-                visibleEventsRef.once('value'),
-            ]).then(([userEventSnapshot, visibleEventSnapshot]) => {
-                const allEvents = [];
-    
-                // Gather user's own events
-                userEventSnapshot.forEach(eventChildSnapshot => {
+            eventList.innerHTML = '';
+        
+            const addedEvents = []; // Array to hold all events
+            const addedEventIds = new Set(); // To track added event IDs
+        
+            // First, fetch all events from other users
+            database.ref('users').once('value').then(snapshot => {
+                const promises = []; // Array to hold promises for async operations
+        
+                snapshot.forEach(childSnapshot => {
+                    const targetUserId = childSnapshot.key;
+        
+                    const promise = database.ref(`users/${targetUserId}/events`).once('value').then(eventSnapshot => {
+                        eventSnapshot.forEach(eventChildSnapshot => {
+                            const eventData = eventChildSnapshot.val();
+                            const eventId = eventChildSnapshot.key;
+                            const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
+        
+                            // Check if the event is in the future
+                            if (eventDateTime > new Date()) {
+                                const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
+        
+                                // Add event to array if user has access
+                                if (isVisible) {
+                                    addedEvents.push({ eventData, eventId, targetUserId, eventDateTime });
+                                    addedEventIds.add(eventId); // Track added event ID
+                                }
+                            }
+                        });
+                    });
+        
+                    promises.push(promise); // Add promise to the array
+                });
+        
+                return Promise.all(promises); // Wait for all user events to be fetched
+            }).then(() => {
+                // Then, fetch the user's own events
+                return database.ref(`users/${currentUserId}/events`).once('value');
+            }).then(eventSnapshot => {
+                eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-    
-                    // Check if the event is in the future
-                    if (eventDateTime > new Date()) {
-                        allEvents.push({ eventData, eventId, eventDateTime });
+        
+                    // Check if the event is in the future and not already added
+                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
+                        addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
-    
-                // Gather visible events
-                visibleEventSnapshot.forEach(eventChildSnapshot => {
-                    const eventData = eventChildSnapshot.val();
-                    const eventId = eventChildSnapshot.key;
-                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-    
-                    // Check if the event is in the future
-                    if (eventDateTime > new Date()) {
-                        allEvents.push({ eventData, eventId, eventDateTime });
-                    }
-                });
-    
+            }).then(() => {
                 // Sort events by date and time
-                allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-    
-                // Function to display events one by one
-                const displayNextEvent = (index) => {
-                    if (index < allEvents.length) {
-                        const { eventData, eventId } = allEvents[index];
-                        addEventToList(eventData, eventId, eventData.createdBy); // Use createdBy as the targetUserId
-    
-                        setTimeout(() => {
-                            displayNextEvent(index + 1); // Fetch next event after a delay
-                        }, 100); // Adjust delay as needed
-                    }
-                };
-    
-                // Start displaying events
-                displayNextEvent(0);
+                addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+        
+                // Display sorted events
+                addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
+                    addEventToList(eventData, eventId, targetUserId);
+                });
             }).catch(error => {
                 console.error("Error fetching events:", error);
             });
@@ -194,14 +189,12 @@
                     ).join(' '); // Join badges with space
                     
                     eventItem.innerHTML = `
-                        <div class="participant-row">
-                            ${participantList}
-                        </div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
+                        <em>Participants:</em> ${participantList || "None"}<br>
                     `;
         
                     const actionButton = document.createElement('button');
