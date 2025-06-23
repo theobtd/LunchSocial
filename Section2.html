@@ -105,7 +105,7 @@
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            eventList.innerHTML = '';
+            eventList.innerHTML = ''; // Clear existing events
         
             const addedEvents = []; // Array to hold all events
             const addedEventIds = new Set(); // To track added event IDs
@@ -158,9 +158,13 @@
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
         
-                // Display sorted events
-                addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
-                    addEventToList(eventData, eventId, targetUserId);
+                // Display events one by one with a delay
+                let delay = 0;
+                addedEvents.forEach(({ eventData, eventId, targetUserId }, index) => {
+                    setTimeout(() => {
+                        addEventToList(eventData, eventId, targetUserId);
+                    }, delay);
+                    delay += 300; // Change this value to adjust the speed of the appearance
                 });
             }).catch(error => {
                 console.error("Error fetching events:", error);
