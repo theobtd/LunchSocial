@@ -52,6 +52,16 @@
         .delete-button {
             background-color: #FF6F61;
         }
+        .participant-badge {
+            display: inline-block; /* Allows badges to sit next to each other */
+            background-color: #007BFF; /* Badge background color */
+            color: white; /* Text color */
+            border-radius: 20px; /* Make it stadium-shaped */
+            padding: 5px 15px; /* Padding for the badge */
+            margin: 5px; /* Space between badges */
+            font-size: 14px; /* Font size */
+            text-align: center; /* Center the text */
+        }
     </style>
 </head>
 <body>
@@ -167,7 +177,9 @@
                 });
         
                 return Promise.all(userPromises).then(userIds => {
-                    const participantList = userIds.filter(id => id).join(', '); // Filter out any null values
+                    const participantList = userIds.filter(id => id).map(id => 
+                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
+                    ).join(' '); // Join badges with space
                     
                     eventItem.innerHTML = `
                         <strong>${eventData.title}</strong><br>
