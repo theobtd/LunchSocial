@@ -52,6 +52,11 @@
         .delete-button {
             background-color: #FF6F61;
         }
+        .participant-row {
+            border-bottom: 1px solid #ccc; /* Thin line below the participant badges */
+            padding: 10px 0; /* Padding for the row */
+        }
+        
         .participant-badge {
             display: inline-block; /* Allows badges to sit next to each other */
             background-color: #007BFF; /* Badge background color */
@@ -192,7 +197,9 @@
                     ).join(' '); // Join badges with space
                     
                     eventItem.innerHTML = `
-                        <div class="participant-list">${participantList}</div>
+                        <div class="participant-row">
+                            ${participantList}
+                        </div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
