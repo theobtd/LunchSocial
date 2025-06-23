@@ -266,36 +266,33 @@
             });
         }
 
-        function toggleParticipation(eventId, targetUserId, button, isParticipant) {
+        function toggleParticipation(eventId, targetUserId, buttonContainer) {
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
+            const joinButton = buttonContainer.querySelector('.join-button');
+            const leaveButton = buttonContainer.querySelector('.leave-button');
         
-            if (isParticipant) {
-                // Remove participant
-                participantsRef.once('value').then(snapshot => {
-                    let participants = snapshot.val() || [];
+            participantsRef.once('value').then(snapshot => {
+                let participants = snapshot.val() || [];
+                const isParticipant = participants.includes(currentUserId);
+        
+                if (isParticipant) {
+                    // Remove participant
                     participants = participants.filter(participant => participant !== currentUserId);
-                    return participantsRef.set(participants);
-                }).then(() => {
-                    button.textContent = 'Join!'; // Update button text
-                    button.onclick = () => toggleParticipation(eventId, targetUserId, button, false); // Update click event
-                    console.log(`User ${currentUserId} left the event ${eventId}`);
-                }).catch(error => {
-                    console.error('Error updating participants:', error);
-                });
-            } else {
-                // Add participant
-                participantsRef.once('value').then(snapshot => {
-                    let participants = snapshot.val() || [];
+                    return participantsRef.set(participants).then(() => {
+                        buttonContainer.classList.remove('active'); // Remove active class
+                        console.log(`User ${currentUserId} left the event ${eventId}`);
+                    });
+                } else {
+                    // Add participant
                     participants.push(currentUserId);
-                    return participantsRef.set(participants);
-                }).then(() => {
-                    button.textContent = 'Leave Event'; // Update button text
-                    button.onclick = () => toggleParticipation(eventId, targetUserId, button, true); // Update click event
-                    console.log(`User ${currentUserId} joined the event ${eventId}`);
-                }).catch(error => {
-                    console.error('Error updating participants:', error);
-                });
-            }
+                    return participantsRef.set(participants).then(() => {
+                        buttonContainer.classList.add('active'); // Add active class
+                        console.log(`User ${currentUserId} joined the event ${eventId}`);
+                    });
+                }
+            }).catch(error => {
+                console.error('Error updating participants:', error);
+            });
         }
 
         function refreshButtonState(eventId, targetUserId, button) {
