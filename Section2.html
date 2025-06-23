@@ -275,7 +275,8 @@
             eventRef.once('value').then(snapshot => {
                 const eventData = snapshot.val();
                 if (eventData) {
-                    const visibleTo = eventData.visibleTo || []; // Get the list of users who can see this event
+                    // Ensure visibleTo is an array
+                    const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
     
                     // Delete the event from the user's own events
                     return eventRef.remove().then(() => {
