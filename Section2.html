@@ -296,13 +296,18 @@
             });
         }
         
-        function updateParticipantList(participantListContainer, participants) {
+        function updateParticipantList(participantListContainer, participants, eventData) {
             // Create an array of promises to fetch user IDs for all participants
             const userIdPromises = participants.map(uid => {
                 return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
                     return snapshot.val(); // Get the user ID
                 });
             });
+        
+            // Always include the event creator's user ID
+            userIdPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(snapshot => {
+                return snapshot.val(); // Get the creator's user ID
+            }));
         
             // Wait for all promises to resolve
             Promise.all(userIdPromises).then(userIds => {
