@@ -296,14 +296,29 @@
             });
         }
         
-        function updateParticipantList(participantListContainer, participants, currentUserId) {
-            // Generate participant badges directly from the participants array
-            const participantList = participants.map(id => 
-                `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-            ).join(' '); // Join badges with space
+        function updateParticipantList(participantListContainer, participants) {
+            // Create an array of promises to fetch user IDs for all participants
+            const userIdPromises = participants.map(uid => {
+                return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
+                    return snapshot.val(); // Get the user ID
+                });
+            });
         
-            // Update the participant list in the UI
-            participantListContainer.innerHTML = participantList || "None";
+            // Wait for all promises to resolve
+            Promise.all(userIdPromises).then(userIds => {
+                // Filter out any null values
+                const uniqueUserIds = Array.from(new Set(userIds.filter(id => id)));
+        
+                // Create badges with user IDs
+                const participantList = uniqueUserIds.map(id => 
+                    `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
+                ).join(' '); // Join badges with space
+        
+                // Update the participant list in the UI
+                participantListContainer.innerHTML = participantList || "None";
+            }).catch(error => {
+                console.error('Error fetching user IDs:', error);
+            });
         }
 
         function refreshButtonState(eventId, targetUserId, button) {
