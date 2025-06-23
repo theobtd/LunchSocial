@@ -304,6 +304,11 @@
                 });
             });
         
+            // Always include the organizer
+            userIdPromises.push(database.ref(`users/${participants[0].createdBy}/userId`).once('value').then(snapshot => {
+                return snapshot.val(); // Get the organizer's user ID
+            }));
+        
             // Wait for all promises to resolve
             Promise.all(userIdPromises).then(userIds => {
                 // Filter out any null values
