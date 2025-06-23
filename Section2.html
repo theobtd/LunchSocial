@@ -62,6 +62,9 @@
             font-size: 14px; /* Font size */
             text-align: center; /* Center the text */
         }
+        .participant-list {
+            margin-bottom: 10px; /* Space between the badges and the event details */
+        }
     </style>
 </head>
 <body>
@@ -189,12 +192,12 @@
                     ).join(' '); // Join badges with space
                     
                     eventItem.innerHTML = `
+                        <div class="participant-list">${participantList}</div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <em>Participants:</em> ${participantList || "None"}<br>
                     `;
         
                     const actionButton = document.createElement('button');
