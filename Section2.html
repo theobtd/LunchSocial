@@ -274,13 +274,13 @@
             // First, get the event data to find out who has access
             eventRef.once('value').then(snapshot => {
                 const eventData = snapshot.val();
+                console.log("Event Data:", eventData); // Log event data for debugging
                 if (eventData) {
-                    // Ensure visibleTo is an array
                     const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
+                    console.log("Visible To:", visibleTo); // Log visibleTo for debugging
     
                     // Delete the event from the user's own events
                     return eventRef.remove().then(() => {
-                        // Now delete from each user's visibleEvents
                         const deletePromises = visibleTo.map(userId => {
                             const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
                             return userVisibleEventRef.remove(); // Remove the event from visibleEvents
