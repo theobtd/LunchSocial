@@ -246,14 +246,15 @@
                     // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
                         <div class="participant-container">${participantList || "None"}</div>
-                        <div class="separator"></div> <!-- Separator line -->
+                        <div class="separator"></div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
                         <div class="toggle-button-container">
-                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}">
+                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
+                                 onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
                                 <button class="join-button">Join!</button>
                                 <button class="leave-button">Leave Event</button>
                             </div>
