@@ -287,6 +287,8 @@
                         });
                         return Promise.all(deletePromises); // Wait for all deletions to complete
                     });
+                } else {
+                    throw new Error('Event data not found.');
                 }
             }).then(() => {
                 displayFutureEvents(); // Refresh the events display
