@@ -7,7 +7,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js"></script>
     <style>
-        /* Add some basic styles */
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
@@ -26,6 +25,9 @@
         .event-form {
             margin-bottom: 20px;
         }
+        .friends-list {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -36,7 +38,7 @@
         <input type="date" id="eventDate" required>
         <input type="time" id="eventTime" required>
         <textarea id="eventDescription" placeholder="Event Description"></textarea>
-        <input type="text" id="visibleUserIds" placeholder="Visible User IDs (comma separated)">
+        <div class="friends-list" id="friendsList"></div>
         <button id="createEventButton">Create Event</button>
     </div>
 
@@ -53,33 +55,65 @@
         // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
-            authDomain: "aperosocial-d53c7.firebaseapp.com",
-            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
-            projectId: "aperosocial-d53c7",
-            storageBucket: "aperosocial-d53c7.firebasestorage.app",
-            messagingSenderId: "954205055992",
-            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.firebasestorage.app",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
 
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        document.getElementById('createEventButton').addEventListener('click', createEvent);
+        const currentUserId = "currentUserId"; // Replace with actual current user ID
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFriends();
+            document.getElementById('createEventButton').addEventListener('click', createEvent);
+        });
+
+        function loadFriends() {
+            const friendsRef = database.ref(`users/${currentUserId}/friends`);
+            friendsRef.once('value').then(snapshot => {
+                const friendsList = document.getElementById('friendsList');
+                friendsList.innerHTML = ''; // Clear existing friends list
+
+                snapshot.forEach(childSnapshot => {
+                    const friendId = childSnapshot.key;
+                    const friendName = childSnapshot.val(); // Assuming friend's name is stored
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = friendId;
+                    checkbox.value = friendId;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = friendId;
+                    label.innerText = friendName;
+
+                    const div = document.createElement('div');
+                    div.appendChild(checkbox);
+                    div.appendChild(label);
+                    friendsList.appendChild(div);
+                });
+            });
+        }
 
         function createEvent() {
             const eventTitle = document.getElementById('eventTitle').value;
             const eventDate = document.getElementById('eventDate').value;
             const eventTime = document.getElementById('eventTime').value;
             const eventDescription = document.getElementById('eventDescription').value;
-            const visibleUserIds = document.getElementById('visibleUserIds').value.split(',').map(id => id.trim());
+
+            const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
 
             const eventData = {
                 title: eventTitle,
                 date: eventDate,
                 time: eventTime,
                 description: eventDescription,
-                createdBy: "currentUserId", // Replace with the actual current user's ID
+                createdBy: currentUserId, // Use the actual current user's ID
             };
 
             const newEventRef = database.ref('events').push(); // Create a new event
