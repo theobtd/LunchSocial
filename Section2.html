@@ -247,9 +247,7 @@
                 // Add participant
                 participantsRef.once('value').then(snapshot => {
                     let participants = snapshot.val() || [];
-                    if (!participants.includes(currentUserId)) {
-                        participants.push(currentUserId);
-                    }
+                    participants.push(currentUserId);
                     return participantsRef.set(participants);
                 }).then(() => {
                     button.textContent = 'Leave Event'; // Update button text
@@ -260,41 +258,19 @@
                 });
             }
         }
-        
+
         function refreshButtonState(eventId, targetUserId, button) {
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
             participantsRef.once('value').then(snapshot => {
                 const participants = snapshot.val() || [];
                 const isParticipant = participants.includes(currentUserId);
                 button.textContent = isParticipant ? 'Leave Event' : 'Join!';
-            }).catch(error => {
-                console.error('Error refreshing button state:', error);
             });
         }
 
         function deleteEvent(eventId) {
             const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
-            
-            // First, get the event data to find out who has access
-            eventRef.once('value').then(snapshot => {
-                const eventData = snapshot.val();
-                if (eventData) {
-                    // Ensure visibleTo is an array
-                    const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
-    
-                    // Delete the event from the user's own events
-                    return eventRef.remove().then(() => {
-                        // Now delete from each user's visibleEvents
-                        const deletePromises = visibleTo.map(userId => {
-                            const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                            return userVisibleEventRef.remove(); // Remove the event from visibleEvents
-                        });
-                        return Promise.all(deletePromises); // Wait for all deletions to complete
-                    });
-                } else {
-                    throw new Error('Event data not found.');
-                }
-            }).then(() => {
+            eventRef.remove().then(() => {
                 displayFutureEvents(); // Refresh the events display
             }).catch(error => {
                 console.error("Error deleting event:", error);
