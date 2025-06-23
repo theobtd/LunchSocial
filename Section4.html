@@ -72,7 +72,14 @@
 
         let currentUserId;
 
-        const currentUserId = "currentUserId"; // Replace with actual current user ID
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUserId = user.uid;
+                displayFutureEvents();
+            } else {
+                // Also remove the line that sets the welcome message for guests
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             loadFriends();
