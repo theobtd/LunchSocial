@@ -270,22 +270,26 @@
 
         function deleteEvent(eventId) {
             const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
-            
+    
             // First, get the event data to find out who has access
             eventRef.once('value').then(snapshot => {
                 const eventData = snapshot.val();
-                console.log("Event Data:", eventData); // Log event data for debugging
                 if (eventData) {
+                    // Ensure visibleTo is an array
                     const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
-                    console.log("Visible To:", visibleTo); // Log visibleTo for debugging
     
-                    // Delete the event from the user's own events
-                    return eventRef.remove().then(() => {
-                        const deletePromises = visibleTo.map(userId => {
-                            const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                            return userVisibleEventRef.remove(); // Remove the event from visibleEvents
-                        });
-                        return Promise.all(deletePromises); // Wait for all deletions to complete
+                    // Filter out the event creator from the visibleTo list
+                    const nonCreatorUsers = visibleTo.filter(userId => userId !== currentUserId);
+    
+                    // Now delete from each user's visibleEvents
+                    const deletePromises = nonCreatorUsers.map(userId => {
+                        const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
+                        return userVisibleEventRef.remove(); // Remove the event from visibleEvents
+                    });
+    
+                    // Wait for all deletions to complete, then delete the event from the creator's path
+                    return Promise.all(deletePromises).then(() => {
+                        return eventRef.remove(); // Remove the event from the event creator's path
                     });
                 } else {
                     throw new Error('Event data not found.');
