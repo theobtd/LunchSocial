@@ -51,6 +51,8 @@
             <option value="others">Others</option>
         </select>
         <textarea id="eventDescription" placeholder="Event Description"></textarea>
+
+        <h3>Select Friends to Invite</h3>
         <div class="friends-list" id="friendsList"></div>
         <button id="createEventButton">Create Event</button>
     </div>
@@ -75,14 +77,14 @@
             messagingSenderId: "954205055992",
             appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
-    
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-    
+
         let currentUserId;
-    
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid; // Set currentUserId to the authenticated user's ID
@@ -91,37 +93,38 @@
                 console.log('No user is signed in.');
             }
         });
-    
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('createEventButton').addEventListener('click', createEvent);
         });
-    
+
         function loadFriends() {
             const friendsRef = database.ref(`users/${currentUserId}/friends`);
             friendsRef.once('value').then(snapshot => {
                 const friendsList = document.getElementById('friendsList');
                 friendsList.innerHTML = ''; // Clear existing friends list
-    
+
                 snapshot.forEach(childSnapshot => {
                     const friendId = childSnapshot.key;
                     const friendName = childSnapshot.val(); // Assuming friend's name is stored
+                    const div = document.createElement('div');
+
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
                     checkbox.id = friendId;
                     checkbox.value = friendId;
-    
+
                     const label = document.createElement('label');
                     label.htmlFor = friendId;
                     label.innerText = friendName;
-    
-                    const div = document.createElement('div');
+
                     div.appendChild(checkbox);
                     div.appendChild(label);
                     friendsList.appendChild(div);
                 });
             });
         }
-    
+
         function createEvent() {
             const eventTitle = document.getElementById('eventTitle').value.trim();
             const eventDate = document.getElementById('eventDate').value;
@@ -129,28 +132,29 @@
             const eventLocation = document.getElementById('eventLocation').value.trim();
             const eventCategory = document.getElementById('eventCategory').value;
             const eventDescription = document.getElementById('eventDescription').value.trim();
-    
+
             // Validation for required fields
             if (!eventTitle || !eventDate || !eventTime || !eventLocation || !eventCategory) {
                 document.getElementById('statusMessage').innerText = 'Please fill in all required fields.';
                 return; // Stop the function if validation fails
             }
-    
+
             const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
-    
+
             const eventData = {
                 title: eventTitle,
                 date: eventDate,
                 time: eventTime,
-                location: eventLocation, // Added location
-                category: eventCategory,   // Added category
+                location: eventLocation,
+                category: eventCategory,
                 description: eventDescription,
-                createdBy: currentUserId, // Use the actual current user's ID
+                createdBy: currentUserId,
+                visibleTo: visibleUserIds // Add selected friends to visibleTo
             };
-    
+
             const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Create a new event under user's events path
             const eventId = newEventRef.key;
-    
+
             // Save event data
             newEventRef.set(eventData).then(() => {
                 // Update each authorized user’s path
