@@ -146,58 +146,49 @@
             });
         }
 
-            function createEvent() {
-                const eventTitle = document.getElementById('eventTitle').value.trim();
-                const eventDate = document.getElementById('eventDate').value;
-                const eventTime = document.getElementById('eventTime').value;
-                const eventLocation = document.getElementById('eventLocation').value.trim();
-                const eventCategory = document.getElementById('eventCategory').value;
-                const eventDescription = document.getElementById('eventDescription').value.trim();
-        
-                // Validation for required fields
-                if (!eventTitle || !eventDate || !eventTime || !eventLocation || !eventCategory) {
-                    document.getElementById('statusMessage').innerText = 'Please fill in all required fields.';
-                    return; // Stop the function if validation fails
-                }
-        
-                const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
-        
-                const eventData = {
-                    title: eventTitle,
-                    date: eventDate,
-                    time: eventTime,
-                    location: eventLocation,
-                    category: eventCategory,
-                    description: eventDescription,
-                    createdBy: currentUserId,
-                    visibleTo: visibleUserIds // Add selected friends to visibleTo
-                };
-        
-                const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Create a new event under user's events path
-                const eventId = newEventRef.key;
-        
-                // Save event data
-                newEventRef.set(eventData).then(() => {
-                    // Store the event in visibleEvents for each friend
-                    visibleUserIds.forEach(userId => {
-                        const userVisibleEventsRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                        userVisibleEventsRef.set({
-                            title: eventTitle // Store the title with the event ID
-                        });
-                    });
-        
-                    // Update each authorized user’s path for visibleTo
-                    visibleUserIds.forEach(userId => {
-                        const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
-                        userRef.set(true); // Mark the event as visible for this user
-                    });
-        
-                    document.getElementById('statusMessage').innerText = 'Event created successfully!';
-                }).catch(error => {
-                    console.error("Error creating event:", error);
-                    document.getElementById('statusMessage').innerText = 'Error creating event.';
-                });
+        function createEvent() {
+            const eventTitle = document.getElementById('eventTitle').value.trim();
+            const eventDate = document.getElementById('eventDate').value;
+            const eventTime = document.getElementById('eventTime').value;
+            const eventLocation = document.getElementById('eventLocation').value.trim();
+            const eventCategory = document.getElementById('eventCategory').value;
+            const eventDescription = document.getElementById('eventDescription').value.trim();
+
+            // Validation for required fields
+            if (!eventTitle || !eventDate || !eventTime || !eventLocation || !eventCategory) {
+                document.getElementById('statusMessage').innerText = 'Please fill in all required fields.';
+                return; // Stop the function if validation fails
             }
+
+            const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
+
+            const eventData = {
+                title: eventTitle,
+                date: eventDate,
+                time: eventTime,
+                location: eventLocation,
+                category: eventCategory,
+                description: eventDescription,
+                createdBy: currentUserId,
+                visibleTo: visibleUserIds // Add selected friends to visibleTo
+            };
+
+            const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Create a new event under user's events path
+            const eventId = newEventRef.key;
+
+            // Save event data
+            newEventRef.set(eventData).then(() => {
+                // Update each authorized user’s path
+                visibleUserIds.forEach(userId => {
+                    const userRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
+                    userRef.set(true); // Mark the event as visible for this user
+                });
+                document.getElementById('statusMessage').innerText = 'Event created successfully!';
+            }).catch(error => {
+                console.error("Error creating event:", error);
+                document.getElementById('statusMessage').innerText = 'Error creating event.';
+            });
+        }
     </script>
 </body>
 </html>
