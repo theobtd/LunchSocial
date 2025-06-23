@@ -279,7 +279,7 @@
                     participants = participants.filter(participant => participant !== currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants, currentUserId); // Update the UI
+                        updateParticipantList(participantListContainer, participants); // Update the UI
                         console.log(`User ${currentUserId} left the event ${eventId}`);
                     });
                 } else {
@@ -287,7 +287,7 @@
                     participants.push(currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants, currentUserId); // Update the UI
+                        updateParticipantList(participantListContainer, participants); // Update the UI
                         console.log(`User ${currentUserId} joined the event ${eventId}`);
                     });
                 }
