@@ -52,6 +52,12 @@
         .delete-button {
             background-color: #FF6F61;
         }
+        .participant-container {
+            display: flex; /* Use flexbox for horizontal layout */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent wrapping */
+            margin-bottom: 10px; /* Space below the badge container */
+        }
         .participant-badge {
             display: inline-block; /* Allows badges to sit next to each other */
             background-color: #007BFF; /* Badge background color */
@@ -61,6 +67,7 @@
             margin: 5px; /* Space between badges */
             font-size: 14px; /* Font size */
             text-align: center; /* Center the text */
+            margin-right: 5px; /* Space between badges */
         }
     </style>
 </head>
@@ -188,9 +195,9 @@
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
                     
-                    // Insert participant list at the top of the event card
+                    // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
-                        <div><em>Participants:</em> ${participantList || "None"}</div>
+                        <div class="participant-container">${participantList || "None"}</div>
                         <div class="separator"></div> <!-- Separator line -->
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
