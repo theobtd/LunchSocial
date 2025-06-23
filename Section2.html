@@ -274,9 +274,10 @@
             // First, get the event data to find out who has access
             eventRef.once('value').then(snapshot => {
                 const eventData = snapshot.val();
-                console.log("Event Data Retrieved for Deletion:", eventData); // Log event data
+                console.log("Event Data Retrieved for Deletion:", eventData); // Log entire event data
     
                 if (eventData) {
+                    // Check if visibleTo exists and is an array
                     const visibleTo = Array.isArray(eventData.visibleTo) ? eventData.visibleTo : [];
                     console.log("Visible To Users:", visibleTo); // Log visibleTo array
     
