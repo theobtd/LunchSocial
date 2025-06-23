@@ -279,7 +279,7 @@
                     participants = participants.filter(participant => participant !== currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
+                        updateParticipantList(participantListContainer, participants, currentUserId); // Update the UI
                         console.log(`User ${currentUserId} left the event ${eventId}`);
                     });
                 } else {
@@ -287,7 +287,7 @@
                     participants.push(currentUserId);
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
+                        updateParticipantList(participantListContainer, participants, currentUserId); // Update the UI
                         console.log(`User ${currentUserId} joined the event ${eventId}`);
                     });
                 }
@@ -296,28 +296,14 @@
             });
         }
         
-        function updateParticipantList(participantListContainer, participants) {
-            // Fetch user IDs for the updated participants
-            const userPromises = participants.map(uid => {
-                return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                    return userIdSnapshot.val(); // Get the user ID
-                });
-            });
+        function updateParticipantList(participantListContainer, participants, currentUserId) {
+            // Generate participant badges directly from the participants array
+            const participantList = participants.map(id => 
+                `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
+            ).join(' '); // Join badges with space
         
-            // Always include the organizer
-            userPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(userIdSnapshot => {
-                return userIdSnapshot.val(); // Get the organizer's user ID
-            }));
-        
-            Promise.all(userPromises).then(userIds => {
-                const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                const participantList = uniqueParticipants.map(id => 
-                    `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                ).join(' '); // Join badges with space
-                
-                // Update the participant list in the UI
-                participantListContainer.innerHTML = participantList || "None";
-            });
+            // Update the participant list in the UI
+            participantListContainer.innerHTML = participantList || "None";
         }
 
         function refreshButtonState(eventId, targetUserId, button) {
