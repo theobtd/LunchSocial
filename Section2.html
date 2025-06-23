@@ -41,14 +41,6 @@
         .event-item:hover {
             background-color: #f0f0f0;
         }
-        .join-button, .delete-button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
         .delete-button {
             background-color: #FF6F61;
         }
@@ -68,6 +60,62 @@
             font-size: 14px; /* Font size */
             text-align: center; /* Center the text */
             margin-right: 5px; /* Space between badges */
+        }
+
+        .toggle-button-container {
+            display: flex;
+            justify-content: center; /* Center the toggle buttons */
+            margin-top: 10px; /* Space above the toggle */
+            position: relative; /* For absolute positioning of buttons */
+        }
+        
+        .toggle-button {
+            display: flex; /* Use flexbox for layout */
+            position: relative; /* For positioning child elements */
+            width: 100px; /* Width of the toggle button */
+            height: 40px; /* Height of the toggle button */
+            border-radius: 20px; /* Rounded corners */
+            background-color: #ccc; /* Default background */
+            cursor: pointer; /* Pointer cursor for interactivity */
+            transition: background-color 0.3s; /* Smooth background transition */
+        }
+        
+        .toggle-button.active {
+            background-color: #007BFF; /* Background color when active */
+        }
+        
+        .join-button, .leave-button {
+            border: none; /* Remove default border */
+            border-radius: 20px; /* Rounded corners */
+            color: white; /* Button text color */
+            width: 50%; /* Each button takes half the width */
+            height: 100%; /* Full height of the toggle */
+            cursor: pointer; /* Pointer cursor */
+            transition: opacity 0.3s; /* Smooth opacity transition */
+        }
+        
+        .leave-button {
+            background-color: #FF6F61; /* Leave button background color */
+        }
+        
+        .join-button {
+            background-color: #007BFF; /* Join button background color */
+        }
+        
+        .toggle-button.active .join-button {
+            opacity: 0; /* Hide the Join button when active */
+        }
+        
+        .toggle-button.active .leave-button {
+            opacity: 1; /* Show the Leave button when active */
+        }
+        
+        .toggle-button .join-button {
+            opacity: 1; /* Show the Join button by default */
+        }
+        
+        .toggle-button .leave-button {
+            opacity: 0; /* Hide the Leave button by default */
         }
     </style>
 </head>
@@ -204,26 +252,14 @@
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
+                        <div class="toggle-button-container">
+                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}">
+                                <button class="join-button">Join!</button>
+                                <button class="leave-button">Leave Event</button>
+                            </div>
+                        </div>
                     `;
         
-                    const actionButton = document.createElement('button');
-                    actionButton.classList.add('join-button');
-        
-                    if (eventData.createdBy === currentUserId) {
-                        actionButton.textContent = 'Delete Event';
-                        actionButton.classList.remove('join-button');
-                        actionButton.classList.add('delete-button');
-                        actionButton.onclick = () => deleteEvent(eventId);
-                    } else {
-                        const isParticipant = participantsUids.includes(currentUserId);
-                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
-        
-                        actionButton.onclick = () => {
-                            toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
-                        };
-                    }
-        
-                    eventItem.appendChild(actionButton);
                     eventList.appendChild(eventItem);
                 });
             });
