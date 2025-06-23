@@ -39,6 +39,17 @@
         <input type="text" id="eventTitle" placeholder="Event Title" required>
         <input type="date" id="eventDate" required>
         <input type="time" id="eventTime" required>
+        <input type="text" id="eventLocation" placeholder="Event Location" required>
+        <select id="eventCategory" required>
+            <option value="">Select Category</option>
+            <option value="apero">Apero</option>
+            <option value="coffee">Coffee</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="workout">Workout</option>
+            <option value="party">Party</option>
+            <option value="others">Others</option>
+        </select>
         <textarea id="eventDescription" placeholder="Event Description"></textarea>
         <div class="friends-list" id="friendsList"></div>
         <button id="createEventButton">Create Event</button>
@@ -52,7 +63,7 @@
         <a href="Section3.html" style="color: white;">Section 3</a>
         <a href="Section4.html" style="color: white;">Section 4</a>
     </div>
-    
+
     <script>
         // Your Firebase configuration
         const firebaseConfig = {
@@ -64,14 +75,14 @@
             messagingSenderId: "954205055992",
             appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
         };
-    
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-    
+
         let currentUserId;
-    
+
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid; // Set currentUserId to the authenticated user's ID
@@ -80,17 +91,17 @@
                 console.log('No user is signed in.');
             }
         });
-    
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('createEventButton').addEventListener('click', createEvent);
         });
-    
+
         function loadFriends() {
             const friendsRef = database.ref(`users/${currentUserId}/friends`);
             friendsRef.once('value').then(snapshot => {
                 const friendsList = document.getElementById('friendsList');
                 friendsList.innerHTML = ''; // Clear existing friends list
-    
+
                 snapshot.forEach(childSnapshot => {
                     const friendId = childSnapshot.key;
                     const friendName = childSnapshot.val(); // Assuming friend's name is stored
@@ -98,11 +109,11 @@
                     checkbox.type = 'checkbox';
                     checkbox.id = friendId;
                     checkbox.value = friendId;
-    
+
                     const label = document.createElement('label');
                     label.htmlFor = friendId;
                     label.innerText = friendName;
-    
+
                     const div = document.createElement('div');
                     div.appendChild(checkbox);
                     div.appendChild(label);
@@ -110,27 +121,30 @@
                 });
             });
         }
-    
+
         function createEvent() {
             const eventTitle = document.getElementById('eventTitle').value;
             const eventDate = document.getElementById('eventDate').value;
             const eventTime = document.getElementById('eventTime').value;
+            const eventLocation = document.getElementById('eventLocation').value;
+            const eventCategory = document.getElementById('eventCategory').value;
             const eventDescription = document.getElementById('eventDescription').value;
-    
+
             const visibleUserIds = Array.from(document.querySelectorAll('.friends-list input:checked')).map(checkbox => checkbox.value);
-    
+
             const eventData = {
                 title: eventTitle,
                 date: eventDate,
                 time: eventTime,
+                location: eventLocation, // Added location
+                category: eventCategory,   // Added category
                 description: eventDescription,
                 createdBy: currentUserId, // Use the actual current user's ID
             };
-    
-            // Create a new event under the user's events path
-            const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Adjusted path
+
+            const newEventRef = database.ref(`users/${currentUserId}/events`).push(); // Create a new event under user's events path
             const eventId = newEventRef.key;
-    
+
             // Save event data
             newEventRef.set(eventData).then(() => {
                 // Update each authorized user’s path
