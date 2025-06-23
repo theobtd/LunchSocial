@@ -223,7 +223,7 @@
             
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-                
+        
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
@@ -239,6 +239,8 @@
                 return Promise.all(userPromises).then(userIds => {
                     // Filter out any null values and ensure the organizer is included
                     const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
+                    
+                    // Create badges for each participant, including the organizer
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
