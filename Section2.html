@@ -231,33 +231,36 @@
                     });
                 });
         
-                return Promise.all(userPromises).then(userIds => {
-                    // Filter out any null values and ensure the organizer is included
-                    const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                    const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
-                    
-                    // Insert participant badges in a scrollable container
-                    eventItem.innerHTML = `
-                        <div class="participant-container">${participantList || "None"}</div>
-                        <div class="separator"></div>
-                        <strong>${eventData.title}</strong><br>
-                        <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
-                        <em>Location:</em> ${eventData.location || "N/A"}<br>
-                        <em>Comment:</em> ${eventData.comment || "N/A"}<br>
-                        <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <div class="toggle-button-container">
-                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
-                                 onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
-                                <button class="join-button">Join!</button>
-                                <button class="leave-button">Leave Event</button>
-                            </div>
-                        </div>
-                    `;
+                // Fetch event creator's user ID
+                const creatorRef = database.ref(`users/${targetUserId}/events/${eventId}/creatorId`);
+                return Promise.all([Promise.all(userPromises), creatorRef.once('value')]);
+            }).then(([userIds, creatorIdSnapshot]) => {
+                const creatorId = creatorIdSnapshot.val(); // Get the creator's user ID
+                const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
+                const participantList = uniqueParticipants.map(id => 
+                    `<span class="participant-badge">${id}</span>`
+                ).join(' ');
         
-                    eventList.appendChild(eventItem);
-                });
+                // Insert participant badges and creator ID in the event item
+                eventItem.innerHTML = `
+                    <div class="participant-container">${participantList || "None"}</div>
+                    <div class="separator"></div>
+                    <strong>${eventData.title}</strong><br>
+                    <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
+                    <em>Location:</em> ${eventData.location || "N/A"}<br>
+                    <em>Comment:</em> ${eventData.comment || "N/A"}<br>
+                    <em>Category:</em> ${eventData.category || "N/A"}<br>
+                    <em>Created by:</em> ${creatorId || "Unknown"}<br>
+                    <div class="toggle-button-container">
+                        <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
+                             onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
+                            <button class="join-button">Join!</button>
+                            <button class="leave-button">Leave Event</button>
+                        </div>
+                    </div>
+                `;
+        
+                eventList.appendChild(eventItem);
             });
         }
 
