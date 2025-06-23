@@ -270,7 +270,24 @@
 
         function deleteEvent(eventId) {
             const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
-            eventRef.remove().then(() => {
+            
+            // First, get the event data to find out who has access
+            eventRef.once('value').then(snapshot => {
+                const eventData = snapshot.val();
+                if (eventData) {
+                    const visibleTo = eventData.visibleTo || []; // Get the list of users who can see this event
+    
+                    // Delete the event from the user's own events
+                    return eventRef.remove().then(() => {
+                        // Now delete from each user's visibleEvents
+                        const deletePromises = visibleTo.map(userId => {
+                            const userVisibleEventRef = database.ref(`users/${userId}/visibleEvents/${eventId}`);
+                            return userVisibleEventRef.remove(); // Remove the event from visibleEvents
+                        });
+                        return Promise.all(deletePromises); // Wait for all deletions to complete
+                    });
+                }
+            }).then(() => {
                 displayFutureEvents(); // Refresh the events display
             }).catch(error => {
                 console.error("Error deleting event:", error);
