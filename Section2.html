@@ -30,13 +30,11 @@
             margin-top: 10px;
         }
         .event-item {
-            background-color: #fff; /* White background for the card */
-            border: 1px solid #ccc; /* Light gray border */
-            border-radius: 8px; /* Rounded corners */
-            padding: 15px; /* Inner padding */
-            margin: 10px 0; /* Margin between cards */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .event-item:hover {
             background-color: #f0f0f0;
@@ -51,16 +49,6 @@
         }
         .delete-button {
             background-color: #FF6F61;
-        }
-        .participant-badge {
-            display: inline-block; /* Allows badges to sit next to each other */
-            background-color: #007BFF; /* Badge background color */
-            color: white; /* Text color */
-            border-radius: 20px; /* Make it stadium-shaped */
-            padding: 5px 15px; /* Padding for the badge */
-            margin: 5px; /* Space between badges */
-            font-size: 14px; /* Font size */
-            text-align: center; /* Center the text */
         }
     </style>
 </head>
@@ -161,62 +149,43 @@
         function addEventToList(eventData, eventId, targetUserId) {
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
-            eventItem.classList.add('event-item'); // Apply card class
-        
-            // Fetch participants for display
+            eventItem.classList.add('event-item');
+            
+            // Create event details HTML
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
             
+            // Fetch participants for display
             participantsRef.once('value').then(participantSnapshot => {
-                const participantsUids = participantSnapshot.val() || [];
-                
-                // Get user IDs based on UIDs
-                const userPromises = participantsUids.map(uid => {
-                    return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        return userIdSnapshot.val(); // Get the user ID
-                    });
-                });
+                const participants = participantSnapshot.val() || [];
+                const participantList = participants.join(', ');
         
-                // Always include the organizer
-                userPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(userIdSnapshot => {
-                    return userIdSnapshot.val(); // Get the organizer's user ID
-                }));
+                eventItem.innerHTML = `
+                    <strong>${eventData.title}</strong> - ${eventData.date} at ${eventData.time}<br>
+                    <em>Location:</em> ${eventData.location || "N/A"}<br>
+                    <em>Comment:</em> ${eventData.comment || "N/A"}<br>
+                    <em>Category:</em> ${eventData.category || "N/A"}<br>
+                    <em>Participants:</em> ${participantList || "None"}
+                `;
         
-                return Promise.all(userPromises).then(userIds => {
-                    // Filter out any null values and ensure the organizer is included
-                    const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                    const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
-                    
-                    eventItem.innerHTML = `
-                        <strong>${eventData.title}</strong><br>
-                        <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
-                        <em>Location:</em> ${eventData.location || "N/A"}<br>
-                        <em>Comment:</em> ${eventData.comment || "N/A"}<br>
-                        <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <em>Participants:</em> ${participantList || "None"}<br>
-                    `;
+                const actionButton = document.createElement('button');
+                actionButton.classList.add('join-button');
         
-                    const actionButton = document.createElement('button');
-                    actionButton.classList.add('join-button');
+                if (eventData.createdBy === currentUserId) {
+                    actionButton.textContent = 'Delete Event';
+                    actionButton.classList.remove('join-button');
+                    actionButton.classList.add('delete-button');
+                    actionButton.onclick = () => deleteEvent(eventId);
+                } else {
+                    const isParticipant = participants.includes(currentUserId);
+                    actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
         
-                    if (eventData.createdBy === currentUserId) {
-                        actionButton.textContent = 'Delete Event';
-                        actionButton.classList.remove('join-button');
-                        actionButton.classList.add('delete-button');
-                        actionButton.onclick = () => deleteEvent(eventId);
-                    } else {
-                        const isParticipant = participantsUids.includes(currentUserId);
-                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+                    actionButton.onclick = () => {
+                        toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
+                    };
+                }
         
-                        actionButton.onclick = () => {
-                            toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
-                        };
-                    }
-        
-                    eventItem.appendChild(actionButton);
-                    eventList.appendChild(eventItem);
-                });
+                eventItem.appendChild(actionButton);
+                eventList.appendChild(eventItem);
             });
         }
 
