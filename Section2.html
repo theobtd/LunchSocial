@@ -176,8 +176,15 @@
                     });
                 });
         
+                // Always include the organizer
+                userPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(userIdSnapshot => {
+                    return userIdSnapshot.val(); // Get the organizer's user ID
+                }));
+        
                 return Promise.all(userPromises).then(userIds => {
-                    const participantList = userIds.filter(id => id).map(id => 
+                    // Filter out any null values and ensure the organizer is included
+                    const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
+                    const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
                     
