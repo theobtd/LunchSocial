@@ -72,15 +72,6 @@
 
         let currentUserId;
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUserId = user.uid;
-                displayFutureEvents();
-            } else {
-                // Also remove the line that sets the welcome message for guests
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
             loadFriends();
             document.getElementById('createEventButton').addEventListener('click', createEvent);
