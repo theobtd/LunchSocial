@@ -156,21 +156,20 @@
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
-            const addedEvents = []; // Array to hold all events
-            const addedEventIds = new Set(); // To track added event IDs
+            const addedEvents = [];
+            const addedEventIds = new Set();
         
-            // First, fetch the user's friends
+            // Fetch user's friends
             database.ref(`users/${currentUserId}/friendRequests`).once('value').then(snapshot => {
                 const friendIds = [];
         
                 snapshot.forEach(childSnapshot => {
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'accepted') {
-                        friendIds.push(childSnapshot.key); // Add accepted friend IDs
+                        friendIds.push(childSnapshot.key);
                     }
                 });
         
-                // Then, fetch events only from friends
                 const promises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
@@ -178,23 +177,20 @@
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                            // Check if the event is in the future
                             if (eventDateTime > new Date()) {
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
-                                
-                                // Add event to array if user has access
                                 if (isVisible) {
                                     addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                    addedEventIds.add(eventId); // Track added event ID
+                                    addedEventIds.add(eventId);
                                 }
                             }
                         });
                     });
                 });
         
-                return Promise.all(promises); // Wait for all friend events to be fetched
+                return Promise.all(promises);
             }).then(() => {
-                // Fetch the user's own events
+                // Fetch user's own events
                 return database.ref(`users/${currentUserId}/events`).once('value');
             }).then(eventSnapshot => {
                 eventSnapshot.forEach(eventChildSnapshot => {
@@ -202,14 +198,19 @@
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    // Check if the event is in the future and not already added
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
             }).then(() => {
+                // Log events before sorting
+                console.log("Events before sorting:", addedEvents);
+        
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+        
+                // Log events after sorting
+                console.log("Events after sorting:", addedEvents);
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
