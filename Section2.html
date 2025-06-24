@@ -157,7 +157,7 @@
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
-            const allEvents = []; // Collect all events here
+            const addedEvents = [];
             const addedEventIds = new Set();
         
             try {
@@ -168,55 +168,50 @@
                 snapshot.forEach(childSnapshot => {
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'accepted') {
-                        friendIds.push(childSnapshot.key); // Collect accepted friend IDs
+                        friendIds.push(childSnapshot.key);
                     }
                 });
         
-                console.log("Friend IDs:", friendIds); // Log friend IDs
-        
-                // Fetch events for each friend
-                const friendPromises = friendIds.map(friendId => {
+                const promises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                            // Check if the event is in the future and is visible to the current user
-                            if (eventDateTime > new Date() && eventData.visibleTo && eventData.visibleTo.includes(currentUserId)) {
-                                allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                addedEventIds.add(eventId); // Track added event IDs
+                            if (eventDateTime > new Date()) {
+                                const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
+                                if (isVisible) {
+                                    addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                    addedEventIds.add(eventId);
+                                }
                             }
                         });
                     });
                 });
         
-                await Promise.all(friendPromises);
-        
-                console.log("All events after fetching friends' events:", allEvents); // Log collected events after friends' events
+                await Promise.all(promises);
         
                 // Fetch user's own events
-                const userEventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
-                userEventSnapshot.forEach(eventChildSnapshot => {
+                const eventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
+                eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    // Check if the event is in the future and not already added
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
-                        allEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
+                        addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
         
-                console.log("All events after fetching user's events:", allEvents); // Log collected events after user's events
-        
-                // Sort all events together by date and time
-                allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-                console.log("Sorted events:", allEvents); // Log sorted events
+                // Sort events by date and time
+                addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
         
                 // Display sorted events
-                for (const { eventData, eventId, targetUserId } of allEvents) {
+                for (const { eventData, eventId, targetUserId } of addedEvents) {
+                    console.log(`Processing event: ${eventData.title}`); // Ensure title is available
                     await addEventToList(eventData, eventId, targetUserId);
+                    console.log(`Appended event: ${eventData.title}`); // Ensure title is available
                 }
             } catch (error) {
                 console.error("Error fetching events:", error);
@@ -224,8 +219,7 @@
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
-            console.log(`Adding event to list: ${eventData.title}, Event ID: ${eventId}, Target User ID: ${targetUserId}`);
-            
+            console.log(`Inside addEventToList for event: ${eventData.title}`);
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item'); // Apply card class
@@ -235,12 +229,13 @@
         
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-                console.log(`Participants for event ${eventData.title}:`, participantsUids);
+                console.log(`Participants UIDs for event ${eventData.title}:`, participantsUids);
         
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
                         const userId = userIdSnapshot.val(); // Get the user ID
+                        console.log(`Fetched user ID for UID ${uid}:`, userId); // Log after fetching
                         return userId; // Return the user ID
                     });
                 });
@@ -253,6 +248,8 @@
                 return Promise.all([...userPromises, organizerPromise]).then(results => {
                     const uniqueParticipants = results.slice(0, results.length - 1); // All but the last result
                     const organizerId = results[results.length - 1]; // Last result is the organizer ID
+                    console.log(`Unique Participants for event ${eventData.title}:`, uniqueParticipants);
+                    console.log(`Organizer ID for event ${eventData.title}:`, organizerId);
         
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
@@ -287,7 +284,6 @@
                     `;
 
                     // Log the event title before appending to the DOM
-                    console.log(`Appending event item to the list: ${eventData.title}`);
                     eventList.appendChild(eventItem);
                 });
             }).catch(error => {
@@ -309,6 +305,7 @@
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.remove('active'); // Remove active class
                         updateParticipantList(participantListContainer, participants); // Update the UI
+                        console.log(`User ${currentUserId} left the event ${eventId}`);
                     });
                 } else {
                     // Add participant
@@ -316,6 +313,7 @@
                     return participantsRef.set(participants).then(() => {
                         buttonContainer.classList.add('active'); // Add active class
                         updateParticipantList(participantListContainer, participants); // Update the UI
+                        console.log(`User ${currentUserId} joined the event ${eventId}`);
                     });
                 }
             }).catch(error => {
