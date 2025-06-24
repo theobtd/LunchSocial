@@ -208,6 +208,9 @@
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
 
+                // Log the sorted events
+                console.log("After sorting:", addedEvents);
+
                 // Debugging output
                 addedEvents.forEach(event => {
                     console.log(`Event: ${event.eventData.title}, DateTime: ${event.eventDateTime}`);
