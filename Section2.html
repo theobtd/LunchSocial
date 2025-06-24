@@ -247,6 +247,9 @@
         
                     // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
+                        <div class="organizer-badge">
+                            <span class="participant-badge">${eventData.organizerId}</span> <!-- Organizer badge -->
+                        </div>
                         <div class="participant-container">${participantList || "None"}</div>
                         <div class="separator"></div>
                         <strong>${eventData.title}</strong><br>
