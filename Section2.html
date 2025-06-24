@@ -157,9 +157,10 @@
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
-            try {
-                const events = []; // Array to hold events
+            const allEvents = []; // Collect all events here
+            const addedEventIds = new Set();
         
+            try {
                 // Fetch user's friends
                 const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
                 const friendIds = [];
@@ -171,19 +172,20 @@
                     }
                 });
         
+                console.log("Friend IDs:", friendIds); // Log friend IDs
+        
                 // Fetch events for each friend
                 const friendPromises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
                             const eventId = eventChildSnapshot.key;
-        
-                            // Create a Date object to ensure proper comparison
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                            // Check if the event is in the future
-                            if (eventDateTime > new Date()) {
-                                events.push({ eventData, eventId, targetUserId: friendId, eventDateTime }); // Store event info
+                            // Check if the event is in the future and is visible to the current user
+                            if (eventDateTime > new Date() && eventData.visibleTo && eventData.visibleTo.includes(currentUserId)) {
+                                allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                addedEventIds.add(eventId); // Track added event IDs
                             }
                         });
                     });
@@ -191,35 +193,39 @@
         
                 await Promise.all(friendPromises);
         
+                console.log("All events after fetching friends' events:", allEvents); // Log collected events after friends' events
+        
                 // Fetch user's own events
                 const userEventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
                 userEventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
-        
-                    // Create a Date object for user events
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    // Check if the event is in the future
-                    if (eventDateTime > new Date()) {
-                        events.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime }); // Store event info
+                    // Check if the event is in the future and not already added
+                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
+                        allEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
         
-                // Sort events by date and time
-                events.sort((a, b) => a.eventDateTime - b.eventDateTime);
+                console.log("All events after fetching user's events:", allEvents); // Log collected events after user's events
         
-                // Display the sorted events
-                events.forEach(event => {
-                    addEventToList(event.eventData, event.eventId, event.targetUserId);
-                });
+                // Sort all events together by date and time
+                allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+                console.log("Sorted events:", allEvents); // Log sorted events
         
+                // Display sorted events
+                for (const { eventData, eventId, targetUserId } of allEvents) {
+                    await addEventToList(eventData, eventId, targetUserId);
+                }
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
+            console.log(`Adding event to list: ${eventData.title}, Event ID: ${eventId}, Target User ID: ${targetUserId}`);
+            
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item'); // Apply card class
@@ -229,11 +235,13 @@
         
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
+                console.log(`Participants for event ${eventData.title}:`, participantsUids);
         
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        return userIdSnapshot.val(); // Get the user ID
+                        const userId = userIdSnapshot.val(); // Get the user ID
+                        return userId; // Return the user ID
                     });
                 });
         
@@ -277,8 +285,9 @@
                         <button class="delete-button" onclick="deleteEvent('${eventId}')">Delete Event</button>
                         `} <!-- Show delete button if creator -->
                     `;
-        
-                    // Append to the event list
+
+                    // Log the event title before appending to the DOM
+                    console.log(`Appending event item to the list: ${eventData.title}`);
                     eventList.appendChild(eventItem);
                 });
             }).catch(error => {
