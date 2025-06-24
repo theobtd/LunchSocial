@@ -154,10 +154,11 @@
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            eventList.innerHTML = ''; // Clear previous entries
+            eventList.innerHTML = '';
         
             const addedEvents = [];
-            
+            const addedEventIds = new Set();
+        
             // Fetch user's friends
             database.ref(`users/${currentUserId}/friendRequests`).once('value').then(snapshot => {
                 const friendIds = [];
@@ -180,6 +181,7 @@
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
                                 if (isVisible) {
                                     addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                    addedEventIds.add(eventId);
                                 }
                             }
                         });
@@ -191,21 +193,35 @@
                 // Fetch user's own events
                 return database.ref(`users/${currentUserId}/events`).once('value');
             }).then(eventSnapshot => {
+                console.log("Fetched events:", addedEvents);
                 eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    if (eventDateTime > new Date()) {
+                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
+                        console.log(`Adding event: ${eventData.title}, DateTime: ${eventDateTime}`);
                     }
                 });
             }).then(() => {
+                console.log("Before sorting:", addedEvents);
+                
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+
+                // Log the sorted events
+                console.log("After sorting:", addedEvents);
+
+                // Debugging output
+                addedEvents.forEach(event => {
+                    console.log(`Event: ${event.eventData.title}, DateTime: ${event.eventDateTime}`);
+                });
         
-                // Render sorted events
+                // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
+                    console.log("Current DOM content before rendering:", eventList.innerHTML);
+                    console.log(`Rendering event: ${eventData.title}`);
                     addEventToList(eventData, eventId, targetUserId);
                 });
             }).catch(error => {
