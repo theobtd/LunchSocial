@@ -156,14 +156,14 @@
         async function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
-        
+            
             const allEvents = []; // Initialize all events only once
-        
+            
             try {
                 // Fetch user's friends
                 const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
                 const friendIds = [];
-        
+                
                 snapshot.forEach(childSnapshot => {
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'accepted') {
@@ -210,9 +210,10 @@
                 allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
         
                 // Display sorted events
-                for (const { eventData, eventId, targetUserId } of allEvents) {
-                    await addEventToList(eventData, eventId, targetUserId);
-                }
+                await Promise.all(allEvents.map(({ eventData, eventId, targetUserId }) => 
+                    addEventToList(eventData, eventId, targetUserId)
+                ));
+                
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
