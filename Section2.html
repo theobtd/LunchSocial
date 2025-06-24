@@ -41,81 +41,16 @@
         .event-item:hover {
             background-color: #f0f0f0;
         }
+        .join-button, .delete-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
         .delete-button {
             background-color: #FF6F61;
-        }
-        .participant-container {
-            display: flex; /* Use flexbox for horizontal layout */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping */
-            margin-bottom: 10px; /* Space below the badge container */
-        }
-        .participant-badge {
-            display: inline-block; /* Allows badges to sit next to each other */
-            background-color: #007BFF; /* Badge background color */
-            color: white; /* Text color */
-            border-radius: 20px; /* Make it stadium-shaped */
-            padding: 5px 15px; /* Padding for the badge */
-            margin: 5px; /* Space between badges */
-            font-size: 14px; /* Font size */
-            text-align: center; /* Center the text */
-            margin-right: 5px; /* Space between badges */
-        }
-
-        .toggle-button-container {
-            display: flex;
-            justify-content: center; /* Center the toggle buttons */
-            margin-top: 10px; /* Space above the toggle */
-            position: relative; /* For absolute positioning of buttons */
-        }
-        
-        .toggle-button {
-            display: flex; /* Use flexbox for layout */
-            position: relative; /* For positioning child elements */
-            width: 100px; /* Width of the toggle button */
-            height: 40px; /* Height of the toggle button */
-            border-radius: 20px; /* Rounded corners */
-            background-color: #ccc; /* Default background */
-            cursor: pointer; /* Pointer cursor for interactivity */
-            transition: background-color 0.3s; /* Smooth background transition */
-        }
-        
-        .toggle-button.active {
-            background-color: #007BFF; /* Background color when active */
-        }
-        
-        .join-button, .leave-button {
-            border: none; /* Remove default border */
-            border-radius: 20px; /* Rounded corners */
-            color: white; /* Button text color */
-            width: 50%; /* Each button takes half the width */
-            height: 100%; /* Full height of the toggle */
-            cursor: pointer; /* Pointer cursor */
-            transition: opacity 0.3s; /* Smooth opacity transition */
-        }
-        
-        .leave-button {
-            background-color: #FF6F61; /* Leave button background color */
-        }
-        
-        .join-button {
-            background-color: #007BFF; /* Join button background color */
-        }
-        
-        .toggle-button.active .join-button {
-            opacity: 0; /* Hide the Join button when active */
-        }
-        
-        .toggle-button.active .leave-button {
-            opacity: 1; /* Show the Leave button when active */
-        }
-        
-        .toggle-button .join-button {
-            opacity: 1; /* Show the Join button by default */
-        }
-        
-        .toggle-button .leave-button {
-            opacity: 0; /* Hide the Leave button by default */
         }
     </style>
 </head>
@@ -232,88 +167,70 @@
                 });
         
                 return Promise.all(userPromises).then(userIds => {
-                    // Filter out any null values and ensure the organizer is included
-                    const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                    const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
+                    const participantList = userIds.filter(id => id).join(', '); // Filter out any null values
                     
-                    // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
-                        <div class="participant-container">${participantList || "None"}</div>
-                        <div class="separator"></div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        <div class="toggle-button-container">
-                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
-                                 onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
-                                <button class="join-button">Join!</button>
-                                <button class="leave-button">Leave Event</button>
-                            </div>
-                        </div>
+                        <em>Participants:</em> ${participantList || "None"}<br>
                     `;
         
+                    const actionButton = document.createElement('button');
+                    actionButton.classList.add('join-button');
+        
+                    if (eventData.createdBy === currentUserId) {
+                        actionButton.textContent = 'Delete Event';
+                        actionButton.classList.remove('join-button');
+                        actionButton.classList.add('delete-button');
+                        actionButton.onclick = () => deleteEvent(eventId);
+                    } else {
+                        const isParticipant = participantsUids.includes(currentUserId);
+                        actionButton.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        
+                        actionButton.onclick = () => {
+                            toggleParticipation(eventId, targetUserId, actionButton, isParticipant);
+                        };
+                    }
+        
+                    eventItem.appendChild(actionButton);
                     eventList.appendChild(eventItem);
                 });
             });
         }
 
-        function toggleParticipation(eventId, targetUserId, buttonContainer) {
+        function toggleParticipation(eventId, targetUserId, button, isParticipant) {
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-            const participantListContainer = buttonContainer.closest('.event-item').querySelector('.participant-container');
         
-            participantsRef.once('value').then(snapshot => {
-                let participants = snapshot.val() || [];
-                const isParticipant = participants.includes(currentUserId);
-        
-                if (isParticipant) {
-                    // Remove participant
+            if (isParticipant) {
+                // Remove participant
+                participantsRef.once('value').then(snapshot => {
+                    let participants = snapshot.val() || [];
                     participants = participants.filter(participant => participant !== currentUserId);
-                    return participantsRef.set(participants).then(() => {
-                        buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
-                        console.log(`User ${currentUserId} left the event ${eventId}`);
-                    });
-                } else {
-                    // Add participant
-                    participants.push(currentUserId);
-                    return participantsRef.set(participants).then(() => {
-                        buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
-                        console.log(`User ${currentUserId} joined the event ${eventId}`);
-                    });
-                }
-            }).catch(error => {
-                console.error('Error updating participants:', error);
-            });
-        }
-        
-        function updateParticipantList(participantListContainer, participants) {
-            // Create an array of promises to fetch user IDs for all participants
-            const userIdPromises = participants.map(uid => {
-                return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
-                    return snapshot.val(); // Get the user ID
+                    return participantsRef.set(participants);
+                }).then(() => {
+                    button.textContent = 'Join!'; // Update button text
+                    button.onclick = () => toggleParticipation(eventId, targetUserId, button, false); // Update click event
+                    console.log(`User ${currentUserId} left the event ${eventId}`);
+                }).catch(error => {
+                    console.error('Error updating participants:', error);
                 });
-            });
-        
-            // Wait for all promises to resolve
-            Promise.all(userIdPromises).then(userIds => {
-                // Filter out any null values
-                const uniqueUserIds = Array.from(new Set(userIds.filter(id => id)));
-        
-                // Create badges with user IDs
-                const participantList = uniqueUserIds.map(id => 
-                    `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                ).join(' '); // Join badges with space
-        
-                // Update the participant list in the UI
-                participantListContainer.innerHTML = participantList || "None";
-            }).catch(error => {
-                console.error('Error fetching user IDs:', error);
-            });
+            } else {
+                // Add participant
+                participantsRef.once('value').then(snapshot => {
+                    let participants = snapshot.val() || [];
+                    participants.push(currentUserId);
+                    return participantsRef.set(participants);
+                }).then(() => {
+                    button.textContent = 'Leave Event'; // Update button text
+                    button.onclick = () => toggleParticipation(eventId, targetUserId, button, true); // Update click event
+                    console.log(`User ${currentUserId} joined the event ${eventId}`);
+                }).catch(error => {
+                    console.error('Error updating participants:', error);
+                });
+            }
         }
 
         function refreshButtonState(eventId, targetUserId, button) {
