@@ -262,7 +262,9 @@
                                 <button class="leave-button">Leave Event</button>
                             </div>
                         </div>
-                        ` : ''} <!-- Only show toggle buttons if not the creator -->
+                        ` : `
+                        <button class="delete-button" onclick="deleteEvent('${eventId}')">Delete Event</button>
+                        `} <!-- Show delete button if creator -->
                     `;
         
                     eventList.appendChild(eventItem);
