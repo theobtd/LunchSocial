@@ -224,10 +224,10 @@
         
             // Fetch participants for display
             const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-            
+        
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-                
+        
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
@@ -241,7 +241,10 @@
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
                     ).join(' '); // Join badges with space
-                    
+        
+                    // Determine if the current user is the creator of the event
+                    const isCreator = targetUserId === currentUserId;
+        
                     // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
                         <div class="participant-container">${participantList || "None"}</div>
@@ -251,6 +254,7 @@
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
+                        ${!isCreator ? `
                         <div class="toggle-button-container">
                             <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
                                  onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
@@ -258,6 +262,7 @@
                                 <button class="leave-button">Leave Event</button>
                             </div>
                         </div>
+                        ` : ''} <!-- Only show toggle buttons if not the creator -->
                     `;
         
                     eventList.appendChild(eventItem);
