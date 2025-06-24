@@ -224,8 +224,6 @@
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
-            console.log(`Adding event to list: ${eventData.title}, Event ID: ${eventId}, Target User ID: ${targetUserId}`);
-            
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item'); // Apply card class
@@ -235,13 +233,11 @@
         
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-                console.log(`Participants for event ${eventData.title}:`, participantsUids);
         
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        const userId = userIdSnapshot.val(); // Get the user ID
-                        return userId; // Return the user ID
+                        return userIdSnapshot.val(); // Return the user ID
                     });
                 });
         
@@ -255,16 +251,13 @@
                     const organizerId = results[results.length - 1]; // Last result is the organizer ID
         
                     const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
-        
-                    // Determine if the current user is the creator of the event
-                    const isCreator = targetUserId === currentUserId;
+                        `<span class="participant-badge">${id}</span>`
+                    ).join(' ');
         
                     // Populate eventItem with event details
                     eventItem.innerHTML = `
                         <div class="badge-container">
-                            <span class="participant-badge organizer-badge">${organizerId}</span> <!-- Organizer badge -->
+                            <span class="participant-badge organizer-badge">${organizerId}</span>
                             <div class="participant-container">${participantList || "None"}</div>
                         </div>
                         <div class="separator"></div>
@@ -273,21 +266,9 @@
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        ${!isCreator ? `
-                        <div class="toggle-button-container">
-                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
-                                 onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
-                                <button class="join-button">Join!</button>
-                                <button class="leave-button">Leave Event</button>
-                            </div>
-                        </div>
-                        ` : `
-                        <button class="delete-button" onclick="deleteEvent('${eventId}')">Delete Event</button>
-                        `} <!-- Show delete button if creator -->
                     `;
-
-                    // Log the event title before appending to the DOM
-                    console.log(`Appending event item to the list: ${eventData.title}`);
+        
+                    // Append to the event list
                     eventList.appendChild(eventItem);
                 });
             }).catch(error => {
