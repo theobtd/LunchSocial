@@ -290,13 +290,8 @@
 
                     // Log the event title before appending to the DOM
                     console.log(`Appending event: ${eventData.title}`);
-
-                    // Create a wrapper for debugging
-                    const wrapper = document.createElement('div');
-                    wrapper.style.backgroundColor = '#f9f9f9'; // Light background for visibility
-                    wrapper.appendChild(eventItem);
                     
-                    eventList.appendChild(wrapper);
+                    eventList.appendChild(eventItem);
 
                     console.log(eventList.innerHTML); // Log the inner HTML of the event list
                 });
