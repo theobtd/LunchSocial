@@ -194,8 +194,6 @@
         
                 // Fetch user's own events
                 const eventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
-                console.log("Fetched events:", addedEvents);
-        
                 eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
@@ -203,13 +201,11 @@
         
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
-                        console.log(`Adding event: ${eventData.title}, DateTime: ${eventDateTime}`);
                     }
                 });
         
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-                console.log("Sorted Events:", addedEvents);
         
                 // Display sorted events
                 for (const { eventData, eventId, targetUserId } of addedEvents) {
