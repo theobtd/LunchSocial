@@ -158,7 +158,6 @@
             eventList.innerHTML = '';
         
             const allEvents = []; // Collect all events here
-            const addedEventIds = new Set();
         
             try {
                 // Fetch user's friends
@@ -172,8 +171,6 @@
                     }
                 });
         
-                console.log("Friend IDs:", friendIds); // Log friend IDs
-        
                 // Fetch events for each friend
                 const friendPromises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
@@ -182,18 +179,15 @@
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                            // Check if the event is in the future and is visible to the current user
-                            if (eventDateTime > new Date() && eventData.visibleTo && eventData.visibleTo.includes(currentUserId)) {
+                            // Check if the event is in the future
+                            if (eventDateTime > new Date()) {
                                 allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                addedEventIds.add(eventId); // Track added event IDs
                             }
                         });
                     });
                 });
         
                 await Promise.all(friendPromises);
-        
-                console.log("All events after fetching friends' events:", allEvents); // Log collected events after friends' events
         
                 // Fetch user's own events
                 const userEventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
@@ -202,17 +196,14 @@
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    // Check if the event is in the future and not already added
-                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
+                    // Check if the event is in the future
+                    if (eventDateTime > new Date()) {
                         allEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
         
-                console.log("All events after fetching user's events:", allEvents); // Log collected events after user's events
-        
                 // Sort all events together by date and time
                 allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-                console.log("Sorted events:", allEvents); // Log sorted events
         
                 // Display sorted events
                 for (const { eventData, eventId, targetUserId } of allEvents) {
