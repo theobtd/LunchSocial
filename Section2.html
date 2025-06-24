@@ -237,8 +237,9 @@
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        console.log(`Fetched user ID for UID ${uid}:`, userId);
-                        return userIdSnapshot.val(); // Get the user ID
+                        const userId = userIdSnapshot.val(); // Get the user ID
+                        console.log(`Fetched user ID for UID ${uid}:`, userId); // Log after fetching
+                        return userId; // Return the user ID
                     });
                 });
         
