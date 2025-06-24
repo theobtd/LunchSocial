@@ -10,116 +10,66 @@
     <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
     <style>
         html, body {
-            height: 100%; /* Set height to 100% for the body and html */
-            margin: 0; /* Remove default margin */
+            height: 100%;
+            margin: 0;
         }
-        
+
         body {
             display: flex;
-            flex-direction: column; /* Stack elements vertically */
+            flex-direction: column;
         }
-        
+
         h3 {
-            margin: 10px; /* Add some margin to the header */
+            margin: 10px;
         }
+
         .event-list {
-            display: flex; /* Ensure it is a flex container */
-            flex-direction: column; /* Stack items vertically */
+            display: flex;
+            flex-direction: column;
             border: 1px solid #ccc;
-            overflow-y: auto; /* Enable vertical scrolling */
-            flex-grow: 1; /* Allow the event list to grow and fill available space */
+            overflow-y: auto;
+            flex-grow: 1;
             margin-top: 10px;
         }
+
         .event-item {
-            background-color: #fff; /* White background for the card */
-            border: 1px solid #ccc; /* Light gray border */
-            border-radius: 8px; /* Rounded corners */
-            padding: 15px; /* Inner padding */
-            margin: 10px 0; /* Margin between cards */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-            transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
         }
+
         .event-item:hover {
             background-color: #f0f0f0;
         }
+
+        .carousel img {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .carousel img.active {
+            display: block;
+        }
+
         .delete-button {
             background-color: #FF6F61;
         }
-        .toggle-button-container {
+
+        .menu-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #333;
             display: flex;
-            justify-content: center; /* Center the toggle buttons */
-            margin-top: 10px; /* Space above the toggle */
-            position: relative; /* For absolute positioning of buttons */
-        }
-        
-        .toggle-button {
-            display: flex; /* Use flexbox for layout */
-            position: relative; /* For positioning child elements */
-            width: 100px; /* Width of the toggle button */
-            height: 40px; /* Height of the toggle button */
-            border-radius: 20px; /* Rounded corners */
-            background-color: #ccc; /* Default background */
-            cursor: pointer; /* Pointer cursor for interactivity */
-            transition: background-color 0.3s; /* Smooth background transition */
-        }
-        
-        .toggle-button.active {
-            background-color: #007BFF; /* Background color when active */
-        }
-        
-        .join-button, .leave-button {
-            border: none; /* Remove default border */
-            border-radius: 20px; /* Rounded corners */
-            color: white; /* Button text color */
-            width: 50%; /* Each button takes half the width */
-            height: 100%; /* Full height of the toggle */
-            cursor: pointer; /* Pointer cursor */
-            transition: opacity 0.3s; /* Smooth opacity transition */
-        }
-        
-        .leave-button {
-            background-color: #FF6F61; /* Leave button background color */
-        }
-        
-        .join-button {
-            background-color: #007BFF; /* Join button background color */
-        }
-        
-        .toggle-button.active .join-button {
-            opacity: 0; /* Hide the Join button when active */
-        }
-        
-        .toggle-button.active .leave-button {
-            opacity: 1; /* Show the Leave button when active */
-        }
-        
-        .toggle-button .join-button {
-            opacity: 1; /* Show the Join button by default */
-        }
-        
-        .toggle-button .leave-button {
-            opacity: 0; /* Hide the Leave button by default */
-        }
-        .participant-container {
-            display: flex; /* Use flexbox for horizontal layout */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping */
-        }
-        .organizer-badge,
-        .participant-badge {
-            display: inline-flex; /* Use inline-flex for consistent alignment */
-            align-items: center; /* Center content within the badge */
-            background-color: #007BFF; /* Same background color for consistency */
-            color: white; /* Text color */
-            border-radius: 20px; /* Stadium shape */
-            padding: 5px 15px; /* Padding for both badges */
-            margin-right: 5px; /* Space between badges */
-            font-size: 14px; /* Font size */
-            line-height: 1; /* Set line-height to 1 for better alignment */
-        }
-        .badge-container {
-            display: flex; /* Use flexbox for horizontal alignment */
-            align-items: center; /* Center items vertically */
+            justify-content: space-around;
+            padding: 10px;
+            color: white;
         }
     </style>
 </head>
@@ -142,234 +92,127 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
+        const storage = firebase.storage();
+
         let currentUserId;
 
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUserId = user.uid;
                 displayFutureEvents();
-            } else {
-                // Also remove the line that sets the welcome message for guests
             }
         });
 
         async function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
-        
             const addedEvents = [];
-            const addedEventIds = new Set();
-        
-            try {
-                // Fetch user's friends
-                const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
-                const friendIds = [];
-        
-                snapshot.forEach(childSnapshot => {
-                    const requestData = childSnapshot.val();
-                    if (requestData.status === 'accepted') {
-                        friendIds.push(childSnapshot.key);
-                    }
-                });
-        
-                const promises = friendIds.map(friendId => {
-                    return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
-                        eventSnapshot.forEach(eventChildSnapshot => {
-                            const eventData = eventChildSnapshot.val();
-                            const eventId = eventChildSnapshot.key;
-                            const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-        
-                            if (eventDateTime > new Date()) {
-                                const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
-                                if (isVisible) {
-                                    addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                    addedEventIds.add(eventId);
-                                }
-                            }
-                        });
-                    });
-                });
-        
-                await Promise.all(promises);
-        
-                // Fetch user's own events
-                const eventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
-                eventSnapshot.forEach(eventChildSnapshot => {
-                    const eventData = eventChildSnapshot.val();
-                    const eventId = eventChildSnapshot.key;
-                    const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
-        
-                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
-                        addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
-                    }
-                });
-        
-                // Sort events by date and time
-                addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-        
-                // Display sorted events
-                for (const { eventData, eventId, targetUserId } of addedEvents) {
-                    console.log(`Processing event: ${eventData.title}`); // Ensure title is available
-                    await addEventToList(eventData, eventId, targetUserId);
-                    console.log(`Appended event: ${eventData.title}`); // Ensure title is available
-                }
-            } catch (error) {
-                console.error("Error fetching events:", error);
-            }
+
+            // Fetch user's events and friends' events
+            const snapshot = await database.ref(`users/${currentUserId}/events`).once('value');
+            snapshot.forEach(childSnapshot => {
+                const eventData = childSnapshot.val();
+                eventData.id = childSnapshot.key; // Add ID for later use
+                addedEvents.push(eventData);
+            });
+
+            addedEvents.forEach(event => {
+                addEventToList(event);
+            });
         }
-        
-        function addEventToList(eventData, eventId, targetUserId) {
-            console.log(`Inside addEventToList for event: ${eventData.title}`);
+
+        function addEventToList(eventData) {
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
-            eventItem.classList.add('event-item'); // Apply card class
-        
-            // Fetch participants for display
-            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-        
-            participantsRef.once('value').then(participantSnapshot => {
-                const participantsUids = participantSnapshot.val() || [];
-                console.log(`Participants UIDs for event ${eventData.title}:`, participantsUids);
-        
-                // Get user IDs based on UIDs
-                const userPromises = participantsUids.map(uid => {
-                    return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        const userId = userIdSnapshot.val(); // Get the user ID
-                        console.log(`Fetched user ID for UID ${uid}:`, userId); // Log after fetching
-                        return userId; // Return the user ID
-                    });
-                });
-        
-                // Also get the userId for the event creator
-                const organizerPromise = database.ref(`users/${targetUserId}/userId`).once('value').then(snapshot => {
-                    return snapshot.val(); // Get the userId of the organizer
-                });
-        
-                return Promise.all([...userPromises, organizerPromise]).then(results => {
-                    const uniqueParticipants = results.slice(0, results.length - 1); // All but the last result
-                    const organizerId = results[results.length - 1]; // Last result is the organizer ID
-                    console.log(`Unique Participants for event ${eventData.title}:`, uniqueParticipants);
-                    console.log(`Organizer ID for event ${eventData.title}:`, organizerId);
-        
-                    const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
-        
-                    // Determine if the current user is the creator of the event
-                    const isCreator = targetUserId === currentUserId;
-        
-                    // Populate eventItem with event details
-                    eventItem.innerHTML = `
-                        <div class="badge-container">
-                            <span class="participant-badge organizer-badge">${organizerId}</span> <!-- Organizer badge -->
-                            <div class="participant-container">${participantList || "None"}</div>
-                        </div>
-                        <div class="separator"></div>
-                        <strong>${eventData.title}</strong><br>
-                        <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
-                        <em>Location:</em> ${eventData.location || "N/A"}<br>
-                        <em>Comment:</em> ${eventData.comment || "N/A"}<br>
-                        <em>Category:</em> ${eventData.category || "N/A"}<br>
-                        ${!isCreator ? `
-                        <div class="toggle-button-container">
-                            <div class="toggle-button ${participantsUids.includes(currentUserId) ? 'active' : ''}" 
-                                 onclick="toggleParticipation('${eventId}', '${targetUserId}', this)">
-                                <button class="join-button">Join!</button>
-                                <button class="leave-button">Leave Event</button>
-                            </div>
-                        </div>
-                        ` : `
-                        <button class="delete-button" onclick="deleteEvent('${eventId}')">Delete Event</button>
-                        `} <!-- Show delete button if creator -->
-                    `;
+            eventItem.classList.add('event-item');
 
-                    // Log the event title before appending to the DOM
-                    eventList.appendChild(eventItem);
-                });
-            }).catch(error => {
-                console.error("Error fetching participants or organizer:", error);
-            });
+            eventItem.innerHTML = `
+                <strong>${eventData.title}</strong><br>
+                <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
+                <em>Location:</em> ${eventData.location || "N/A"}<br>
+                <em>Comment:</em> ${eventData.comment || "N/A"}<br>
+                <em>Category:</em> ${eventData.category || "N/A"}<br>
+                <button onclick="openEventDetails('${eventData.id}')">Pictures</button>
+            `;
+
+            eventList.appendChild(eventItem);
+            fetchEventPictures(eventData.id, eventItem); // Fetch pictures for the event
         }
 
-        function toggleParticipation(eventId, targetUserId, buttonContainer) {
-            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-            const participantListContainer = buttonContainer.closest('.event-item').querySelector('.participant-container');
-        
-            participantsRef.once('value').then(snapshot => {
-                let participants = snapshot.val() || [];
-                const isParticipant = participants.includes(currentUserId);
-        
-                if (isParticipant) {
-                    // Remove participant
-                    participants = participants.filter(participant => participant !== currentUserId);
-                    return participantsRef.set(participants).then(() => {
-                        buttonContainer.classList.remove('active'); // Remove active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
-                        console.log(`User ${currentUserId} left the event ${eventId}`);
-                    });
-                } else {
-                    // Add participant
-                    participants.push(currentUserId);
-                    return participantsRef.set(participants).then(() => {
-                        buttonContainer.classList.add('active'); // Add active class
-                        updateParticipantList(participantListContainer, participants); // Update the UI
-                        console.log(`User ${currentUserId} joined the event ${eventId}`);
-                    });
+        function fetchEventPictures(eventId, eventItem) {
+            database.ref(`events/${eventId}/pictures`).once('value').then(snapshot => {
+                const pictures = [];
+                snapshot.forEach(childSnapshot => {
+                    const pictureData = childSnapshot.val();
+                    pictures.push(pictureData.url);
+                });
+                if (pictures.length > 0) {
+                    createCarousel(eventItem, pictures);
                 }
-            }).catch(error => {
-                console.error('Error updating participants:', error);
-            });
-        }
-        
-        function updateParticipantList(participantListContainer, participants) {
-            // Create an array of promises to fetch user IDs for all participants
-            const userIdPromises = participants.map(uid => {
-                return database.ref(`users/${uid}/userId`).once('value').then(snapshot => {
-                    return snapshot.val(); // Get the user ID
-                });
-            });
-        
-            // Wait for all promises to resolve
-            Promise.all(userIdPromises).then(userIds => {
-                // Filter out any null values
-                const uniqueUserIds = Array.from(new Set(userIds.filter(id => id)));
-        
-                // Create badges with user IDs
-                const participantList = uniqueUserIds.map(id => 
-                    `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                ).join(' '); // Join badges with space
-        
-                // Update the participant list in the UI
-                participantListContainer.innerHTML = participantList || "None";
-            }).catch(error => {
-                console.error('Error fetching user IDs:', error);
             });
         }
 
-        function refreshButtonState(eventId, targetUserId, button) {
-            const participantsRef = database.ref(`users/${targetUserId}/events/${eventId}/participants`);
-            participantsRef.once('value').then(snapshot => {
-                const participants = snapshot.val() || [];
-                const isParticipant = participants.includes(currentUserId);
-                button.textContent = isParticipant ? 'Leave Event' : 'Join!';
+        function createCarousel(eventItem, pictures) {
+            const carouselContainer = document.createElement('div');
+            carouselContainer.classList.add('carousel');
+
+            pictures.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.classList.toggle('active', index === 0); // Show the first image
+                carouselContainer.appendChild(img);
             });
+
+            eventItem.appendChild(carouselContainer);
         }
 
-        function deleteEvent(eventId) {
-            const eventRef = database.ref(`users/${currentUserId}/events/${eventId}`);
-            eventRef.remove().then(() => {
-                displayFutureEvents(); // Refresh the events display
-            }).catch(error => {
-                console.error("Error deleting event:", error);
-            });
+        function uploadCroppedImage(blob, eventId) {
+            const storageRef = storage.ref(`event_pictures/${eventId}/cropped_${Date.now()}.jpg`);
+            const uploadTask = storageRef.put(blob);
+            // Handle upload progress and completion
         }
+
+        // Add picture upload and cropping functionality
+        document.getElementById('uploadPictureBtn').onclick = function() {
+            const fileInput = document.getElementById('eventUploadPictureInput');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const imageUrl = URL.createObjectURL(file);
+            const cropImageElement = document.getElementById('cropperImage');
+            cropImageElement.src = imageUrl;
+
+            const modal = document.getElementById('cropModal');
+            modal.style.display = 'block';
+            const cropper = new Cropper(cropImageElement, { aspectRatio: 1, viewMode: 1 });
+
+            document.getElementById('cropBtn').onclick = function() {
+                const canvas = cropper.getCroppedCanvas({ width: 1080, height: 1080 });
+                canvas.toBlob(blob => uploadCroppedImage(blob, currentEventId));
+                modal.style.display = 'none';
+            };
+        };
+
+        function openEventDetails(eventId) {
+            // Fetch event details and show pictures
+        }
+
     </script>
 
-    <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
-        <a href="Section1.html" style="color: white;">Section 1</a>
-        <a href="Section2.html" style="color: white;">Section 2</a>
-        <a href="Section3.html" style="color: white;">Section 3</a>
-        <a href="Section4.html" style="color: white;">Section 4</a>
+    <div class="menu-bar">
+        <a href="Section1.html">Section 1</a>
+        <a href="Section2.html">Section 2</a>
+        <a href="Section3.html">Section 3</a>
+        <a href="Section4.html">Section 4</a>
+    </div>
+
+    <!-- Modal for cropping images -->
+    <div id="cropModal" style="display: none;">
+        <div>
+            <img id="cropperImage" src="" style="max-width: 100%;">
+            <button id="cropBtn">Crop & Upload</button>
+            <button id="cancelBtn">Cancel</button>
+        </div>
     </div>
 </body>
 </html>
