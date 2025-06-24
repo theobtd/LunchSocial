@@ -153,15 +153,16 @@
             }
         });
 
-        function displayFutureEvents() {
+        async function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
             const addedEvents = [];
             const addedEventIds = new Set();
         
-            // Fetch user's friends
-            database.ref(`users/${currentUserId}/friendRequests`).once('value').then(snapshot => {
+            try {
+                // Fetch user's friends
+                const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
                 const friendIds = [];
         
                 snapshot.forEach(childSnapshot => {
@@ -189,12 +190,12 @@
                     });
                 });
         
-                return Promise.all(promises);
-            }).then(() => {
+                await Promise.all(promises);
+        
                 // Fetch user's own events
-                return database.ref(`users/${currentUserId}/events`).once('value');
-            }).then(eventSnapshot => {
+                const eventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
                 console.log("Fetched events:", addedEvents);
+                
                 eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
@@ -205,20 +206,18 @@
                         console.log(`Adding event: ${eventData.title}, DateTime: ${eventDateTime}`);
                     }
                 });
-            }).then(() => {
-                console.log("Fetched events:", addedEvents);
-                
+        
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
                 console.log("Sorted Events:", addedEvents);
         
                 // Display sorted events
-                addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
-                    addEventToList(eventData, eventId, targetUserId);
-                });
-            }).catch(error => {
+                for (const { eventData, eventId, targetUserId } of addedEvents) {
+                    await addEventToList(eventData, eventId, targetUserId);
+                }
+            } catch (error) {
                 console.error("Error fetching events:", error);
-            });
+            }
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
