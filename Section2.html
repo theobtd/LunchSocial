@@ -240,7 +240,7 @@
                 });
         
                 return Promise.all(userPromises).then(userIds => {
-                    // Filter out any null values and ensure the organizer is included
+                    // Filter out any null values
                     const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
@@ -252,7 +252,7 @@
                     // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
                         <div class="organizer-badge">
-                            <span class="participant-badge">${eventData.organizerId}</span> <!-- Organizer badge -->
+                            <span class="participant-badge">${isCreator ? currentUserId : targetUserId}</span> <!-- Organizer badge -->
                         </div>
                         <div class="participant-container">${participantList || "None"}</div>
                         <div class="separator"></div>
