@@ -44,25 +44,6 @@
         .delete-button {
             background-color: #FF6F61;
         }
-        .participant-container {
-            display: flex; /* Use flexbox for horizontal layout */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping */
-            margin-bottom: 10px; /* Space below the badge container */
-        }
-        .participant-badge {
-            display: inline-block; /* Allows badges to sit next to each other */
-            background-color: #007BFF; /* Badge background color */
-            color: white; /* Text color */
-            border-radius: 20px; /* Make it stadium-shaped */
-            padding: 5px 15px; /* Padding for the badge */
-            margin: 5px; /* Space between badges */
-            font-size: 14px; /* Font size */
-            text-align: center; /* Center the text */
-            margin-right: 5px; /* Space between badges */
-            line-height: 1.5; /* Adjust line height for better vertical alignment */
-        }
-
         .toggle-button-container {
             display: flex;
             justify-content: center; /* Center the toggle buttons */
@@ -118,12 +99,23 @@
         .toggle-button .leave-button {
             opacity: 0; /* Hide the Leave button by default */
         }
-        .organizer-badge {
-            margin-right: 10px; /* Space between organizer badge and participants */
-            font-weight: bold; /* Optional: make organizer badge stand out */
-            display: inline-block; /* Ensure it behaves like a badge */
-            line-height: 1.5; /* Match the line height of participant badges */
-            vertical-align: middle; /* Align vertically with other badges */
+        .participant-container {
+            display: flex; /* Use flexbox for horizontal layout */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            white-space: nowrap; /* Prevent wrapping */
+            margin-bottom: 10px; /* Space below the badge container */
+        }
+        .organizer-badge,
+        .participant-badge {
+            display: inline-flex; /* Use inline-flex for consistent alignment */
+            align-items: center; /* Center content within the badge */
+            background-color: #007BFF; /* Same background color for consistency */
+            color: white; /* Text color */
+            border-radius: 20px; /* Stadium shape */
+            padding: 5px 15px; /* Padding for both badges */
+            margin-right: 5px; /* Space between badges */
+            font-size: 14px; /* Font size */
+            line-height: 1; /* Set line-height to 1 for better alignment */
         }
         .badge-container {
             display: flex; /* Use flexbox for horizontal alignment */
