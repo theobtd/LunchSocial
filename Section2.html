@@ -203,6 +203,8 @@
                     }
                 });
             }).then(() => {
+                console.log("Before sorting:", addedEvents);
+                
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
 
