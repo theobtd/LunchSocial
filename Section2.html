@@ -220,6 +220,7 @@
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
+                    console.log("Current DOM content before rendering:", eventList.innerHTML);
                     console.log(`Rendering event: ${eventData.title}`);
                     addEventToList(eventData, eventId, targetUserId);
                 });
@@ -232,6 +233,7 @@
             console.log(`Inside addEventToList for event: ${eventData.title}`);
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
+            console.log("Appending event item to DOM:", eventItem.outerHTML);
             eventItem.classList.add('event-item'); // Apply card class
         
             // Fetch participants for display
