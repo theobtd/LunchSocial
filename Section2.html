@@ -154,7 +154,7 @@
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            // eventList.innerHTML = '';
+            eventList.innerHTML = '';
         
             const addedEvents = [];
             const addedEventIds = new Set();
@@ -293,6 +293,8 @@
                     console.log(`Appending event: ${eventData.title}`);
                     
                     eventList.appendChild(eventItem);
+
+                    console.log(eventList.innerHTML); // Log the inner HTML of the event list
                 });
             }).catch(error => {
                 console.error("Error fetching participants or organizer:", error);
