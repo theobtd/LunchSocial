@@ -220,8 +220,6 @@
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
-            console.log(`Adding event to list: ${eventData.title}, Event ID: ${eventId}, Target User ID: ${targetUserId}`);
-            
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item'); // Apply card class
@@ -231,13 +229,11 @@
         
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
-                console.log(`Participants for event ${eventData.title}:`, participantsUids);
         
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
-                        const userId = userIdSnapshot.val(); // Get the user ID
-                        return userId; // Return the user ID
+                        return userIdSnapshot.val(); // Get the user ID
                     });
                 });
         
@@ -282,8 +278,7 @@
                         `} <!-- Show delete button if creator -->
                     `;
         
-                    // Log the event title before appending to the DOM
-                    console.log(`Appending event item to the list: ${eventData.title}`);
+                    // Append to the event list
                     eventList.appendChild(eventItem);
                 });
             }).catch(error => {
