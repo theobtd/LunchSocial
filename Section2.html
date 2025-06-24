@@ -204,23 +204,11 @@
                     }
                 });
             }).then(() => {
-                console.log("Before sorting:", addedEvents);
-                
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-
-                // Log the sorted events
-                console.log("After sorting:", addedEvents);
-
-                // Debugging output
-                addedEvents.forEach(event => {
-                    console.log(`Event: ${event.eventData.title}, DateTime: ${event.eventDateTime}`);
-                });
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
-                    console.log("Current DOM content before rendering:", eventList.innerHTML);
-                    console.log(`Rendering event: ${eventData.title}`);
                     addEventToList(eventData, eventId, targetUserId);
                 });
             }).catch(error => {
