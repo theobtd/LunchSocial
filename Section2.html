@@ -52,25 +52,6 @@
         .delete-button {
             background-color: #FF6F61;
         }
-        .participant-row {
-            border-bottom: 1px solid #ccc; /* Thin line below the participant badges */
-            padding: 10px 0; /* Padding for the row */
-            overflow-x: auto; /* Enable horizontal scrolling */
-            white-space: nowrap; /* Prevent wrapping of badges */
-        }
-        .participant-badge {
-            display: inline-block; /* Allows badges to sit next to each other */
-            background-color: #007BFF; /* Badge background color */
-            color: white; /* Text color */
-            border-radius: 20px; /* Make it stadium-shaped */
-            padding: 5px 15px; /* Padding for the badge */
-            margin: 5px; /* Space between badges */
-            font-size: 14px; /* Font size */
-            text-align: center; /* Center the text */
-        }
-        .participant-list {
-            margin-bottom: 10px; /* Space between the badges and the event details */
-        }
     </style>
 </head>
 <body>
@@ -185,27 +166,16 @@
                     });
                 });
         
-                // Always include the organizer
-                userPromises.push(database.ref(`users/${eventData.createdBy}/userId`).once('value').then(userIdSnapshot => {
-                    return userIdSnapshot.val(); // Get the organizer's user ID
-                }));
-        
                 return Promise.all(userPromises).then(userIds => {
-                    // Filter out any null values and ensure the organizer is included
-                    const uniqueParticipants = Array.from(new Set(userIds.filter(id => id)));
-                    const participantList = uniqueParticipants.map(id => 
-                        `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
-                    ).join(' '); // Join badges with space
+                    const participantList = userIds.filter(id => id).join(', '); // Filter out any null values
                     
                     eventItem.innerHTML = `
-                        <div class="participant-row">
-                            ${participantList}
-                        </div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
                         <em>Location:</em> ${eventData.location || "N/A"}<br>
                         <em>Comment:</em> ${eventData.comment || "N/A"}<br>
                         <em>Category:</em> ${eventData.category || "N/A"}<br>
+                        <em>Participants:</em> ${participantList || "None"}<br>
                     `;
         
                     const actionButton = document.createElement('button');
