@@ -23,6 +23,8 @@
             margin: 10px; /* Add some margin to the header */
         }
         .event-list {
+            display: flex; /* Ensure it is a flex container */
+            flex-direction: column; /* Stack items vertically */
             border: 1px solid #ccc;
             overflow-y: auto; /* Enable vertical scrolling */
             flex-grow: 1; /* Allow the event list to grow and fill available space */
