@@ -158,6 +158,8 @@
             eventList.innerHTML = '';
         
             try {
+                const events = []; // Array to hold events
+        
                 // Fetch user's friends
                 const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
                 const friendIds = [];
@@ -181,8 +183,7 @@
         
                             // Check if the event is in the future
                             if (eventDateTime > new Date()) {
-                                // Directly add the event to the list
-                                addEventToList(eventData, eventId, friendId);
+                                events.push({ eventData, eventId, targetUserId: friendId, eventDateTime }); // Store event info
                             }
                         });
                     });
@@ -201,9 +202,16 @@
         
                     // Check if the event is in the future
                     if (eventDateTime > new Date()) {
-                        // Directly add the event to the list
-                        addEventToList(eventData, eventId, currentUserId);
+                        events.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime }); // Store event info
                     }
+                });
+        
+                // Sort events by date and time
+                events.sort((a, b) => a.eventDateTime - b.eventDateTime);
+        
+                // Display the sorted events
+                events.forEach(event => {
+                    addEventToList(event.eventData, event.eventId, event.targetUserId);
                 });
         
             } catch (error) {
