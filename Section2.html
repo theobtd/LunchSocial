@@ -204,8 +204,12 @@
                     }
                 });
         
+                // Log added events before sorting
+                console.log("Added Events before sorting:", addedEvents);
+        
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+                console.log("Sorted Events:", addedEvents);
         
                 // Display sorted events
                 for (const { eventData, eventId, targetUserId } of addedEvents) {
