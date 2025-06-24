@@ -119,10 +119,11 @@
             opacity: 0; /* Hide the Leave button by default */
         }
         .organizer-badge {
-            margin-bottom: 5px; /* Space between organizer badge and participants */
-            font-weight: bold; /* Optional: make organizer badge stand out */
             margin-right: 10px; /* Space between organizer badge and participants */
-            line-height: 1.5; /* Adjust line height for better vertical alignment */
+            font-weight: bold; /* Optional: make organizer badge stand out */
+            display: inline-block; /* Ensure it behaves like a badge */
+            line-height: 1.5; /* Match the line height of participant badges */
+            vertical-align: middle; /* Align vertically with other badges */
         }
         .badge-container {
             display: flex; /* Use flexbox for horizontal alignment */
