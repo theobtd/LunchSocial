@@ -213,7 +213,9 @@
         
                 // Display sorted events
                 for (const { eventData, eventId, targetUserId } of addedEvents) {
+                    console.log(`Processing event: ${event.title}`);
                     await addEventToList(eventData, eventId, targetUserId);
+                    console.log(`Appended event: ${event.title}`);
                 }
             } catch (error) {
                 console.error("Error fetching events:", error);
