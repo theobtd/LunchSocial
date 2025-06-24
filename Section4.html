@@ -44,6 +44,9 @@
                 <option value="other">Other</option>
             </select>
             <br>
+            <h4>Select Friends to Invite:</h4>
+            <div id="friendsList"></div> <!-- Container for friends list -->
+            <br>
             <button id="submitEventBtn">Create Event</button>
             <button onclick="closeModal()">Cancel</button>
         </div>
@@ -72,6 +75,38 @@
         const auth = firebase.auth();
         const database = firebase.database();
 
+        // Load friends for selection
+        function loadFriends() {
+            const currentUserId = auth.currentUser.uid;
+            database.ref('users/' + currentUserId + '/friendRequests').once('value').then(snapshot => {
+                const friendsList = document.getElementById('friendsList');
+                friendsList.innerHTML = ''; // Clear previous list
+
+                const requests = snapshot.val();
+                if (requests) {
+                    Object.keys(requests).forEach(friendId => {
+                        if (requests[friendId].status === 'accepted') {
+                            database.ref('users/' + friendId).once('value').then(userSnapshot => {
+                                const friendData = userSnapshot.val();
+                                const friendItem = document.createElement('div');
+                                friendItem.classList.add('friend-item');
+
+                                // Create a checkbox for each friend
+                                const checkbox = document.createElement('input');
+                                checkbox.type = 'checkbox';
+                                checkbox.id = friendId; // Use friend's UID as ID
+                                checkbox.value = friendData.userId; // Store userId as value
+
+                                friendItem.appendChild(checkbox);
+                                friendItem.appendChild(document.createTextNode(friendData.userId));
+                                friendsList.appendChild(friendItem); // Add to the list
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
         document.getElementById("submitEventBtn").onclick = function() {
             const title = document.getElementById("eventTitle").value;
             const date = document.getElementById("eventDate").value;
@@ -84,6 +119,15 @@
                 const currentUserId = auth.currentUser.uid;
                 const eventKey = database.ref('users/' + currentUserId + '/events').push().key;
 
+                // Collect selected friends' IDs
+                const selectedFriends = [];
+                const checkboxes = document.querySelectorAll('#friendsList input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        selectedFriends.push(checkbox.id); // Add friend's UID to the list
+                    }
+                });
+
                 database.ref('users/' + currentUserId + '/events/' + eventKey).set({
                     title: title,
                     date: date,
@@ -91,10 +135,11 @@
                     location: location,
                     comment: comment,
                     category: category,
-                    createdBy: currentUserId
+                    createdBy: currentUserId,
+                    visibleTo: selectedFriends // Include selected friends
                 }).then(() => {
                     alert("Event created successfully!");
-                    closeModal();
+                    // closeModal();
                 }).catch(error => {
                     console.error("Error creating event:", error);
                 });
@@ -107,9 +152,11 @@
             window.close(); // Close the modal or redirect
         }
 
-        // Check authentication state
+        // Check authentication state and load friends
         auth.onAuthStateChanged(user => {
-            if (!user) {
+            if (user) {
+                loadFriends(); // Load friends for selection
+            } else {
                 window.location.href = 'index.html'; // Redirect if not logged in
             }
         });
