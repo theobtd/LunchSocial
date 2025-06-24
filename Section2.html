@@ -157,7 +157,7 @@
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
         
-            const addedEvents = [];
+            const allEvents = []; // Collect all events here
             const addedEventIds = new Set();
         
             try {
@@ -185,7 +185,7 @@
                                 // Check if the event is visible to the current user
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
                                 if (isVisible) {
-                                    addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                    allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
                                     addedEventIds.add(eventId); // Track added event IDs
                                 }
                             }
@@ -204,22 +204,16 @@
         
                     // Check if the event is in the future and not already added
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
-                        addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
+                        allEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
         
-                // Log added events before sorting
-                console.log("Added Events before sorting:", addedEvents);
-        
                 // Sort all events together by date and time
-                addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-                console.log("Sorted Events:", addedEvents);
+                allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
         
                 // Display sorted events
-                for (const { eventData, eventId, targetUserId } of addedEvents) {
-                    console.log(`Processing event: ${eventData.title}`); // Ensure title is available
+                for (const { eventData, eventId, targetUserId } of allEvents) {
                     await addEventToList(eventData, eventId, targetUserId);
-                    console.log(`Appended event: ${eventData.title}`); // Ensure title is available
                 }
             } catch (error) {
                 console.error("Error fetching events:", error);
