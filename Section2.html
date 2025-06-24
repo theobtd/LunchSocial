@@ -154,7 +154,7 @@
 
         function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
-            eventList.innerHTML = '';
+            eventList.innerHTML = ''; // Clear previous entries
         
             const addedEvents = [];
             const addedEventIds = new Set();
@@ -193,7 +193,6 @@
                 // Fetch user's own events
                 return database.ref(`users/${currentUserId}/events`).once('value');
             }).then(eventSnapshot => {
-                console.log("Fetched events:", addedEvents);
                 eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
@@ -201,27 +200,16 @@
         
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
-                        console.log(`Adding event: ${eventData.title}, DateTime: ${eventDateTime}`);
                     }
                 });
             }).then(() => {
-                console.log("Before sorting:", addedEvents);
-                
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-
-                // Log the sorted events
                 console.log("After sorting:", addedEvents);
-
-                // Debugging output
-                addedEvents.forEach(event => {
-                    console.log(`Event: ${event.eventData.title}, DateTime: ${event.eventDateTime}`);
-                });
         
-                // Display sorted events
+                // Render sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
-                    console.log("Current DOM content before rendering:", eventList.innerHTML);
-                    console.log(`Rendering event: ${eventData.title}`);
+                    console.log("Rendering event:", eventData.title);
                     addEventToList(eventData, eventId, targetUserId);
                 });
             }).catch(error => {
