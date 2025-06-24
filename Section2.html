@@ -156,14 +156,12 @@
         async function displayFutureEvents() {
             const eventList = document.getElementById('eventList');
             eventList.innerHTML = '';
-            
-            const allEvents = []; // Initialize all events only once
-            
+        
             try {
                 // Fetch user's friends
                 const snapshot = await database.ref(`users/${currentUserId}/friendRequests`).once('value');
                 const friendIds = [];
-                
+        
                 snapshot.forEach(childSnapshot => {
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'accepted') {
@@ -183,7 +181,8 @@
         
                             // Check if the event is in the future
                             if (eventDateTime > new Date()) {
-                                allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                // Directly add the event to the list
+                                addEventToList(eventData, eventId, friendId);
                             }
                         });
                     });
@@ -202,18 +201,11 @@
         
                     // Check if the event is in the future
                     if (eventDateTime > new Date()) {
-                        allEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
+                        // Directly add the event to the list
+                        addEventToList(eventData, eventId, currentUserId);
                     }
                 });
         
-                // Sort all events together by eventDateTime
-                allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-        
-                // Display sorted events
-                await Promise.all(allEvents.map(({ eventData, eventId, targetUserId }) => 
-                    addEventToList(eventData, eventId, targetUserId)
-                ));
-                
             } catch (error) {
                 console.error("Error fetching events:", error);
             }
