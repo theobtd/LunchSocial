@@ -168,10 +168,11 @@
                 snapshot.forEach(childSnapshot => {
                     const requestData = childSnapshot.val();
                     if (requestData.status === 'accepted') {
-                        friendIds.push(childSnapshot.key);
+                        friendIds.push(childSnapshot.key); // Collect accepted friend IDs
                     }
                 });
         
+                // Fetch events for each friend
                 const promises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
@@ -179,11 +180,13 @@
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
+                            // Check if the event is in the future
                             if (eventDateTime > new Date()) {
+                                // Check if the event is visible to the current user
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
                                 if (isVisible) {
                                     addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                    addedEventIds.add(eventId);
+                                    addedEventIds.add(eventId); // Track added event IDs
                                 }
                             }
                         });
@@ -199,6 +202,7 @@
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
+                    // Check if the event is in the future and not already added
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
@@ -207,7 +211,7 @@
                 // Log added events before sorting
                 console.log("Added Events before sorting:", addedEvents);
         
-                // Sort events by date and time
+                // Sort all events together by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
                 console.log("Sorted Events:", addedEvents);
         
