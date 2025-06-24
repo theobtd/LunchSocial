@@ -172,6 +172,8 @@
                     }
                 });
         
+                console.log("Friend IDs:", friendIds); // Log friend IDs
+        
                 // Fetch events for each friend
                 const friendPromises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
@@ -191,6 +193,8 @@
         
                 await Promise.all(friendPromises);
         
+                console.log("All events after fetching friends' events:", allEvents); // Log collected events after friends' events
+        
                 // Fetch user's own events
                 const userEventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
                 userEventSnapshot.forEach(eventChildSnapshot => {
@@ -204,8 +208,11 @@
                     }
                 });
         
+                console.log("All events after fetching user's events:", allEvents); // Log collected events after user's events
+        
                 // Sort all events together by date and time
                 allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+                console.log("Sorted events:", allEvents); // Log sorted events
         
                 // Display sorted events
                 for (const { eventData, eventId, targetUserId } of allEvents) {
