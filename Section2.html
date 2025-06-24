@@ -173,31 +173,27 @@
                 });
         
                 // Fetch events for each friend
-                const promises = friendIds.map(friendId => {
+                const friendPromises = friendIds.map(friendId => {
                     return database.ref(`users/${friendId}/events`).once('value').then(eventSnapshot => {
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
                             const eventId = eventChildSnapshot.key;
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                            // Check if the event is in the future
-                            if (eventDateTime > new Date()) {
-                                // Check if the event is visible to the current user
-                                const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
-                                if (isVisible) {
-                                    allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                    addedEventIds.add(eventId); // Track added event IDs
-                                }
+                            // Check if the event is in the future and is visible to the current user
+                            if (eventDateTime > new Date() && eventData.visibleTo && eventData.visibleTo.includes(currentUserId)) {
+                                allEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
+                                addedEventIds.add(eventId); // Track added event IDs
                             }
                         });
                     });
                 });
         
-                await Promise.all(promises);
+                await Promise.all(friendPromises);
         
                 // Fetch user's own events
-                const eventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
-                eventSnapshot.forEach(eventChildSnapshot => {
+                const userEventSnapshot = await database.ref(`users/${currentUserId}/events`).once('value');
+                userEventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
