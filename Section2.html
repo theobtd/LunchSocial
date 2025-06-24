@@ -157,8 +157,7 @@
             eventList.innerHTML = ''; // Clear previous entries
         
             const addedEvents = [];
-            const addedEventIds = new Set();
-        
+            
             // Fetch user's friends
             database.ref(`users/${currentUserId}/friendRequests`).once('value').then(snapshot => {
                 const friendIds = [];
@@ -181,7 +180,6 @@
                                 const isVisible = eventData.visibleTo && eventData.visibleTo.includes(currentUserId);
                                 if (isVisible) {
                                     addedEvents.push({ eventData, eventId, targetUserId: friendId, eventDateTime });
-                                    addedEventIds.add(eventId);
                                 }
                             }
                         });
@@ -198,18 +196,16 @@
                     const eventId = eventChildSnapshot.key;
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
-                    if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
+                    if (eventDateTime > new Date()) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
                     }
                 });
             }).then(() => {
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-                console.log("After sorting:", addedEvents);
         
                 // Render sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
-                    console.log("Rendering event:", eventData.title);
                     addEventToList(eventData, eventId, targetUserId);
                 });
             }).catch(error => {
