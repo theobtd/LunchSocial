@@ -203,14 +203,8 @@
                     }
                 });
             }).then(() => {
-                // Log events before sorting
-                console.log("Events before sorting:", addedEvents);
-        
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
-        
-                // Log events after sorting
-                console.log("Events after sorting:", addedEvents);
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
