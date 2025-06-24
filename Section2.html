@@ -177,6 +177,8 @@
                         eventSnapshot.forEach(eventChildSnapshot => {
                             const eventData = eventChildSnapshot.val();
                             const eventId = eventChildSnapshot.key;
+        
+                            // Create a Date object to ensure proper comparison
                             const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
                             // Check if the event is in the future
@@ -194,6 +196,8 @@
                 userEventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
+        
+                    // Create a Date object for user events
                     const eventDateTime = new Date(`${eventData.date}T${eventData.time}:00`);
         
                     // Check if the event is in the future
@@ -202,7 +206,7 @@
                     }
                 });
         
-                // Sort all events together by date and time
+                // Sort all events together by eventDateTime
                 allEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
         
                 // Display sorted events
