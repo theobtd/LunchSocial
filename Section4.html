@@ -3,16 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Section 4</title>
+    <title>Create Event</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to your external CSS -->
+    
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.9.0/firebase-storage-compat.js"></script>
 </head>
 <body>
-    <h1>Section 4</h1>
-
-    <div class="menu-bar" style="position: fixed; bottom: 0; left: 0; right: 0; background: #333; display: flex; justify-content: space-around; padding: 10px; color: white;">
-        <a href="Section1.html" style="color: white;">Section 1</a>
-        <a href="Section2.html" style="color: white;">Section 2</a>
-        <a href="Section3.html" style="color: white;">Section 3</a>
-        <a href="Section4.html" style="color: white;">Section 4</a>
+    <h2>Create New Event</h2>
+    <div id="eventModal" style="display: block;" class="modal">
+        <div class="modal-content">
+            <h3>Create Event</h3>
+            <label for="eventTitle">Event Title:</label>
+            <input type="text" id="eventTitle" required>
+            <br>
+            <label for="eventDate">Event Date:</label>
+            <input type="date" id="eventDate" required>
+            <br>
+            <label for="eventTime">Event Time:</label>
+            <input type="time" id="eventTime" required>
+            <br>
+            <label for="eventLocation">Event Location:</label>
+            <input type="text" id="eventLocation" required>
+            <br>
+            <label for="eventComment">Event Comment:</label>
+            <textarea id="eventComment" maxlength="200" rows="4" required></textarea>
+            <br>
+            <label for="eventCategory">Category:</label>
+            <select id="eventCategory" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="apero">Apero</option>
+                <option value="coffee">Coffee</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="workout">Workout</option>
+                <option value="party">Party</option>
+                <option value="other">Other</option>
+            </select>
+            <br>
+            <button id="submitEventBtn">Create Event</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
     </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBB61hJK8iHNAXz2q5u8ghGqIFMyJh-Nho",
+            authDomain: "aperosocial-d53c7.firebaseapp.com",
+            databaseURL: "https://aperosocial-d53c7-default-rtdb.firebaseio.com",
+            projectId: "aperosocial-d53c7",
+            storageBucket: "aperosocial-d53c7.firebasestorage.app",
+            messagingSenderId: "954205055992",
+            appId: "1:954205055992:web:c2ebebe1c0ac210163440d"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        document.getElementById("submitEventBtn").onclick = function() {
+            const title = document.getElementById("eventTitle").value;
+            const date = document.getElementById("eventDate").value;
+            const time = document.getElementById("eventTime").value;
+            const location = document.getElementById("eventLocation").value;
+            const comment = document.getElementById("eventComment").value;
+            const category = document.getElementById("eventCategory").value;
+
+            if (title && date && time && location && comment && category) {
+                const currentUserId = auth.currentUser.uid;
+                const eventKey = database.ref('users/' + currentUserId + '/events').push().key;
+
+                database.ref('users/' + currentUserId + '/events/' + eventKey).set({
+                    title: title,
+                    date: date,
+                    time: time,
+                    location: location,
+                    comment: comment,
+                    category: category,
+                    createdBy: currentUserId
+                }).then(() => {
+                    alert("Event created successfully!");
+                    closeModal();
+                }).catch(error => {
+                    console.error("Error creating event:", error);
+                });
+            } else {
+                alert("All fields are required!");
+            }
+        };
+
+        function closeModal() {
+            window.close(); // Close the modal or redirect
+        }
+
+        // Check authentication state
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'index.html'; // Redirect if not logged in
+            }
+        });
+    </script>
 </body>
 </html>
