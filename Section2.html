@@ -232,10 +232,12 @@
         
             participantsRef.once('value').then(participantSnapshot => {
                 const participantsUids = participantSnapshot.val() || [];
+                console.log(`Participants UIDs for event ${eventData.title}:`, participantsUids);
         
                 // Get user IDs based on UIDs
                 const userPromises = participantsUids.map(uid => {
                     return database.ref(`users/${uid}/userId`).once('value').then(userIdSnapshot => {
+                        console.log(`Fetched user ID for UID ${uid}:`, userId);
                         return userIdSnapshot.val(); // Get the user ID
                     });
                 });
@@ -248,6 +250,8 @@
                 return Promise.all([...userPromises, organizerPromise]).then(results => {
                     const uniqueParticipants = results.slice(0, results.length - 1); // All but the last result
                     const organizerId = results[results.length - 1]; // Last result is the organizer ID
+                    console.log(`Unique Participants for event ${eventData.title}:`, uniqueParticipants);
+                    console.log(`Organizer ID for event ${eventData.title}:`, organizerId);
         
                     const participantList = uniqueParticipants.map(id => 
                         `<span class="participant-badge">${id}</span>` // Create stadium shape for each participant
@@ -282,11 +286,9 @@
                     `;
 
                     // Log the event title before appending to the DOM
-                    console.log(`Appending event: ${eventData.title}`);
-                    
+                    console.log(`Event Item HTML for ${eventData.title}:`, eventItem.outerHTML);
                     eventList.appendChild(eventItem);
-
-                    console.log(eventList.innerHTML); // Log the inner HTML of the event list
+                    console.log(`Current Event List HTML:`, eventList.innerHTML);
                 });
             }).catch(error => {
                 console.error("Error fetching participants or organizer:", error);
