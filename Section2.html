@@ -206,8 +206,11 @@
                     }
                 });
             }).then(() => {
+                console.log("Fetched events:", addedEvents);
+                
                 // Sort events by date and time
                 addedEvents.sort((a, b) => a.eventDateTime - b.eventDateTime);
+                console.log("Sorted Events:", addedEvents);
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
