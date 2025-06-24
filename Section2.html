@@ -193,6 +193,7 @@
                 // Fetch user's own events
                 return database.ref(`users/${currentUserId}/events`).once('value');
             }).then(eventSnapshot => {
+                console.log("Fetched events:", addedEvents);
                 eventSnapshot.forEach(eventChildSnapshot => {
                     const eventData = eventChildSnapshot.val();
                     const eventId = eventChildSnapshot.key;
@@ -200,6 +201,7 @@
         
                     if (eventDateTime > new Date() && !addedEventIds.has(eventId)) {
                         addedEvents.push({ eventData, eventId, targetUserId: currentUserId, eventDateTime });
+                        console.log(`Adding event: ${eventData.title}, DateTime: ${eventDateTime}`);
                     }
                 });
             }).then(() => {
@@ -218,6 +220,7 @@
         
                 // Display sorted events
                 addedEvents.forEach(({ eventData, eventId, targetUserId }) => {
+                    console.log(`Rendering event: ${eventData.title}`);
                     addEventToList(eventData, eventId, targetUserId);
                 });
             }).catch(error => {
@@ -226,6 +229,7 @@
         }
         
         function addEventToList(eventData, eventId, targetUserId) {
+            console.log(`Inside addEventToList for event: ${eventData.title}`);
             const eventList = document.getElementById('eventList');
             const eventItem = document.createElement('div');
             eventItem.classList.add('event-item'); // Apply card class
