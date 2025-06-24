@@ -120,6 +120,11 @@
         .organizer-badge {
             margin-bottom: 5px; /* Space between organizer badge and participants */
             font-weight: bold; /* Optional: make organizer badge stand out */
+            margin-right: 10px; /* Space between organizer badge and participants */
+        }
+        .badge-container {
+            display: flex; /* Use flexbox for horizontal alignment */
+            align-items: center; /* Center items vertically */
         }
     </style>
 </head>
@@ -257,10 +262,10 @@
         
                     // Insert participant badges in a scrollable container
                     eventItem.innerHTML = `
-                        <div class="organizer-badge">
-                            <span class="participant-badge">${organizerId}</span> <!-- Organizer badge -->
+                        <div class="badge-container">
+                            <span class="participant-badge organizer-badge">${organizerId}</span> <!-- Organizer badge -->
+                            <div class="participant-container">${participantList || "None"}</div>
                         </div>
-                        <div class="participant-container">${participantList || "None"}</div>
                         <div class="separator"></div>
                         <strong>${eventData.title}</strong><br>
                         <em>Date:</em> ${eventData.date} at ${eventData.time}<br>
