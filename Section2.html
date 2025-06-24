@@ -288,9 +288,7 @@
                     `;
 
                     // Log the event title before appending to the DOM
-                    console.log(`Event Item HTML for ${eventData.title}:`, eventItem.outerHTML);
                     eventList.appendChild(eventItem);
-                    console.log(`Current Event List HTML:`, eventList.innerHTML);
                 });
             }).catch(error => {
                 console.error("Error fetching participants or organizer:", error);
